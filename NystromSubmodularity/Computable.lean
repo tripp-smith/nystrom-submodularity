@@ -1,14 +1,16 @@
 import NystromSubmodularity.PrincipalSubmatrix
 import Mathlib.LinearAlgebra.Matrix.Notation
+import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
+import Mathlib.LinearAlgebra.Matrix.Adjugate
 import Mathlib.Data.Rat.Cast.Order
 import Mathlib.Algebra.Order.Ring.Rat
 
 /-!
 # Computable inverse-trace checks over `ℚ`
 
-Phase 1 searches go through `cramerTraceInv` (adjugate / det), which is a
-genuine `def` rather than mathlib's `noncomputable` `Inv`. Concrete
-exhaustive checks are `decide`/`native_decide`d in `Phase1_Exploration`.
+Small-instance searches go through `cramerTraceInv` (adjugate / det), which is a
+genuine `def` rather than mathlib's `noncomputable` `Inv`. Exhaustive pair
+checks on \(n\le 5\) are `native_decide`d in `SmallInstanceChecks`.
 -/
 
 namespace NystromSubmodularity
@@ -27,6 +29,46 @@ def cramerNystromSupermodularDiff {n : ℕ} (M : Matrix (Fin n) (Fin n) ℚ)
     (A B : Finset (Fin n)) : ℚ :=
   cramerNystromError M (A ∪ B) + cramerNystromError M (A ∩ B) -
     cramerNystromError M A - cramerNystromError M B
+
+theorem cramerInv_submatrix_equiv {ι κ R : Type*} [Fintype ι] [Fintype κ]
+    [DecidableEq ι] [DecidableEq κ] [Field R]
+    (M : Matrix ι ι R) (e : κ ≃ ι) :
+    cramerInv (M.submatrix e e) = (cramerInv M).submatrix e e := by
+  ext i j
+  simp [cramerInv, Matrix.smul_apply, det_submatrix_equiv_self, adjugate_submatrix_equiv_self]
+
+theorem cramerTraceInv_submatrix_equiv {ι κ R : Type*} [Fintype ι] [Fintype κ]
+    [DecidableEq ι] [DecidableEq κ] [Field R]
+    (M : Matrix ι ι R) (T : Finset ι) (e : κ ≃ PrincipalIndex T) :
+    cramerTraceInv M T = (cramerInv ((principalSubmatrix M T).submatrix e e)).trace := by
+  rw [cramerTraceInv, ← trace_submatrix_equiv e, cramerInv_submatrix_equiv]
+
+theorem cramerTraceInv_univ {ι R : Type*} [Fintype ι] [DecidableEq ι] [Field R]
+    (M : Matrix ι ι R) : cramerTraceInv M Finset.univ = (cramerInv M).trace := by
+  rw [cramerTraceInv_submatrix_equiv M Finset.univ (principalIndexUnivEquiv (ι := ι)).symm]
+  have h :
+      (principalSubmatrix M Finset.univ).submatrix
+        (principalIndexUnivEquiv (ι := ι)).symm
+        (principalIndexUnivEquiv (ι := ι)).symm = M := by
+    ext i j
+    simp [principalSubmatrix, principalIndexUnivEquiv]
+  rw [h]
+
+theorem cramerTraceInv_singleton {ι R : Type*} [Fintype ι] [DecidableEq ι] [Field R]
+    (M : Matrix ι ι R) (i : ι) :
+    cramerTraceInv M {i} = (M i i)⁻¹ := by
+  let e : Fin 1 ≃ PrincipalIndex ({i} : Finset ι) :=
+    { toFun := fun _ => ⟨i, Finset.mem_singleton_self i⟩
+      invFun := fun _ => 0
+      left_inv := fun k => Subsingleton.elim _ _
+      right_inv := fun x => Subtype.ext (Finset.mem_singleton.mp x.2).symm }
+  have hmat : (principalSubmatrix M {i}).submatrix e e = !![M i i] := by
+    ext a b
+    fin_cases a
+    fin_cases b
+    simp [principalSubmatrix, e]
+  rw [cramerTraceInv_submatrix_equiv M {i} e, hmat, cramerInv, det_fin_one]
+  simp [Matrix.trace, Matrix.smul_apply, adjugate_subsingleton]
 
 /-- Map a rational matrix into `ℝ` (for `PosDef` / `IsStieltjes`). -/
 def toReal {ι : Type*} (M : Matrix ι ι ℚ) : Matrix ι ι ℝ :=

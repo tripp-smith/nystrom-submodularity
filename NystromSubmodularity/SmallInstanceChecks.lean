@@ -4,20 +4,20 @@ import Mathlib.LinearAlgebra.Matrix.Notation
 import Mathlib.Tactic.NormNum
 
 /-!
-# Phase 1 — Lean-native exploration
+# Exhaustive checks on small SDDM instances
 
 Hand-written exact `ℚ` SDDM instances (path/cycle graph Laplacians plus a
 positive diagonal shift) and certified exhaustive four-point checks of
 `cramerTraceInv` supermodularity. The SDD signed triangle is imported from
 `Counterexamples.SDDDim3`.
 
-Module comment (SPEC §2.4): SDDM held on all tested \(n\le 5\); SDD fails at
-\(n=3\) with a signed triangle. Phase 2 packages that obstruction and proves
-inverse-trace supermodularity on Stieltjes matrices in general.
+On every tested SDDM instance with \(n\le 5\), the inverse-trace inequality
+held for all subset pairs. SDD already fails at \(n=3\). The general SDDM
+theorem is in `Theorems.lean`.
 -/
 
 namespace NystromSubmodularity
-namespace Phase1
+namespace SmallInstance
 
 open Matrix Finset Counterexamples
 
@@ -154,11 +154,11 @@ theorem cycleM5_traceInv_supermodular :
     ∀ A B : Finset (Fin 5), 0 ≤ cramerSupermodularDiff cycleM5 A B := by
   native_decide
 
-/-! ## SDD failure (re-exported discovery) -/
+/-! ## SDD failure (re-exported from the 3×3 witness) -/
 
-theorem L0_isSDD_phase1 : IsSDD L0 := L0_isSDD
+theorem L0_isSDD_check : IsSDD L0 := L0_isSDD
 
-theorem L0_delta_neg_phase1 :
+theorem L0_delta_neg_check :
     cramerNystromError M0 (∅ : Finset (Fin 3)) +
         cramerNystromError M0 ({0, 1} : Finset (Fin 3)) <
       cramerNystromError M0 ({0} : Finset (Fin 3)) +
@@ -168,5 +168,5 @@ theorem L0_delta_neg_phase1 :
 theorem L0_delta_eq : cramerNystromSupermodularDiff M0 ({0} : Finset (Fin 3)) {1} = -7 / 2040 :=
   M0_delta
 
-end Phase1
+end SmallInstance
 end NystromSubmodularity

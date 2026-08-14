@@ -23,7 +23,7 @@ Problem 4.6 (Simons workshop) asks whether the nuclear-norm Nyström *error*
 same inequality “submodularity of the error”.
 
 We keep the Wikipedia names: `Submodular` is the \(\ge\) four-set inequality
-and `Supermodular` is the \(\le\) inequality. The theorems of Phase 2 are
+and `Supermodular` is the \(\le\) inequality. The main theorems are
 stated for `Supermodular` of the Nyström error.
 
 References: Colbrook, *Nyström Error Beyond M-Matrices* (arXiv:2607.19282);

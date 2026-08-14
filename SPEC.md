@@ -10,22 +10,25 @@
 ## Outcome (recorded)
 
 The plan below is the original attack. The formalization is complete for both
-cases of the primary goal, with the Wikipedia names (see `README.md`):
+cases of the primary goal, with the Wikipedia names (see `README.md` and the
+non-technical writeup `FINDINGS.md`):
 
-- **(a) SDDM.** `nystromError_supermodular_of_isSDDM` in `Phase2_Proof.lean`:
+- **(a) SDDM.** `nystromError_supermodular_of_isSDDM` in `Theorems.lean`:
   for `IsSDDM L` and `γ > 0`, \(\mathcal{E}(S)=\operatorname{tr}((L+\gamma I)[S^{\mathsf{c}}]^{-1})\)
   is supermodular. Proof: Stieltjes inverse-nonnegativity (`Stieltjes.lean`)
   plus the Atamtürk–Gómez four-point identity (`InverseTrace.lean`).
   Axioms: `propext`, `Classical.choice`, `Quot.sound`.
 - **(b) SDD.** `not_nystromError_supermodular_of_isSDD`: Colbrook’s \(3\times 3\)
   signed triangle \(L_0\) at \(\gamma=1\) has \(\Delta=-7/2040<0\). The Cramer
-  traces of \(M_0\) still use `native_decide`.
+  traces of \(M_0\) and diagonal dominance of \(L_0\) are kernel proofs
+  (`norm_num` / explicit \(3\times 3\) determinants), not `native_decide`.
 
 No Python was used. `lake build` is sorry-free.
 
-**Directory (actual, vs the sketch in §1.5):**
+**Directory (actual):**
 
 ```
+FINDINGS.md
 NystromSubmodularity.lean
 NystromSubmodularity/
 ├── Definitions.lean
@@ -34,11 +37,16 @@ NystromSubmodularity/
 ├── Nystrom.lean
 ├── Stieltjes.lean
 ├── InverseTrace.lean
-├── Phase1_Exploration.lean
-├── Phase2_Proof.lean
+├── SmallInstanceChecks.lean
+├── Theorems.lean
 └── Counterexamples/SDDDim3.lean
 lakefile.toml
 ```
+
+Historical names: `Phase1_Exploration.lean` is now `SmallInstanceChecks.lean`;
+`Phase2_Proof.lean` is now `Theorems.lean`. Sections 0–5 below are the original
+two-phase plan; filenames there are left as written. Parenthetical notes mark
+the current names.
 
 ---
 
@@ -82,8 +90,8 @@ is a submodular set function of $\mathcal{I}\subseteq[n]$ when $K=(L+\gamma I)^{
    NystromSubmodularity/
    ├── NystromSubmodularity.lean          -- main entry
    ├── Definitions.lean                   -- matrices, SDDM/SDD, Nyström residual, nuclear norm, submodularity
-   ├── Phase1_Exploration.lean            -- small exact searches & candidate generation
-   ├── Phase2_Proof.lean                  -- main theorems / counter-examples
+   ├── Phase1_Exploration.lean            -- (now SmallInstanceChecks.lean)
+   ├── Phase2_Proof.lean                  -- (now Theorems.lean)
    ├── Counterexamples/                   -- concrete matrices if needed
    └── lakefile.lean
    ```
@@ -112,7 +120,7 @@ Formalize (all exact):
     ∀ A B, f A + f B ≥ f (A ∪ B) + f (A ∩ B)
   ```
 
-### 2.2 Exact Computational Search (Phase1_Exploration.lean)
+### 2.2 Exact Computational Search (`Phase1_Exploration.lean`, now `SmallInstanceChecks.lean`)
 For small $n$ (target $n\le 6$, preferably $n\le 5$):
 
 - Enumerate all pairs of `Finset (Fin n)` using `Finset.product` / `Finset.powerset`.
@@ -135,7 +143,7 @@ Python is allowed solely for the following, and must be accompanied by a Lean co
 
 **Workflow if Python is used**
 1. Cursor writes a minimal Python script that outputs a list of rational matrices + index sets in a Lean-readable format (e.g., a `.lean` snippet or a JSON that a Lean parser can ingest).
-2. The output is immediately imported into `Phase1_Exploration.lean` and subjected to the same exact verification.
+2. The output is immediately imported into `Phase1_Exploration.lean` (now `SmallInstanceChecks.lean`) and subjected to the same exact verification.
 3. No Python result is trusted until Lean re-verifies it.
 
 ### 2.4 Phase-1 Deliverables
@@ -168,7 +176,7 @@ Produce a `sorry`-free theorem (or a machine-checked counter-example) for the ge
 1. Write a high-level natural-language blueprint (or a `theorem … := by` skeleton with `sorry`s).
 2. Use LeanCopilot / Cursor's agent mode to fill individual tactics, retrieve mathlib lemmas (`Matrix.schur_complement`, `PosDef`, `IsSymm`, singular-value lemmas, etc.).
 3. After every successful sub-proof, ask Cursor to refactor for clarity and to remove any remaining `sorry`.
-4. Maintain a "living blueprint" comment at the top of `Phase2_Proof.lean` that Cursor continually updates.
+4. Maintain a "living blueprint" comment at the top of `Phase2_Proof.lean` (now `Theorems.lean`) that Cursor continually updates.
 
 ### 3.3 Key Lean Libraries / Lemmas to Leverage
 - `Mathlib.LinearAlgebra.Matrix.*` (especially symmetric, positive-definite, Schur, singular values).
@@ -176,7 +184,7 @@ Produce a `sorry`-free theorem (or a machine-checked counter-example) for the ge
 - Existing formalizations of nuclear norm or Schatten norms if present; otherwise a short definition via singular values is acceptable.
 
 ### 3.4 Phase-2 Deliverables
-- `Phase2_Proof.lean` containing either
+- `Phase2_Proof.lean` (now `Theorems.lean`) containing either
   ```lean
   theorem nystrom_residual_submodular_SDDM ...
   ```
@@ -188,9 +196,10 @@ Produce a `sorry`-free theorem (or a machine-checked counter-example) for the ge
 - A short README explaining the proof structure and any reductions used.
 - (Optional) a PR-ready contribution to mathlib or a dedicated repository.
 
-**As delivered.** Both: `nystromError_supermodular_of_isSDDM` (positive SDDM
-theorem; the inequality is supermodularity of \(\mathcal{E}\), not submodularity)
-and `not_nystromError_supermodular_of_isSDD` (SDD counter-example). README
+**As delivered.** Both: `nystromError_supermodular_of_isSDDM` in `Theorems.lean`
+(positive SDDM theorem; the inequality is supermodularity of \(\mathcal{E}\),
+not submodularity) and `not_nystromError_supermodular_of_isSDD` (SDD
+counter-example). `FINDINGS.md` is the non-technical account; `README.md`
 records the Schur reduction and module map.
 
 ---

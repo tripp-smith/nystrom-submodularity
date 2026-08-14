@@ -1,6 +1,8 @@
 import NystromSubmodularity.Computable
 import NystromSubmodularity.Definitions
 import Mathlib.LinearAlgebra.Matrix.Notation
+import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
+import Mathlib.LinearAlgebra.Matrix.Adjugate
 import Mathlib.LinearAlgebra.Matrix.PosDef
 import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Linarith
@@ -54,9 +56,52 @@ theorem L0_isSymm : L0.IsSymm := by
   ext i j
   fin_cases i <;> fin_cases j <;> simp [L0]
 
+lemma sum_erase_fin3_zero (f : Fin 3 → ℚ) :
+    ∑ j ∈ univ.erase (0 : Fin 3), f j = f 1 + f 2 := by
+  have h : univ.erase (0 : Fin 3) = ({1, 2} : Finset (Fin 3)) := by decide
+  rw [h, Finset.sum_pair (by decide : (1 : Fin 3) ≠ 2)]
+
+lemma sum_erase_fin3_one (f : Fin 3 → ℚ) :
+    ∑ j ∈ univ.erase (1 : Fin 3), f j = f 0 + f 2 := by
+  have h : univ.erase (1 : Fin 3) = ({0, 2} : Finset (Fin 3)) := by decide
+  rw [h, Finset.sum_pair (by decide : (0 : Fin 3) ≠ 2)]
+
+lemma sum_erase_fin3_two (f : Fin 3 → ℚ) :
+    ∑ j ∈ univ.erase (2 : Fin 3), f j = f 0 + f 1 := by
+  have h : univ.erase (2 : Fin 3) = ({0, 1} : Finset (Fin 3)) := by decide
+  rw [h, Finset.sum_pair (by decide : (0 : Fin 3) ≠ 1)]
+
+lemma L0_00 : L0 (0 : Fin 3) (0 : Fin 3) = 3 := rfl
+lemma L0_01 : L0 (0 : Fin 3) (1 : Fin 3) = 1 := rfl
+lemma L0_02 : L0 (0 : Fin 3) (2 : Fin 3) = -2 := rfl
+lemma L0_10 : L0 (1 : Fin 3) (0 : Fin 3) = 1 := rfl
+lemma L0_11 : L0 (1 : Fin 3) (1 : Fin 3) = 3 := rfl
+lemma L0_12 : L0 (1 : Fin 3) (2 : Fin 3) = -2 := rfl
+lemma L0_20 : L0 (2 : Fin 3) (0 : Fin 3) = -2 := rfl
+lemma L0_21 : L0 (2 : Fin 3) (1 : Fin 3) = -2 := rfl
+lemma L0_22 : L0 (2 : Fin 3) (2 : Fin 3) = 4 := rfl
+
+lemma L0_row0_dom :
+    ∑ j ∈ univ.erase (0 : Fin 3), |L0 (0 : Fin 3) j| ≤ L0 (0 : Fin 3) 0 := by
+  rw [sum_erase_fin3_zero, L0_01, L0_02, L0_00]
+  norm_num
+
+lemma L0_row1_dom :
+    ∑ j ∈ univ.erase (1 : Fin 3), |L0 (1 : Fin 3) j| ≤ L0 (1 : Fin 3) 1 := by
+  rw [sum_erase_fin3_one, L0_10, L0_12, L0_11]
+  norm_num
+
+lemma L0_row2_dom :
+    ∑ j ∈ univ.erase (2 : Fin 3), |L0 (2 : Fin 3) j| ≤ L0 (2 : Fin 3) 2 := by
+  rw [sum_erase_fin3_two, L0_20, L0_21, L0_22]
+  norm_num
+
 theorem L0_isDiagDominant : IsDiagDominant L0 := by
   intro i
-  fin_cases i <;> native_decide
+  fin_cases i
+  · exact L0_row0_dom
+  · exact L0_row1_dom
+  · exact L0_row2_dom
 
 theorem L0_isSDD : IsSDD L0 :=
   ⟨L0_isSymm, L0_isDiagDominant⟩
@@ -65,9 +110,37 @@ theorem Lsharp_isSymm : Lsharp.IsSymm := by
   ext i j
   fin_cases i <;> fin_cases j <;> simp [Lsharp]
 
+lemma Lsharp_00 : Lsharp (0 : Fin 3) (0 : Fin 3) = 4 := rfl
+lemma Lsharp_01 : Lsharp (0 : Fin 3) (1 : Fin 3) = 1 := rfl
+lemma Lsharp_02 : Lsharp (0 : Fin 3) (2 : Fin 3) = -2 := rfl
+lemma Lsharp_10 : Lsharp (1 : Fin 3) (0 : Fin 3) = 1 := rfl
+lemma Lsharp_11 : Lsharp (1 : Fin 3) (1 : Fin 3) = 4 := rfl
+lemma Lsharp_12 : Lsharp (1 : Fin 3) (2 : Fin 3) = -2 := rfl
+lemma Lsharp_20 : Lsharp (2 : Fin 3) (0 : Fin 3) = -2 := rfl
+lemma Lsharp_21 : Lsharp (2 : Fin 3) (1 : Fin 3) = -2 := rfl
+lemma Lsharp_22 : Lsharp (2 : Fin 3) (2 : Fin 3) = 5 := rfl
+
+lemma Lsharp_row0_dom :
+    ∑ j ∈ univ.erase (0 : Fin 3), |Lsharp (0 : Fin 3) j| ≤ Lsharp (0 : Fin 3) 0 := by
+  rw [sum_erase_fin3_zero, Lsharp_01, Lsharp_02, Lsharp_00]
+  norm_num
+
+lemma Lsharp_row1_dom :
+    ∑ j ∈ univ.erase (1 : Fin 3), |Lsharp (1 : Fin 3) j| ≤ Lsharp (1 : Fin 3) 1 := by
+  rw [sum_erase_fin3_one, Lsharp_10, Lsharp_12, Lsharp_11]
+  norm_num
+
+lemma Lsharp_row2_dom :
+    ∑ j ∈ univ.erase (2 : Fin 3), |Lsharp (2 : Fin 3) j| ≤ Lsharp (2 : Fin 3) 2 := by
+  rw [sum_erase_fin3_two, Lsharp_20, Lsharp_21, Lsharp_22]
+  norm_num
+
 theorem Lsharp_isDiagDominant : IsDiagDominant Lsharp := by
   intro i
-  fin_cases i <;> native_decide
+  fin_cases i
+  · exact Lsharp_row0_dom
+  · exact Lsharp_row1_dom
+  · exact Lsharp_row2_dom
 
 theorem Lsharp_isSDD : IsSDD Lsharp :=
   ⟨Lsharp_isSymm, Lsharp_isDiagDominant⟩
@@ -142,31 +215,107 @@ theorem M0_posDef : (toReal M0).PosDef := by
     rw [hM]
     linarith
 
-/-- Certified Colbrook values of the Nyström error of `M0`. -/
+/-- Certified Colbrook values of the Nyström error of `M0`, by explicit
+3×3 / 2×2 / 1×1 Cramer traces (kernel `norm_num`, not `native_decide`). -/
+
+lemma M0_det : M0.det = 51 := by
+  rw [det_fin_three]
+  simp [M0]
+  norm_num
+
+lemma M0_adjugate_trace : M0.adjugate.trace = 47 := by
+  rw [adjugate_fin_three, trace_fin_three]
+  simp [M0]
+  norm_num
+
+lemma M0_cramerInv_trace : (cramerInv M0).trace = 47 / 51 := by
+  rw [cramerInv, trace_smul, M0_adjugate_trace, M0_det]
+  norm_num
+
 theorem M0_cramer_empty : cramerNystromError M0 (∅ : Finset (Fin 3)) = 47 / 51 := by
-  native_decide
+  have h : compl (∅ : Finset (Fin 3)) = univ := by simp [compl]
+  rw [cramerNystromError, h, cramerTraceInv_univ, M0_cramerInv_trace]
+
+def fin2Equiv_one_two : Fin 2 ≃ PrincipalIndex ({1, 2} : Finset (Fin 3)) where
+  toFun k := if k = 0 then ⟨1, by decide⟩ else ⟨2, by decide⟩
+  invFun x := if x.1 = 1 then 0 else 1
+  left_inv := by intro k; fin_cases k <;> simp
+  right_inv := by
+    intro x
+    apply Subtype.ext
+    have hx : x.1 = 1 ∨ x.1 = 2 :=
+      (Finset.mem_insert.mp x.2).elim Or.inl fun h => Or.inr (Finset.mem_singleton.mp h)
+    rcases hx with h | h
+    · simp [h]
+    · have : ¬ x.1 = 1 := by rw [h]; decide
+      simp [h]
+
+def fin2Equiv_zero_two : Fin 2 ≃ PrincipalIndex ({0, 2} : Finset (Fin 3)) where
+  toFun k := if k = 0 then ⟨0, by decide⟩ else ⟨2, by decide⟩
+  invFun x := if x.1 = 0 then 0 else 1
+  left_inv := by intro k; fin_cases k <;> simp
+  right_inv := by
+    intro x
+    apply Subtype.ext
+    have hx : x.1 = 0 ∨ x.1 = 2 :=
+      (Finset.mem_insert.mp x.2).elim Or.inl fun h => Or.inr (Finset.mem_singleton.mp h)
+    rcases hx with h | h
+    · simp [h]
+    · have : ¬ x.1 = 0 := by rw [h]; decide
+      simp [h]
+
+lemma M0_block_one_two :
+    (principalSubmatrix M0 {1, 2}).submatrix fin2Equiv_one_two fin2Equiv_one_two =
+      !![4, -2; -2, 5] := by
+  ext i j
+  fin_cases i <;> fin_cases j <;> simp [principalSubmatrix, M0, fin2Equiv_one_two]
+
+lemma M0_block_zero_two :
+    (principalSubmatrix M0 {0, 2}).submatrix fin2Equiv_zero_two fin2Equiv_zero_two =
+      !![4, -2; -2, 5] := by
+  ext i j
+  fin_cases i <;> fin_cases j <;> simp [principalSubmatrix, M0, fin2Equiv_zero_two]
+
+lemma cramerInv_block45_trace :
+    (cramerInv (!![4, -2; -2, 5] : Matrix (Fin 2) (Fin 2) ℚ)).trace = 9 / 16 := by
+  rw [cramerInv, det_fin_two, adjugate_fin_two, trace_smul, trace_fin_two]
+  simp
+  norm_num
 
 theorem M0_cramer_zero : cramerNystromError M0 ({0} : Finset (Fin 3)) = 9 / 16 := by
-  native_decide
+  have hc : compl ({0} : Finset (Fin 3)) = {1, 2} := by decide
+  rw [cramerNystromError, hc,
+    cramerTraceInv_submatrix_equiv M0 {1, 2} fin2Equiv_one_two, M0_block_one_two,
+    cramerInv_block45_trace]
 
 theorem M0_cramer_one : cramerNystromError M0 ({1} : Finset (Fin 3)) = 9 / 16 := by
-  native_decide
+  have hc : compl ({1} : Finset (Fin 3)) = {0, 2} := by decide
+  rw [cramerNystromError, hc,
+    cramerTraceInv_submatrix_equiv M0 {0, 2} fin2Equiv_zero_two, M0_block_zero_two,
+    cramerInv_block45_trace]
 
 theorem M0_cramer_zero_one :
     cramerNystromError M0 ({0, 1} : Finset (Fin 3)) = 1 / 5 := by
-  native_decide
+  have hc : compl ({0, 1} : Finset (Fin 3)) = {2} := by decide
+  rw [cramerNystromError, hc, cramerTraceInv_singleton]
+  simp [M0]
 
 /-- The four-point defect at \(A=\emptyset\), \(i=0\), \(j=1\). -/
 theorem M0_delta :
     cramerNystromSupermodularDiff M0 ({0} : Finset (Fin 3)) {1} = -7 / 2040 := by
-  native_decide
+  unfold cramerNystromSupermodularDiff
+  have hU : ({0} : Finset (Fin 3)) ∪ {1} = {0, 1} := by simp
+  have hI : ({0} : Finset (Fin 3)) ∩ {1} = ∅ := by simp
+  rw [hU, hI, M0_cramer_zero_one, M0_cramer_empty, M0_cramer_zero, M0_cramer_one]
+  norm_num
 
 theorem M0_delta_neg :
     cramerNystromError M0 (∅ : Finset (Fin 3)) +
         cramerNystromError M0 ({0, 1} : Finset (Fin 3)) <
       cramerNystromError M0 ({0} : Finset (Fin 3)) +
         cramerNystromError M0 ({1} : Finset (Fin 3)) := by
-  native_decide
+  rw [M0_cramer_empty, M0_cramer_zero_one, M0_cramer_zero, M0_cramer_one]
+  norm_num
 
 theorem Msharp_delta_neg :
     cramerNystromError Msharp (∅ : Finset (Fin 3)) +

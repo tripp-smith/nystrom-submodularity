@@ -4,35 +4,19 @@ import NystromSubmodularity.Counterexamples.SDDDim3
 import Mathlib.Tactic.NormNum
 
 /-!
-# Phase 2 — living blueprint
+# Main theorems
 
-Problem 4.6 asks whether the Nyström nuclear error
-\(\mathcal{E}(S)=\|K-\mathcal{N}_S(K)\|_*\) has diminishing returns
-(\(\Delta_{\mathcal{E}}\ge 0\)). That is **supermodularity** of \(\mathcal{E}\)
-in the standard combinatorial sense (workshop wording says “submodularity of
-the error”).
+The Nyström nuclear error \(\mathcal{E}(S)=\operatorname{tr}(M[S^{\mathsf{c}}]^{-1})\)
+has diminishing returns (is **supermodular**) when \(M=L+\gamma I\) for an SDDM
+matrix \(L\). The same inequality fails for some SDD matrices; the witness is
+Colbrook's \(3\times 3\) signed triangle.
 
-**Reduction (Colbrook Theorem 2).** For PD \(M=L+\gamma I\),
-\(\mathcal{E}(S)=\operatorname{tr}(M[S^{\mathsf{c}}]^{-1})\) (empty inverse-trace
-is \(0\)). This is the working definition of `nystromError`.
+The four-point algebra is in `InverseTrace.lean`. A non-technical account of
+what this means, and what is still open, is in `FINDINGS.md`.
 
-**SDD (done).** An explicit rational \(3\times 3\) signed triangle \(L_0\)
-with \(\gamma=1\) has \(\Delta=-7/2040<0\). Packaged as
-`not_nystromError_supermodular_of_isSDD`.
-
-**SDDM (done).** Colbrook Theorem 4: `IsSDDM L` and `0 < γ` imply
-`IsStieltjes (L+γI)`. Stieltjes matrices have entrywise-nonnegative inverses
-(block induction in `Stieltjes.lean`). The Atamtürk–Gómez four-point identity
-in `InverseTrace.lean` then gives supermodularity of
-\(T\mapsto\operatorname{tr}(A[T]^{-1})\) via the \(2\times 2\) Schur
-complement `Q` and Gram `H = Cᵀ N⁻² C`. Complements yield
-`nystromError_supermodular_of_isSDDM`.
-
-`#print axioms nystromError_supermodular_of_isSDDM` is the Lean defaults
-(`propext` / `Classical.choice` / `Quot.sound`). The SDD existence theorem
-currently also depends on `native_decide` certificates for the rational Cramer
-traces of `M0`. Replacing those with kernel `norm_num` proofs is a closing
-item, not a blocker for the combinatorial SDDM statement.
+`#print axioms nystromError_supermodular_of_isSDDM` and
+`#print axioms not_nystromError_supermodular_of_isSDD` are the Lean defaults
+(`propext` / `Classical.choice` / `Quot.sound`).
 -/
 
 namespace NystromSubmodularity

@@ -3,9 +3,11 @@ import Mathlib.LinearAlgebra.Matrix.NonsingularInverse
 import Mathlib.LinearAlgebra.Matrix.Trace
 import Mathlib.LinearAlgebra.Matrix.Adjugate
 import Mathlib.LinearAlgebra.Matrix.Block
+import Mathlib.LinearAlgebra.Matrix.Hermitian
 import Mathlib.Data.Matrix.Basic
 import Mathlib.Data.Matrix.Block
 import Mathlib.Data.Fintype.Sum
+import Mathlib.Data.Real.Star
 
 /-!
 # Principal submatrices and inverse traces
@@ -245,5 +247,178 @@ def pairDiagBlock {ι R : Type*} (M : Matrix ι ι R) (i j : ι) : Matrix (Fin 2
   fun k l =>
     if k = 0 then (if l = 0 then M i i else M i j)
     else (if l = 0 then M j i else M j j)
+
+/-! ## Block identifications for one- and two-element inserts -/
+
+lemma insert₁Equiv_symm_eq_inr {ι : Type*} [DecidableEq ι] {A : Finset ι} {i : ι}
+    (hi : i ∉ A) (x : PrincipalIndex (insert i A)) (hxi : x.1 = i) :
+    (insert₁Equiv hi).symm x = .inr 0 := by
+  simp [insert₁Equiv, hxi]
+
+lemma insert₁Equiv_symm_eq_inl {ι : Type*} [DecidableEq ι] {A : Finset ι} {i : ι}
+    (hi : i ∉ A) (x : PrincipalIndex (insert i A)) (hxi : x.1 ≠ i) :
+    ∃ hxA : x.1 ∈ A, (insert₁Equiv hi).symm x = .inl ⟨x.1, hxA⟩ := by
+  have hxA : x.1 ∈ A := (Finset.mem_insert.mp x.2).resolve_left hxi
+  refine ⟨hxA, ?_⟩
+  simp [insert₁Equiv, hxi]
+
+lemma insert₂Equiv_symm_eq_inl {ι : Type*} [DecidableEq ι] {A : Finset ι} {i j : ι}
+    (hi : i ∉ A) (hj : j ∉ A) (hij : i ≠ j)
+    (x : PrincipalIndex (insert j (insert i A))) (hxA : x.1 ∈ A) :
+    (insert₂Equiv hi hj hij).symm x = .inl ⟨x.1, hxA⟩ := by
+  simp [insert₂Equiv, insert₂InvFun, hxA]
+
+lemma insert₂Equiv_symm_eq_inr0 {ι : Type*} [DecidableEq ι] {A : Finset ι} {i j : ι}
+    (hi : i ∉ A) (hj : j ∉ A) (hij : i ≠ j)
+    (x : PrincipalIndex (insert j (insert i A))) (hxi : x.1 = i) :
+    (insert₂Equiv hi hj hij).symm x = .inr 0 := by
+  unfold insert₂Equiv insert₂InvFun
+  simp [hxi, hi]
+
+lemma insert₂Equiv_symm_eq_inr1 {ι : Type*} [DecidableEq ι] {A : Finset ι} {i j : ι}
+    (hi : i ∉ A) (hj : j ∉ A) (hij : i ≠ j)
+    (x : PrincipalIndex (insert j (insert i A))) (hxi : x.1 ≠ i) (hxA : x.1 ∉ A) :
+    (insert₂Equiv hi hj hij).symm x = .inr 1 := by
+  simp [insert₂Equiv, insert₂InvFun, hxA, hxi]
+
+lemma mem_insert_insert {ι : Type*} [DecidableEq ι] {A : Finset ι} {i j x : ι} :
+    x ∈ insert j (insert i A) ↔ x = j ∨ x = i ∨ x ∈ A := by
+  simp [Finset.mem_insert]
+
+lemma eq_j_of_mem_insert_insert {ι : Type*} [DecidableEq ι] {A : Finset ι} {i j x : ι}
+    (hx : x ∈ insert j (insert i A)) (hxi : x ≠ i) (hxA : x ∉ A) : x = j := by
+  rcases (mem_insert_insert.mp hx) with (h | h | h)
+  · exact h
+  · exact (hxi h).elim
+  · exact (hxA h).elim
+
+lemma isHermitian_apply_real {n : Type*} {A : Matrix n n ℝ} (hA : A.IsHermitian) (p q : n) :
+    A p q = A q p := by
+  have hsym : A.IsSymm := (isHermitian_iff_isSymm (α := ℝ)).mp hA
+  exact hsym.apply q p
+
+lemma reindex_apply' {l m o n α : Type*} (eₘ : m ≃ l) (eₙ : n ≃ o)
+    (B : Matrix m n α) (i : l) (j : o) :
+    (reindex eₘ eₙ B) i j = B (eₘ.symm i) (eₙ.symm j) := by
+  simp [reindex_apply, submatrix_apply]
+
+@[simp]
+lemma pairDiagBlock_apply {ι R : Type*} (A : Matrix ι ι R) (i j : ι) (k l : Fin 2) :
+    pairDiagBlock A i j k l =
+      if k = 0 then (if l = 0 then A i i else A i j)
+      else (if l = 0 then A j i else A j j) :=
+  rfl
+
+@[simp]
+lemma pairOffBlock_apply {ι R : Type*} (A : Matrix ι ι R) (S : Finset ι) (i j : ι)
+    (a : PrincipalIndex S) (k : Fin 2) :
+    pairOffBlock A S i j a k = if k = 0 then A a.1 i else A a.1 j :=
+  rfl
+
+lemma pairOffBlock_col0 {ι R : Type*} (A : Matrix ι ι R) (S : Finset ι) (i j : ι)
+    (a : PrincipalIndex S) :
+    pairOffBlock A S i j a 0 = colBlock A S i a 0 := by
+  simp [colBlock]
+
+lemma pairOffBlock_col1 {ι R : Type*} (A : Matrix ι ι R) (S : Finset ι) (i j : ι)
+    (a : PrincipalIndex S) :
+    pairOffBlock A S i j a 1 = colBlock A S j a 0 := by
+  simp [colBlock]
+
+lemma colBlock_conjTranspose {ι : Type*} (A : Matrix ι ι ℝ)
+    (hA : A.IsHermitian) (S : Finset ι) (i : ι) :
+    (colBlock A S i)ᴴ = fun (_ : Fin 1) a => A i a.1 := by
+  ext k a
+  fin_cases k
+  simp [colBlock, conjTranspose_apply, star_trivial, isHermitian_apply_real hA]
+
+lemma pairOffBlock_conjTranspose {ι : Type*} (A : Matrix ι ι ℝ)
+    (hA : A.IsHermitian) (S : Finset ι) (i j : ι) :
+    (pairOffBlock A S i j)ᴴ = fun k a => if k = 0 then A i a.1 else A j a.1 := by
+  ext k a
+  simp [pairOffBlock, conjTranspose_apply, star_trivial, isHermitian_apply_real hA]
+
+/-- Principal submatrix on `A ∪ {i}` as a `1`-bordered block matrix. -/
+theorem principalSubmatrix_insert₁ {ι : Type*} [DecidableEq ι]
+    (A : Matrix ι ι ℝ) (hA : A.IsHermitian) {S : Finset ι} {i : ι} (hi : i ∉ S) :
+    principalSubmatrix A (insert i S) =
+      (fromBlocks (principalSubmatrix A S) (colBlock A S i)
+          (colBlock A S i)ᴴ (scalarBlock A i)).reindex
+        (insert₁Equiv hi) (insert₁Equiv hi) := by
+  ext x y
+  rw [reindex_apply']
+  by_cases hxi : x.1 = i
+  · by_cases hyi : y.1 = i
+    · rw [insert₁Equiv_symm_eq_inr hi x hxi, insert₁Equiv_symm_eq_inr hi y hyi]
+      simp [fromBlocks, scalarBlock, principalSubmatrix, hxi, hyi]
+    · obtain ⟨hyS, hy⟩ := insert₁Equiv_symm_eq_inl hi y hyi
+      rw [insert₁Equiv_symm_eq_inr hi x hxi, hy]
+      simp [fromBlocks, colBlock, principalSubmatrix, hxi, isHermitian_apply_real hA]
+  · by_cases hyi : y.1 = i
+    · obtain ⟨hxS, hx⟩ := insert₁Equiv_symm_eq_inl hi x hxi
+      rw [hx, insert₁Equiv_symm_eq_inr hi y hyi]
+      simp [fromBlocks, colBlock, principalSubmatrix, hyi]
+    · obtain ⟨hxS, hx⟩ := insert₁Equiv_symm_eq_inl hi x hxi
+      obtain ⟨hyS, hy⟩ := insert₁Equiv_symm_eq_inl hi y hyi
+      rw [hx, hy]
+      simp [fromBlocks, principalSubmatrix]
+
+/-- Principal submatrix on `A ∪ {i,j}` as a `2`-bordered block matrix. -/
+theorem principalSubmatrix_insert₂ {ι : Type*} [DecidableEq ι]
+    (A : Matrix ι ι ℝ) (hA : A.IsHermitian) {S : Finset ι} {i j : ι}
+    (hi : i ∉ S) (hj : j ∉ S) (hij : i ≠ j) :
+    principalSubmatrix A (insert j (insert i S)) =
+      (fromBlocks (principalSubmatrix A S) (pairOffBlock A S i j)
+          (pairOffBlock A S i j)ᴴ (pairDiagBlock A i j)).reindex
+        (insert₂Equiv hi hj hij) (insert₂Equiv hi hj hij) := by
+  ext x y
+  rw [reindex_apply']
+  by_cases hxS : x.1 ∈ S
+  · by_cases hyS : y.1 ∈ S
+    · rw [insert₂Equiv_symm_eq_inl hi hj hij x hxS, insert₂Equiv_symm_eq_inl hi hj hij y hyS]
+      simp [fromBlocks, principalSubmatrix]
+    · by_cases hyi : y.1 = i
+      · rw [insert₂Equiv_symm_eq_inl hi hj hij x hxS, insert₂Equiv_symm_eq_inr0 hi hj hij y hyi]
+        simp [fromBlocks, pairOffBlock, principalSubmatrix, hyi]
+      · have hyj : y.1 = j := eq_j_of_mem_insert_insert y.2 hyi hyS
+        rw [insert₂Equiv_symm_eq_inl hi hj hij x hxS,
+            insert₂Equiv_symm_eq_inr1 hi hj hij y hyi hyS]
+        simp [fromBlocks, pairOffBlock, principalSubmatrix, hyj]
+  · by_cases hxi : x.1 = i
+    · by_cases hyS : y.1 ∈ S
+      · rw [insert₂Equiv_symm_eq_inr0 hi hj hij x hxi, insert₂Equiv_symm_eq_inl hi hj hij y hyS]
+        simp [fromBlocks, pairOffBlock, principalSubmatrix, hxi, isHermitian_apply_real hA]
+      · by_cases hyi : y.1 = i
+        · rw [insert₂Equiv_symm_eq_inr0 hi hj hij x hxi, insert₂Equiv_symm_eq_inr0 hi hj hij y hyi]
+          simp [fromBlocks, pairDiagBlock, principalSubmatrix, hxi, hyi]
+        · have hyj : y.1 = j := eq_j_of_mem_insert_insert y.2 hyi hyS
+          rw [insert₂Equiv_symm_eq_inr0 hi hj hij x hxi,
+              insert₂Equiv_symm_eq_inr1 hi hj hij y hyi hyS]
+          simp [fromBlocks, pairDiagBlock, principalSubmatrix, hxi, hyj]
+    · have hxj : x.1 = j := eq_j_of_mem_insert_insert x.2 hxi hxS
+      by_cases hyS : y.1 ∈ S
+      · rw [insert₂Equiv_symm_eq_inr1 hi hj hij x hxi hxS,
+            insert₂Equiv_symm_eq_inl hi hj hij y hyS]
+        simp [fromBlocks, pairOffBlock, principalSubmatrix, hxj, isHermitian_apply_real hA]
+      · by_cases hyi : y.1 = i
+        · rw [insert₂Equiv_symm_eq_inr1 hi hj hij x hxi hxS,
+              insert₂Equiv_symm_eq_inr0 hi hj hij y hyi]
+          simp [fromBlocks, pairDiagBlock, principalSubmatrix, hxj, hyi]
+        · have hyj : y.1 = j := eq_j_of_mem_insert_insert y.2 hyi hyS
+          rw [insert₂Equiv_symm_eq_inr1 hi hj hij x hxi hxS,
+              insert₂Equiv_symm_eq_inr1 hi hj hij y hyi hyS]
+          simp [fromBlocks, pairDiagBlock, principalSubmatrix, hxj, hyj]
+
+
+theorem trace_reindex {ι κ R : Type*} [Fintype ι] [Fintype κ] [AddCommMonoid R]
+    (e : ι ≃ κ) (B : Matrix ι ι R) :
+    (B.reindex e e).trace = B.trace :=
+  trace_submatrix_equiv e.symm B
+
+theorem traceInv_reindex_eq {ι κ R : Type*} [Fintype ι] [Fintype κ]
+    [DecidableEq ι] [DecidableEq κ] [Field R]
+    (e : ι ≃ κ) (B : Matrix ι ι R) :
+    (B.reindex e e)⁻¹.trace = B⁻¹.trace := by
+  rw [inv_reindex, trace_reindex]
 
 end NystromSubmodularity

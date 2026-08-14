@@ -108,7 +108,10 @@ Dimension two cannot fail, even without any sign or dominance hypothesis: once
 only two indices remain unselected, the four-point defect is a square over a
 positive quantity. So three is the smallest dimension at which mixed signs can
 break greedy. If you already have at least one landmark and \(n\le 3\), the
-same \(2\times 2\) identity rules out a negative defect.
+same \(2\times 2\) identity rules out a negative defect. That lower bound is
+sharp: a strictly diagonally dominant \(4\times 4\) matrix with every
+off-diagonal filled in still fails after one landmark is already chosen
+(\(\Delta=-7/20400\)).
 
 Small exhaustive checks on path and cycle Laplacians of size \(n\le 5\) never
 found an SDDM violation; that is what suggested the general proof. Those checks
@@ -139,8 +142,9 @@ These are genuine leftovers, not hidden holes in the two theorems above.
 2. **How common is the SDD failure?** We have one sharp \(3\times 3\) family
    (and a strictly dominant perturbation), not a measure of how often
    mixed-sign SDD matrices violate diminishing returns in applied covariances.
-   A nonempty-base counter-example at \(n=4\) is in Colbrook but not yet in
-   this library.
+   A nonempty-base counter-example at \(n=4\) is now in the library:
+   Colbrook’s strictly SDD \(L_4\) with every off-diagonal nonzero, base
+   \(A=\{3\}\), and \(\Delta=-7/20400\).
 3. **The \(\gamma\to 0\) limit.** The theorem is for \(\gamma>0\). Pure
    Laplacians (singular, kernel the constants) are not covered as written.
 4. **A full SVD nuclear-norm API.** We use the trace identity that is valid
@@ -152,5 +156,6 @@ Build the library with `lake build`. The two headline theorems are
 `nystromError_supermodular_of_isSDDM` and
 `not_nystromError_supermodular_of_isSDD` in `NystromSubmodularity/Theorems.lean`.
 The small exhaustive checks live in `SmallInstanceChecks.lean`; the signed
-triangle is in `Counterexamples/SDDDim3.lean`. `SPEC.md` is the original
+triangle is in `Counterexamples/SDDDim3.lean`; the nonempty-base \(4\times 4\)
+witness is in `Counterexamples/SDDDim4.lean`. `SPEC.md` is the original
 two-phase attack plan plus a recorded outcome.

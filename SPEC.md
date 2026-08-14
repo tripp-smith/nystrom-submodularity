@@ -25,7 +25,9 @@ non-technical writeup `FINDINGS.md`):
   Strict diagonal dominance does not restore the inequality
   (`not_nystromError_supermodular_of_isStrictSDD`, \(L^\sharp\),
   \(\Delta=-1/1092\)). Dimension two never fails
-  (`nystromError_supermodular_of_card_le_two_posDef`).
+  (`nystromError_supermodular_of_card_le_two_posDef`). With a nonempty base,
+  dimension four is minimal (`exists_nystromError_fourPoint_neg_of_isStrictSDD_nonempty`,
+  \(L_4\), \(\Delta=-7/20400\)).
 
 No Python was used. `lake build` is sorry-free.
 
@@ -44,7 +46,8 @@ NystromSubmodularity/
 ├── Minimality.lean
 ├── SmallInstanceChecks.lean
 ├── Theorems.lean
-└── Counterexamples/SDDDim3.lean
+├── Counterexamples/SDDDim3.lean
+└── Counterexamples/SDDDim4.lean
 lakefile.toml
 ```
 

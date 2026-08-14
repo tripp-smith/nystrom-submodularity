@@ -2,7 +2,10 @@ import NystromSubmodularity.Stieltjes
 import NystromSubmodularity.InverseTrace
 import NystromSubmodularity.Minimality
 import NystromSubmodularity.Counterexamples.SDDDim3
+import NystromSubmodularity.Counterexamples.SDDDim4
 import Mathlib.Tactic.NormNum
+import Mathlib.Tactic.Linarith
+import Mathlib.Data.Rat.Cast.Order
 
 /-!
 # Main theorems
@@ -11,7 +14,8 @@ The Nyström nuclear error \(\mathcal{E}(S)=\operatorname{tr}(M[S^{\mathsf{c}}]^
 has diminishing returns (is **supermodular**) when \(M=L+\gamma I\) for an SDDM
 matrix \(L\). The same inequality fails for some SDD matrices already at
 \(n=3\), including strictly diagonally dominant ones; dimension three is
-minimal (Colbrook Proposition 5.5).
+minimal (Colbrook Proposition 5.5). With a nonempty selected base, dimension
+four is minimal (Colbrook (28)–(29)).
 
 The four-point algebra is in `InverseTrace.lean`. Minimality of the
 obstruction is in `Minimality.lean`. A non-technical account is in
@@ -59,5 +63,28 @@ theorem nystromError_supermodular_of_card_le_two_posDef {ι : Type*} [Fintype ι
     [DecidableEq ι] {M : Matrix ι ι ℝ} (hM : M.PosDef) (hcard : Fintype.card ι ≤ 2) :
     Supermodular (nystromError M) :=
   nystromError_supermodular_of_card_le_two hM hcard
+
+/-- Colbrook (28)–(29): with a nonempty selected base, dimension four is
+minimal even under strict diagonal dominance and complete support. -/
+theorem exists_nystromError_fourPoint_neg_of_isStrictSDD_nonempty :
+    ∃ (n : ℕ) (L : Matrix (Fin n) (Fin n) ℝ) (γ : ℝ)
+      (A : Finset (Fin n)) (i j : Fin n),
+      IsStrictSDD L ∧ L.PosDef ∧ 0 < γ ∧ A.Nonempty ∧
+        i ≠ j ∧ i ∉ A ∧ j ∉ A ∧
+        (∀ a b : Fin n, a ≠ b → L a b ≠ 0) ∧
+        nystromError (L + γ • (1 : Matrix (Fin n) (Fin n) ℝ)) A +
+            nystromError (L + γ • (1 : Matrix (Fin n) (Fin n) ℝ))
+              (insert j (insert i A)) <
+          nystromError (L + γ • (1 : Matrix (Fin n) (Fin n) ℝ)) (insert i A) +
+            nystromError (L + γ • (1 : Matrix (Fin n) (Fin n) ℝ)) (insert j A) := by
+  refine ⟨4, toReal L4, 1, {3}, 0, 1, L4_toReal_isStrictSDD, L4_posDef, by norm_num,
+    Finset.singleton_nonempty _, by decide, by decide, by decide, ?_, ?_⟩
+  · intro a b hab
+    rw [toReal_apply]
+    exact (Rat.cast_ne_zero (α := ℝ)).mpr (L4_complete_support hab)
+  · rw [one_smul, ← M4_toReal_eq]
+    have h013 : ({1, 0, 3} : Finset (Fin 4)) = ({0, 1, 3} : Finset (Fin 4)) := by decide
+    rw [h013]
+    exact M4_delta_neg_real
 
 end NystromSubmodularity

@@ -10,7 +10,8 @@ Colbrook Proposition 5.5: if the unselected set has two indices, the
 four-point defect of the Nyström error is nonnegative for every
 positive-definite precision matrix. Consequently dimension three is
 minimal for an empty-base SDD failure, and a nonempty-base failure
-requires dimension at least four.
+requires dimension at least four. The matching \(4\times 4\) witness is
+`Counterexamples/SDDDim4.lean`.
 -/
 
 namespace NystromSubmodularity

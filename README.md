@@ -42,6 +42,14 @@ is kernel `norm_num` / Cramer traces.
 
 **SDD obstruction.** `not_nystromError_supermodular_of_isSDD`: there exist \(n\),
 SDD PD \(L\), and \(\gamma>0\) such that \(\mathcal{E}\) is not supermodular.
+The same failure occurs under *strict* diagonal dominance
+(`not_nystromError_supermodular_of_isStrictSDD`, Colbrook’s \(L^\sharp\)).
+
+**Minimality.** `nystromError_supermodular_of_card_le_two_posDef`: every
+positive-definite precision matrix on at most two indices has supermodular
+Nyström error, so dimension three is minimal. If the base set is nonempty and
+\(n\le 3\), the four-point defect cannot be negative
+(`nystromError_fourPoint_nonempty_of_card_le_three`).
 
 **SDDM theorem.** `nystromError_supermodular_of_isSDDM`:
 `IsSDDM L` and `0 < γ` imply supermodularity of \(\mathcal{E}\) for \(M=L+\gamma I\).
@@ -52,7 +60,7 @@ Both public theorems print the Lean defaults (`propext`, `Classical.choice`,
 `Quot.sound`).
 
 **Not in scope.** Full Schur residual identity, SVD nuclear-norm API, Neumann
-series, signature switching, or minimality of \(n=3\).
+series, signature switching, or a nonempty-base \(n=4\) witness.
 
 Build: `lake build`. No `sorry` in the library target.
 
@@ -66,6 +74,7 @@ Build: `lake build`. No `sorry` in the library target.
 | `Nystrom.lean` | Nyström approximation/residual (trace nuclear norm) |
 | `Stieltjes.lean` | inverse-nonnegativity; SDDM + \(\gamma I\) is Stieltjes |
 | `InverseTrace.lean` | four-point identity for \(T\mapsto\operatorname{tr}(A[T]^{-1})\) |
+| `Minimality.lean` | terminal \(2\times 2\) identity; \(n\le 2\) never fails |
 | `SmallInstanceChecks.lean` | exhaustive \(n\le 5\) SDDM checks |
-| `Counterexamples/SDDDim3.lean` | signed triangle \(L_0\) |
+| `Counterexamples/SDDDim3.lean` | signed triangle \(L_0\) and strictly SDD \(L^\sharp\) |
 | `Theorems.lean` | public theorems: SDDM supermodularity and SDD obstruction |

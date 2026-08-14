@@ -99,7 +99,16 @@ wrong pair. This is not a floating-point accident: the four traces are
 ordinary 3×3 / 2×2 / 1×1 determinants.
 
 So the sign pattern is doing real work. “Diagonally dominant” is not enough.
-You need the M-matrix / Laplacian sign pattern as well.
+You need the M-matrix / Laplacian sign pattern as well. The failure is not an
+artifact of sitting on the boundary of the SDD cone: Colbrook’s strictly
+diagonally dominant perturbation \(L^\sharp\) (each row has a spare unit of
+dominance) still has \(\Delta=-1/1092<0\).
+
+Dimension two cannot fail, even without any sign or dominance hypothesis: once
+only two indices remain unselected, the four-point defect is a square over a
+positive quantity. So three is the smallest dimension at which mixed signs can
+break greedy. If you already have at least one landmark and \(n\le 3\), the
+same \(2\times 2\) identity rules out a negative defect.
 
 Small exhaustive checks on path and cycle Laplacians of size \(n\le 5\) never
 found an SDDM violation; that is what suggested the general proof. Those checks
@@ -127,9 +136,11 @@ These are genuine leftovers, not hidden holes in the two theorems above.
 
 1. **Other losses.** Frobenius error, operator-norm error, and downstream
    prediction risk are open. Nuclear error was the question we were asked.
-2. **How common is the SDD failure?** We have one sharp \(3\times 3\) family,
-   not a measure of how often mixed-sign SDD matrices violate diminishing
-   returns in applied covariances.
+2. **How common is the SDD failure?** We have one sharp \(3\times 3\) family
+   (and a strictly dominant perturbation), not a measure of how often
+   mixed-sign SDD matrices violate diminishing returns in applied covariances.
+   A nonempty-base counter-example at \(n=4\) is in Colbrook but not yet in
+   this library.
 3. **The \(\gamma\to 0\) limit.** The theorem is for \(\gamma>0\). Pure
    Laplacians (singular, kernel the constants) are not covered as written.
 4. **A full SVD nuclear-norm API.** We use the trace identity that is valid

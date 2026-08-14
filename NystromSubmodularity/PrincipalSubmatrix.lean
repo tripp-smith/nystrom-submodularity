@@ -248,6 +248,51 @@ def pairDiagBlock {ι R : Type*} (M : Matrix ι ι R) (i j : ι) : Matrix (Fin 2
     if k = 0 then (if l = 0 then M i i else M i j)
     else (if l = 0 then M j i else M j j)
 
+/-- Ordered identification `0 ↦ i`, `1 ↦ j` of `{i,j}` with `Fin 2`. -/
+def pairIndexEquiv {ι : Type*} [DecidableEq ι] {i j : ι} (hij : i ≠ j) :
+    Fin 2 ≃ PrincipalIndex ({i, j} : Finset ι) where
+  toFun k := if k = 0 then ⟨i, by simp⟩ else ⟨j, by simp⟩
+  invFun x := if x.1 = i then 0 else 1
+  left_inv := by
+    intro k
+    fin_cases k <;> simp [hij.symm]
+  right_inv := by
+    intro x
+    apply Subtype.ext
+    have hx : x.1 = i ∨ x.1 = j :=
+      (Finset.mem_insert.mp x.2).elim Or.inl fun h => Or.inr (Finset.mem_singleton.mp h)
+    rcases hx with h | h
+    · simp [h]
+    · have : ¬ x.1 = i := by rw [h]; exact hij.symm
+      simp [h, hij.symm]
+
+theorem principalSubmatrix_pair {ι R : Type*} [DecidableEq ι]
+    (M : Matrix ι ι R) {i j : ι} (hij : i ≠ j) :
+    (principalSubmatrix M {i, j}).submatrix (pairIndexEquiv hij) (pairIndexEquiv hij) =
+      pairDiagBlock M i j := by
+  ext a b
+  fin_cases a <;> fin_cases b <;> simp [principalSubmatrix, pairDiagBlock, pairIndexEquiv]
+
+theorem traceInv_pair {ι R : Type*} [Fintype ι] [DecidableEq ι] [Field R]
+    (M : Matrix ι ι R) {i j : ι} (hij : i ≠ j) :
+    traceInv M {i, j} = (pairDiagBlock M i j)⁻¹.trace := by
+  let e := pairIndexEquiv hij
+  rw [traceInv, ← trace_submatrix_equiv e]
+  rw [← inv_submatrix_equiv]
+  rw [principalSubmatrix_pair M hij]
+
+theorem pairDiagBlock_posDef {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {M : Matrix ι ι ℝ} (hM : M.PosDef) {i j : ι} (hij : i ≠ j) :
+    (pairDiagBlock M i j).PosDef := by
+  have hinj :
+      Function.Injective
+        ((Subtype.val : PrincipalIndex ({i, j} : Finset ι) → ι) ∘ pairIndexEquiv hij) :=
+    Subtype.val_injective.comp (pairIndexEquiv hij).injective
+  have h := hM.submatrix hinj
+  convert h
+  ext a b
+  fin_cases a <;> fin_cases b <;> simp [pairDiagBlock, pairIndexEquiv]
+
 /-! ## Block identifications for one- and two-element inserts -/
 
 lemma insert₁Equiv_symm_eq_inr {ι : Type*} [DecidableEq ι] {A : Finset ι} {i : ι}

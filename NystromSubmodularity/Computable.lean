@@ -4,6 +4,7 @@ import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
 import Mathlib.LinearAlgebra.Matrix.Adjugate
 import Mathlib.Data.Rat.Cast.Order
 import Mathlib.Algebra.Order.Ring.Rat
+import Mathlib.Data.Fintype.Card
 
 /-!
 # Computable inverse-trace checks over `ℚ`
@@ -70,6 +71,42 @@ theorem cramerTraceInv_singleton {ι R : Type*} [Fintype ι] [DecidableEq ι] [F
   rw [cramerTraceInv_submatrix_equiv M {i} e, hmat, cramerInv, det_fin_one]
   simp [Matrix.trace, Matrix.smul_apply, adjugate_subsingleton]
 
+theorem traceInv_singleton {ι R : Type*} [Fintype ι] [DecidableEq ι] [Field R]
+    (M : Matrix ι ι R) (i : ι) :
+    traceInv M {i} = (M i i)⁻¹ := by
+  rw [← cramerTraceInv_eq_traceInv, cramerTraceInv_singleton]
+
+theorem principalSubmatrix_smul {ι R : Type*} [SMul R R]
+    (c : R) (M : Matrix ι ι R) (T : Finset ι) :
+    principalSubmatrix (c • M) T = c • principalSubmatrix M T := by
+  ext i j
+  simp [principalSubmatrix]
+
+theorem cramerInv_smul {ι R : Type*} [Fintype ι] [DecidableEq ι] [Field R]
+    (c : R) (A : Matrix ι ι R) (hc : c ≠ 0) :
+    cramerInv (c • A) = c⁻¹ • cramerInv A := by
+  ext i j
+  have _ : Nonempty ι := ⟨i⟩
+  have hn : 0 < Fintype.card ι := Fintype.card_pos
+  have hpow : c ^ Fintype.card ι = c * c ^ (Fintype.card ι - 1) := by
+    conv_lhs => rw [← Nat.sub_add_cancel (Nat.succ_le_of_lt hn)]
+    rw [pow_succ']
+  simp [cramerInv, Matrix.smul_apply, adjugate_smul, hpow, smul_eq_mul]
+  try field_simp [hc]
+  try ring
+
+theorem cramerTraceInv_smul {ι R : Type*} [Fintype ι] [DecidableEq ι] [Field R]
+    (c : R) (M : Matrix ι ι R) (T : Finset ι) (hc : c ≠ 0) :
+    cramerTraceInv (c • M) T = c⁻¹ * cramerTraceInv M T := by
+  by_cases hT : T = ∅
+  · subst hT
+    simp [cramerTraceInv_empty]
+  · have : Nonempty (PrincipalIndex T) := by
+      obtain ⟨x, hx⟩ := Finset.nonempty_iff_ne_empty.mpr hT
+      exact ⟨⟨x, hx⟩⟩
+    unfold cramerTraceInv
+    rw [principalSubmatrix_smul, cramerInv_smul c _ hc, trace_smul, smul_eq_mul]
+
 /-- Map a rational matrix into `ℝ` (for `PosDef` / `IsStieltjes`). -/
 def toReal {ι : Type*} (M : Matrix ι ι ℚ) : Matrix ι ι ℝ :=
   M.map (fun q : ℚ => (q : ℝ))
@@ -112,9 +149,27 @@ theorem toReal_isDiagDominant {ι : Type*} [Fintype ι] [DecidableEq ι]
   rw [hsum, toReal_apply]
   exact (Rat.cast_le (K := ℝ)).mpr hi
 
+theorem toReal_isStrictDiagDominant {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {M : Matrix ι ι ℚ} (h : IsStrictDiagDominant M) :
+    IsStrictDiagDominant (toReal M) := by
+  intro i
+  have hi := h i
+  have hsum :
+      ∑ j ∈ univ.erase i, |toReal M i j| =
+        ((∑ j ∈ univ.erase i, |M i j| : ℚ) : ℝ) := by
+    simp only [toReal_apply]
+    conv_lhs => arg 2; intro j; rw [← Rat.cast_abs (K := ℝ)]
+    exact (Rat.cast_sum (univ.erase i) (fun j => |M i j|)).symm
+  rw [hsum, toReal_apply]
+  exact (Rat.cast_lt (K := ℝ)).mpr hi
+
 theorem toReal_isSDD {ι : Type*} [Fintype ι] [DecidableEq ι]
     {M : Matrix ι ι ℚ} (h : IsSDD M) : IsSDD (toReal M) :=
   ⟨toReal_isSymm h.1, toReal_isDiagDominant h.2⟩
+
+theorem toReal_isStrictSDD {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {M : Matrix ι ι ℚ} (h : IsStrictSDD M) : IsStrictSDD (toReal M) :=
+  ⟨toReal_isSymm h.1, toReal_isStrictDiagDominant h.2⟩
 
 theorem toReal_isSDDM {ι : Type*} [Fintype ι] [DecidableEq ι]
     {M : Matrix ι ι ℚ} (h : IsSDDM M) : IsSDDM (toReal M) := by

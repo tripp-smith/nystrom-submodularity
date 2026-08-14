@@ -270,6 +270,27 @@ theorem mem_compl {ι : Type*} [Fintype ι] [DecidableEq ι] {T : Finset ι} {i 
     i ∈ compl T ↔ i ∉ T := by
   simp [compl]
 
+theorem compl_insert {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {A : Finset ι} {i : ι} :
+    compl (insert i A) = (compl A).erase i := by
+  ext x
+  simp [compl, mem_erase, mem_insert]
+
+theorem erase_pair_left {ι : Type*} [DecidableEq ι] {i j : ι} (hij : i ≠ j) :
+    ({i, j} : Finset ι).erase i = {j} :=
+  Finset.erase_insert (by simp [hij] : i ∉ ({j} : Finset ι))
+
+theorem erase_pair_right {ι : Type*} [DecidableEq ι] {i j : ι} (hij : i ≠ j) :
+    ({i, j} : Finset ι).erase j = {i} := by
+  ext x
+  simp [mem_erase, mem_insert, mem_singleton, eq_comm]
+  constructor
+  · rintro ⟨hxj, hxi | hx⟩
+    · exact hxi
+    · exact (hxj hx).elim
+  · intro hx
+    exact ⟨fun h => hij (hx ▸ h.symm), Or.inl hx⟩
+
 theorem compl_union {ι : Type*} [Fintype ι] [DecidableEq ι] (A B : Finset ι) :
     compl (A ∪ B) = compl A ∩ compl B := by
   ext x
@@ -297,10 +318,30 @@ def IsDiagDominant {ι : Type*} {R : Type*} [Fintype ι] [DecidableEq ι]
     [Ring R] [LinearOrder R] [IsOrderedRing R] (M : Matrix ι ι R) : Prop :=
   ∀ i, ∑ j ∈ univ.erase i, |M i j| ≤ M i i
 
+/-- Strict row-wise diagonal dominance. -/
+def IsStrictDiagDominant {ι : Type*} {R : Type*} [Fintype ι] [DecidableEq ι]
+    [Ring R] [LinearOrder R] [IsOrderedRing R] (M : Matrix ι ι R) : Prop :=
+  ∀ i, ∑ j ∈ univ.erase i, |M i j| < M i i
+
+theorem IsStrictDiagDominant.isDiagDominant {ι : Type*} {R : Type*} [Fintype ι]
+    [DecidableEq ι] [Ring R] [LinearOrder R] [IsOrderedRing R]
+    {M : Matrix ι ι R} (h : IsStrictDiagDominant M) : IsDiagDominant M :=
+  fun i => (h i).le
+
 /-- Symmetric diagonally dominant matrix (SDD). -/
 def IsSDD {ι : Type*} {R : Type*} [Fintype ι] [DecidableEq ι]
     [Ring R] [LinearOrder R] [IsOrderedRing R] (M : Matrix ι ι R) : Prop :=
   M.IsSymm ∧ IsDiagDominant M
+
+/-- Symmetric strictly diagonally dominant matrix. -/
+def IsStrictSDD {ι : Type*} {R : Type*} [Fintype ι] [DecidableEq ι]
+    [Ring R] [LinearOrder R] [IsOrderedRing R] (M : Matrix ι ι R) : Prop :=
+  M.IsSymm ∧ IsStrictDiagDominant M
+
+theorem IsStrictSDD.isSDD {ι : Type*} {R : Type*} [Fintype ι] [DecidableEq ι]
+    [Ring R] [LinearOrder R] [IsOrderedRing R] {M : Matrix ι ι R}
+    (h : IsStrictSDD M) : IsSDD M :=
+  ⟨h.1, h.2.isDiagDominant⟩
 
 /-- Symmetric diagonally dominant M-matrix (SDDM): an SDD matrix with strictly
 positive diagonal and non-positive off-diagonal entries. -/

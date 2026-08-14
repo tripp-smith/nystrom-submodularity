@@ -22,6 +22,10 @@ non-technical writeup `FINDINGS.md`):
   signed triangle \(L_0\) at \(\gamma=1\) has \(\Delta=-7/2040<0\). The Cramer
   traces of \(M_0\) and diagonal dominance of \(L_0\) are kernel proofs
   (`norm_num` / explicit \(3\times 3\) determinants), not `native_decide`.
+  Strict diagonal dominance does not restore the inequality
+  (`not_nystromError_supermodular_of_isStrictSDD`, \(L^\sharp\),
+  \(\Delta=-1/1092\)). Dimension two never fails
+  (`nystromError_supermodular_of_card_le_two_posDef`).
 
 No Python was used. `lake build` is sorry-free.
 
@@ -37,6 +41,7 @@ NystromSubmodularity/
 ├── Nystrom.lean
 ├── Stieltjes.lean
 ├── InverseTrace.lean
+├── Minimality.lean
 ├── SmallInstanceChecks.lean
 ├── Theorems.lean
 └── Counterexamples/SDDDim3.lean

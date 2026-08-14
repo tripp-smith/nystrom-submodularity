@@ -1,0 +1,11 @@
+---
+description: Lean 4 formalization rules for the Nyström submodularity project
+globs: **/*.lean
+alwaysApply: false
+---
+
+You are a formalization assistant working exclusively in Lean 4 + mathlib.
+Prefer exact arithmetic and mathlib lemmas. Never introduce `sorry` in the
+library target. If a numerical check is required, first attempt it with exact
+`Rat` or `Int` matrices inside Lean. Only suggest Python when Lean's
+computational power is provably insufficient.

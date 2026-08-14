@@ -21,9 +21,11 @@ Colbrook (arXiv:2607.19282), equations (14)–(19) / Theorem 10. For \(t>0\),
 L(t)=\begin{pmatrix}t+1&1&-t\\1&t+1&-t\\-t&-t&2t\end{pmatrix}
 \]
 
-is positive definite and SDD, and at \(\gamma=1\) the empty-base four-point
-defect on \(\{0,1\}\) is negative if and only if
-\(\varphi<t<1+\sqrt{2}\).
+is positive definite and SDD. The empty-base defects on \(\{0,2\}\) and
+\(\{1,2\}\) are positive for every \(t>0\), and the defect on \(\{0,1\}\) is
+negative if and only if \(\varphi<t<1+\sqrt{2}\). Combined with the
+\(n=3\) nonempty-base identity, \(\mathcal{E}_t\) fails to be supermodular
+exactly on that interval (Colbrook Theorem 10).
 -/
 
 namespace NystromSubmodularity
@@ -231,6 +233,40 @@ theorem Mfam_cramer_zero_one (t : ℝ) :
   rw [cramerNystromError, hc, cramerTraceInv_singleton]
   simp [Mfam]
 
+lemma Mfam_block_zero_one (t : ℝ) :
+    (principalSubmatrix (Mfam t) {0, 1}).submatrix fin2Equiv_zero_one fin2Equiv_zero_one =
+      !![t + 2, 1; 1, t + 2] := by
+  ext i j
+  fin_cases i <;> fin_cases j <;> simp [principalSubmatrix, Mfam, fin2Equiv_zero_one]
+
+lemma cramerInv_block_Mfam_zero_one_trace (t : ℝ) :
+    (cramerInv (!![t + 2, 1; 1, t + 2] : Matrix (Fin 2) (Fin 2) ℝ)).trace =
+      2 * (t + 2) / ((t + 1) * (t + 3)) := by
+  rw [cramerInv, det_fin_two, adjugate_fin_two, trace_smul, trace_fin_two]
+  simp
+  field_simp
+  ring
+
+theorem Mfam_cramer_two (t : ℝ) :
+    cramerNystromError (Mfam t) ({2} : Finset (Fin 3)) =
+      2 * (t + 2) / ((t + 1) * (t + 3)) := by
+  have hc : compl ({2} : Finset (Fin 3)) = {0, 1} := by decide
+  rw [cramerNystromError, hc,
+    cramerTraceInv_submatrix_equiv (Mfam t) {0, 1} fin2Equiv_zero_one, Mfam_block_zero_one,
+    cramerInv_block_Mfam_zero_one_trace]
+
+theorem Mfam_cramer_zero_two (t : ℝ) :
+    cramerNystromError (Mfam t) ({0, 2} : Finset (Fin 3)) = (t + 2)⁻¹ := by
+  have hc : compl ({0, 2} : Finset (Fin 3)) = {1} := by decide
+  rw [cramerNystromError, hc, cramerTraceInv_singleton]
+  simp [Mfam]
+
+theorem Mfam_cramer_one_two (t : ℝ) :
+    cramerNystromError (Mfam t) ({1, 2} : Finset (Fin 3)) = (t + 2)⁻¹ := by
+  have hc : compl ({1, 2} : Finset (Fin 3)) = {0} := by decide
+  rw [cramerNystromError, hc, cramerTraceInv_singleton]
+  simp [Mfam]
+
 lemma Mfam_quad_denom_pos {t : ℝ} (ht : 0 < t) : 0 < t ^ 2 + 5 * t + 2 := by
   nlinarith [sq_nonneg t]
 
@@ -238,6 +274,14 @@ lemma Mfam_denoms_ne_zero {t : ℝ} (ht : 0 < t) :
     t + 1 ≠ 0 ∧ 2 * t + 1 ≠ 0 ∧ 7 * t + 3 ≠ 0 ∧ t ^ 2 + 5 * t + 2 ≠ 0 := by
   refine ⟨by linarith, by linarith, by linarith, ?_⟩
   exact (Mfam_quad_denom_pos ht).ne'
+
+lemma Mfam_extra_denoms_ne_zero {t : ℝ} (ht : 0 < t) :
+    t + 2 ≠ 0 ∧ t + 3 ≠ 0 := by
+  constructor <;> linarith
+
+lemma Mfam_cubic_pos {t : ℝ} (ht : 0 < t) :
+    0 < 3 * t ^ 3 + 13 * t ^ 2 + 11 * t + 5 := by
+  nlinarith [pow_pos ht 3, sq_nonneg t]
 
 /-- Colbrook (18): the empty-base \((0,1)\) four-point defect. -/
 theorem Mfam_delta (t : ℝ) (ht : 0 < t) :
@@ -367,6 +411,14 @@ theorem Mfam_delta_neg_iff {t : ℝ} (ht : 0 < t) :
     have hsi : A < 0 := (quad_silver_neg_iff ht).mpr hsil
     nlinarith
 
+theorem Mfam_empty_zero_one_neg_iff {t : ℝ} (ht : 0 < t) :
+    nystromError (Mfam t) (∅ : Finset (Fin 3)) +
+        nystromError (Mfam t) ({0, 1} : Finset (Fin 3)) <
+      nystromError (Mfam t) ({0} : Finset (Fin 3)) +
+        nystromError (Mfam t) ({1} : Finset (Fin 3)) ↔
+      Real.goldenRatio < t ∧ t < 1 + √2 := by
+  simpa [cramerNystromError_eq_nystromError] using Mfam_delta_neg_iff ht
+
 theorem Mfam_delta_neg_real {t : ℝ} (ht : 0 < t)
     (hφ : Real.goldenRatio < t) (hsil : t < 1 + √2) :
     nystromError (Mfam t) (∅ : Finset (Fin 3)) +
@@ -385,6 +437,103 @@ theorem not_supermodular_nystromError_Mfam {t : ℝ} (ht : 0 < t)
   have hinter : ({0} : Finset (Fin 3)) ∩ {1} = ∅ := by simp
   rw [hunion, hinter] at h
   linarith [h, Mfam_delta_neg_real ht hφ hsil]
+
+/-- Colbrook: the empty-base \((0,2)\) four-point defect. -/
+theorem Mfam_delta_zero_two (t : ℝ) (ht : 0 < t) :
+    cramerNystromError (Mfam t) (∅ : Finset (Fin 3)) +
+        cramerNystromError (Mfam t) ({0, 2} : Finset (Fin 3)) -
+      cramerNystromError (Mfam t) ({0} : Finset (Fin 3)) -
+        cramerNystromError (Mfam t) ({2} : Finset (Fin 3)) =
+      t ^ 2 * (3 * t ^ 3 + 13 * t ^ 2 + 11 * t + 5) /
+        ((t + 2) * (t + 3) * (7 * t + 3) * (t ^ 2 + 5 * t + 2)) := by
+  have ⟨h1, h2, h7, hq⟩ := Mfam_denoms_ne_zero ht
+  have ⟨ht2, ht3⟩ := Mfam_extra_denoms_ne_zero ht
+  rw [Mfam_cramer_empty, Mfam_cramer_zero_two, Mfam_cramer_zero, Mfam_cramer_two]
+  field_simp [h1, h2, h7, hq, ht2, ht3]
+  ring
+
+/-- The empty-base \((1,2)\) defect equals the \((0,2)\) defect. -/
+theorem Mfam_delta_one_two (t : ℝ) (ht : 0 < t) :
+    cramerNystromError (Mfam t) (∅ : Finset (Fin 3)) +
+        cramerNystromError (Mfam t) ({1, 2} : Finset (Fin 3)) -
+      cramerNystromError (Mfam t) ({1} : Finset (Fin 3)) -
+        cramerNystromError (Mfam t) ({2} : Finset (Fin 3)) =
+      t ^ 2 * (3 * t ^ 3 + 13 * t ^ 2 + 11 * t + 5) /
+        ((t + 2) * (t + 3) * (7 * t + 3) * (t ^ 2 + 5 * t + 2)) := by
+  have ⟨h1, h2, h7, hq⟩ := Mfam_denoms_ne_zero ht
+  have ⟨ht2, ht3⟩ := Mfam_extra_denoms_ne_zero ht
+  rw [Mfam_cramer_empty, Mfam_cramer_one_two, Mfam_cramer_one, Mfam_cramer_two]
+  field_simp [h1, h2, h7, hq, ht2, ht3]
+  ring
+
+lemma Mfam_delta_zero_two_denom_pos {t : ℝ} (ht : 0 < t) :
+    0 < (t + 2) * (t + 3) * (7 * t + 3) * (t ^ 2 + 5 * t + 2) := by
+  have ht2 : 0 < t + 2 := by linarith
+  have ht3 : 0 < t + 3 := by linarith
+  have h7 : 0 < 7 * t + 3 := by linarith
+  have hq : 0 < t ^ 2 + 5 * t + 2 := Mfam_quad_denom_pos ht
+  positivity
+
+theorem Mfam_delta_zero_two_pos {t : ℝ} (ht : 0 < t) :
+    cramerNystromError (Mfam t) ({0} : Finset (Fin 3)) +
+        cramerNystromError (Mfam t) ({2} : Finset (Fin 3)) <
+      cramerNystromError (Mfam t) (∅ : Finset (Fin 3)) +
+        cramerNystromError (Mfam t) ({0, 2} : Finset (Fin 3)) := by
+  have hΔ := Mfam_delta_zero_two t ht
+  have hden := Mfam_delta_zero_two_denom_pos ht
+  have hnum : 0 < t ^ 2 * (3 * t ^ 3 + 13 * t ^ 2 + 11 * t + 5) :=
+    mul_pos (pow_pos ht 2) (Mfam_cubic_pos ht)
+  linarith [hΔ, div_pos hnum hden]
+
+theorem Mfam_delta_one_two_pos {t : ℝ} (ht : 0 < t) :
+    cramerNystromError (Mfam t) ({1} : Finset (Fin 3)) +
+        cramerNystromError (Mfam t) ({2} : Finset (Fin 3)) <
+      cramerNystromError (Mfam t) (∅ : Finset (Fin 3)) +
+        cramerNystromError (Mfam t) ({1, 2} : Finset (Fin 3)) := by
+  have hΔ := Mfam_delta_one_two t ht
+  have hden := Mfam_delta_zero_two_denom_pos ht
+  have hnum : 0 < t ^ 2 * (3 * t ^ 3 + 13 * t ^ 2 + 11 * t + 5) :=
+    mul_pos (pow_pos ht 2) (Mfam_cubic_pos ht)
+  linarith [hΔ, div_pos hnum hden]
+
+theorem Mfam_delta_zero_two_pos_real {t : ℝ} (ht : 0 < t) :
+    nystromError (Mfam t) ({0} : Finset (Fin 3)) +
+        nystromError (Mfam t) ({2} : Finset (Fin 3)) <
+      nystromError (Mfam t) (∅ : Finset (Fin 3)) +
+        nystromError (Mfam t) ({0, 2} : Finset (Fin 3)) := by
+  simpa [cramerNystromError_eq_nystromError] using Mfam_delta_zero_two_pos ht
+
+theorem Mfam_delta_one_two_pos_real {t : ℝ} (ht : 0 < t) :
+    nystromError (Mfam t) ({1} : Finset (Fin 3)) +
+        nystromError (Mfam t) ({2} : Finset (Fin 3)) <
+      nystromError (Mfam t) (∅ : Finset (Fin 3)) +
+        nystromError (Mfam t) ({1, 2} : Finset (Fin 3)) := by
+  simpa [cramerNystromError_eq_nystromError] using Mfam_delta_one_two_pos ht
+
+theorem Mfam_cramer_zero_two_at_two :
+    cramerNystromError (Mfam 2) ({0, 2} : Finset (Fin 3)) = (1 : ℝ) / 4 := by
+  rw [Mfam_cramer_zero_two]
+  norm_num
+
+theorem Mfam_delta_zero_two_pos_at_two :
+    cramerNystromError (Mfam 2) ({0} : Finset (Fin 3)) +
+        cramerNystromError (Mfam 2) ({2} : Finset (Fin 3)) <
+      cramerNystromError (Mfam 2) (∅ : Finset (Fin 3)) +
+        cramerNystromError (Mfam 2) ({0, 2} : Finset (Fin 3)) :=
+  Mfam_delta_zero_two_pos (by norm_num : (0 : ℝ) < 2)
+
+/-- Outside the Colbrook interval, the \((0,1)\) defect is positive. -/
+theorem Mfam_delta_zero_one_pos_at_one :
+    cramerNystromError (Mfam 1) ({0} : Finset (Fin 3)) +
+        cramerNystromError (Mfam 1) ({1} : Finset (Fin 3)) <
+      cramerNystromError (Mfam 1) (∅ : Finset (Fin 3)) +
+        cramerNystromError (Mfam 1) ({0, 1} : Finset (Fin 3)) := by
+  have hΔ := Mfam_delta 1 (by norm_num)
+  have hpos : (0 : ℝ) <
+      2 * (3 * 1 + 1) * (1 ^ 2 - 2 * 1 - 1) * (1 ^ 2 - 1 - 1) /
+        ((1 + 1) * (2 * 1 + 1) * (7 * 1 + 3) * (1 ^ 2 + 5 * 1 + 2)) := by
+    norm_num
+  linarith [hΔ, hpos]
 
 theorem Lfam_two_eq_L0 : Lfam 2 = toReal L0 := by
   ext i j

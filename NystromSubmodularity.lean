@@ -18,8 +18,8 @@ Root module for the Lean 4 / mathlib4 formalization of Problem 4.6:
 supermodularity of the nuclear-norm Nyström residual for SDDM matrices,
 and a 3×3 SDD obstruction (including a strictly diagonally dominant witness).
 Dimension three is minimal. With a nonempty selected base, dimension four is
-minimal. The signed-triangle family \(L(t)\) has a sharp failure interval
-\(\varphi<t<1+\sqrt{2}\).
+minimal. The signed-triangle family \(L(t)\) fails to be supermodular if and only if
+\(\varphi<t<1+\sqrt{2}\) (Colbrook Theorem 10).
 
 Public theorems live in `Theorems.lean`. See `FINDINGS.md` for a
 non-technical account, `README.md` for the module map, and `SPEC.md` for the

@@ -97,9 +97,11 @@ helps *more* than adding the first did: increasing returns, not diminishing.
 Greedy, which looks only at the next best single add, can therefore pick the
 wrong pair. This is not a floating-point accident: the four traces are
 ordinary 3×3 / 2×2 / 1×1 determinants. The same matrix is the \(t=2\) member
-of a one-parameter family \(L(t)\); the empty-base defect on \(\{0,1\}\) is
-negative if and only if the golden ratio is less than \(t\) and \(t\) is less
-than \(1+\sqrt{2}\).
+of a one-parameter family \(L(t)\). For that family, diminishing returns
+fails if and only if the golden ratio is less than \(t\) and \(t\) is less
+than \(1+\sqrt{2}\): the other empty-base pairs stay positive, and a nonempty
+base cannot fail on three indices. So the obstruction is exactly that
+interval, not just the single witness \(t=2\).
 
 So the sign pattern is doing real work. “Diagonally dominant” is not enough.
 You need the M-matrix / Laplacian sign pattern as well. The failure is not an
@@ -142,11 +144,12 @@ These are genuine leftovers, not hidden holes in the two theorems above.
 
 1. **Other losses.** Frobenius error, operator-norm error, and downstream
    prediction risk are open. Nuclear error was the question we were asked.
-2. **How common is the SDD failure?** The library now has the sharp
-   \(3\times 3\) interval \(\varphi<t<1+\sqrt{2}\) for Colbrook’s family, a
-   strictly dominant perturbation, and a nonempty-base \(n=4\) witness. That
-   is still not a measure of how often mixed-sign SDD matrices violate
-   diminishing returns in applied covariances.
+2. **How common is the SDD failure?** Colbrook’s family now has a complete
+   characterization: \(\mathcal{E}_t\) is not supermodular exactly on
+   \(\varphi<t<1+\sqrt{2}\). The library also has a strictly dominant
+   perturbation and a nonempty-base \(n=4\) witness. That is still not a
+   measure of how often mixed-sign SDD matrices violate diminishing returns
+   in applied covariances.
 3. **The \(\gamma\to 0\) limit.** The theorem is for \(\gamma>0\). Pure
    Laplacians (singular, kernel the constants) are not covered as written.
 4. **A full SVD nuclear-norm API.** We use the trace identity that is valid

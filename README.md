@@ -45,8 +45,10 @@ SDD PD \(L\), and \(\gamma>0\) such that \(\mathcal{E}\) is not supermodular.
 The same failure occurs under *strict* diagonal dominance
 (`not_nystromError_supermodular_of_isStrictSDD`, Colbrook’s \(L^\sharp\)).
 The one-parameter family \(L(t)\) is SDD and positive definite for every
-\(t>0\), and the empty-base defect on \(\{0,1\}\) is negative if and only if
-\(\varphi<t<1+\sqrt{2}\) (`Lfam_fourPoint_neg_iff`, Colbrook Theorem 10).
+\(t>0\), and \(\mathcal{E}_t\) is not supermodular if and only if
+\(\varphi<t<1+\sqrt{2}\) (`Lfam_not_supermodular_iff`, Colbrook Theorem 10
+complete). The empty-base pairs involving index \(2\) have positive defect;
+a nonempty base cannot fail at \(n=3\).
 
 **Minimality.** `nystromError_supermodular_of_card_le_two_posDef`: every
 positive-definite precision matrix on at most two indices has supermodular

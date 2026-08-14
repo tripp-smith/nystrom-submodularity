@@ -7,6 +7,7 @@ import NystromSubmodularity.Counterexamples.SDDFamily
 import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Linarith
 import Mathlib.Data.Rat.Cast.Order
+import Mathlib.Data.Fintype.Card
 import Mathlib.NumberTheory.Real.GoldenRatio
 import Mathlib.Analysis.Real.Sqrt
 
@@ -19,7 +20,7 @@ matrix \(L\). The same inequality fails for some SDD matrices already at
 \(n=3\), including strictly diagonally dominant ones; dimension three is
 minimal (Colbrook Proposition 5.5). With a nonempty selected base, dimension
 four is minimal (Colbrook (28)–(29)). The signed-triangle family \(L(t)\)
-fails on the empty-base pair \(\{0,1\}\) precisely for
+fails to be supermodular if and only if
 \(\varphi<t<1+\sqrt{2}\) (Colbrook Theorem 10).
 
 The four-point algebra is in `InverseTrace.lean`. Minimality of the
@@ -113,5 +114,57 @@ theorem not_nystromError_supermodular_of_Lfam {t : ℝ}
   refine ⟨Lfam_isSDD ht.le, Lfam_posDef ht, ?_⟩
   convert not_supermodular_nystromError_Mfam ht hφ hsil
   exact (Lfam_eq_Mfam_sub_one t).symm
+
+/-- Colbrook Theorem 10 (complete): \(\mathcal{E}_t\) is not supermodular
+if and only if \(\varphi<t<1+\sqrt{2}\). Nonempty bases cannot fail at
+\(n=3\), and the empty-base pairs involving index \(2\) have positive
+defect. -/
+theorem Lfam_not_supermodular_iff {t : ℝ} (ht : 0 < t) :
+    ¬ Supermodular (nystromError (Lfam t + 1)) ↔
+      Real.goldenRatio < t ∧ t < 1 + √2 := by
+  have hLM : Lfam t + 1 = Mfam t := (Lfam_eq_Mfam_sub_one t).symm
+  constructor
+  · intro hns
+    rw [hLM] at hns
+    have hnotfp : ¬ FourPointSupermodular (nystromError (Mfam t)) :=
+      mt supermodular_of_fourPointSupermodular hns
+    unfold FourPointSupermodular at hnotfp
+    push Not at hnotfp
+    obtain ⟨A, i, j, hij, hi, hj, hlt⟩ := hnotfp
+    by_cases hA : A.Nonempty
+    · have hge :=
+        nystromError_fourPoint_nonempty_of_card_le_three (M := Mfam t)
+          (Mfam_posDef ht) (by simp [Fintype.card_fin]) hA hij hi hj
+      linarith
+    · have hAempty : A = ∅ := Finset.not_nonempty_iff_eq_empty.mp hA
+      subst hAempty
+      have h01 : ({1, 0} : Finset (Fin 3)) = {0, 1} := by decide
+      have h02 : ({2, 0} : Finset (Fin 3)) = {0, 2} := by decide
+      have h12 : ({2, 1} : Finset (Fin 3)) = {1, 2} := by decide
+      fin_cases i <;> fin_cases j
+      · exact (hij rfl).elim
+      · refine (Mfam_empty_zero_one_neg_iff ht).mp ?_
+        simpa [h01] using hlt
+      · have hpos := Mfam_delta_zero_two_pos_real ht
+        simp [h02] at hlt
+        linarith
+      · refine (Mfam_empty_zero_one_neg_iff ht).mp ?_
+        have hlt' := hlt
+        simp at hlt'
+        linarith [hlt']
+      · exact (hij rfl).elim
+      · have hpos := Mfam_delta_one_two_pos_real ht
+        simp [h12] at hlt
+        linarith
+      · have hpos := Mfam_delta_zero_two_pos_real ht
+        simp at hlt
+        linarith
+      · have hpos := Mfam_delta_one_two_pos_real ht
+        simp at hlt
+        linarith
+      · exact (hij rfl).elim
+  · intro ⟨hφ, hsil⟩
+    rw [hLM]
+    exact not_supermodular_nystromError_Mfam ht hφ hsil
 
 end NystromSubmodularity

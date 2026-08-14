@@ -27,8 +27,8 @@ non-technical writeup `FINDINGS.md`):
   \(\Delta=-1/1092\)). Dimension two never fails
   (`nystromError_supermodular_of_card_le_two_posDef`). With a nonempty base,
   dimension four is minimal (`exists_nystromError_fourPoint_neg_of_isStrictSDD_nonempty`,
-  \(L_4\), \(\Delta=-7/20400\)). The family \(L(t)\) fails on \(\{0,1\}\) iff
-  \(\varphi<t<1+\sqrt{2}\) (`Lfam_fourPoint_neg_iff`).
+  \(L_4\), \(\Delta=-7/20400\)).   The family \(L(t)\) fails to be supermodular iff
+  \(\varphi<t<1+\sqrt{2}\) (`Lfam_not_supermodular_iff`).
 
 No Python was used. `lake build` is sorry-free.
 

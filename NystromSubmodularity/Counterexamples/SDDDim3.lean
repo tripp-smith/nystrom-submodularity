@@ -306,6 +306,20 @@ def fin2Equiv_zero_two : Fin 2 ≃ PrincipalIndex ({0, 2} : Finset (Fin 3)) wher
     · have : ¬ x.1 = 0 := by rw [h]; decide
       simp [h]
 
+def fin2Equiv_zero_one : Fin 2 ≃ PrincipalIndex ({0, 1} : Finset (Fin 3)) where
+  toFun k := if k = 0 then ⟨0, by decide⟩ else ⟨1, by decide⟩
+  invFun x := if x.1 = 0 then 0 else 1
+  left_inv := by intro k; fin_cases k <;> simp
+  right_inv := by
+    intro x
+    apply Subtype.ext
+    have hx : x.1 = 0 ∨ x.1 = 1 :=
+      (Finset.mem_insert.mp x.2).elim Or.inl fun h => Or.inr (Finset.mem_singleton.mp h)
+    rcases hx with h | h
+    · simp [h]
+    · have : ¬ x.1 = 0 := by rw [h]; decide
+      simp [h]
+
 lemma M0_block_one_two :
     (principalSubmatrix M0 {1, 2}).submatrix fin2Equiv_one_two fin2Equiv_one_two =
       !![4, -2; -2, 5] := by

@@ -32,6 +32,11 @@ non-technical writeup `FINDINGS.md`):
   Greedy one-column selection on that interval, and on \(L^\sharp\),
   picks a landmark that lies in no optimal pair
   (`Lfam_greedy_misses_optimal_pair`, `Lsharp_greedy_misses_optimal_pair`).
+  A \(\{\pm 1\}\) signature that produces a Stieltjes matrix implies
+  supermodularity (`nystromError_supermodular_of_signature_stieltjes`).
+  On a fully supported triangle this holds for every positive-definite
+  realization iff the sign pattern is antibalanced
+  (`triangle_pd_nystrom_supermodular_iff_antibalanced`).
 
 No Python was used. `lake build` is sorry-free.
 
@@ -53,7 +58,8 @@ NystromSubmodularity/
 ├── Counterexamples/SDDDim3.lean
 ├── Counterexamples/SDDDim4.lean
 ├── Counterexamples/SDDFamily.lean
-└── Counterexamples/Greedy.lean
+├── Counterexamples/Greedy.lean
+└── Signature.lean
 lakefile.toml
 ```
 

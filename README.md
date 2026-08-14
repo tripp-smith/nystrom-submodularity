@@ -55,6 +55,16 @@ ratio is \((2t+1)/(t+2)\) (\(5/4\) at \(t=2\)). The same misselection
 occurs for \(L^\sharp\) (`Lsharp_greedy_misses_optimal_pair`: residual
 \(1/5\) versus optimum \(1/6\)).
 
+**Signature switching.** `nystromError_supermodular_of_signature_stieltjes`
+(Colbrook Proposition 7): a \(\{\pm 1\}\) diagonal congruence that produces
+a Stieltjes matrix implies supermodularity of \(\mathcal{E}\). On a fully
+supported triangle this happens for every positive-definite realization if
+and only if the sign pattern is antibalanced
+(`triangle_pd_nystrom_supermodular_iff_antibalanced`, Corollary 13).
+Flipping the sign of index \(2\) on a path Laplacian stays supermodular;
+the \(L^\sharp\) pattern (signs \(+,-,-\), product \(+1\)) is not
+antibalanced.
+
 **Minimality.** `nystromError_supermodular_of_card_le_two_posDef`: every
 positive-definite precision matrix on at most two indices has supermodular
 Nyström error, so dimension three is minimal. If the base set is nonempty and
@@ -71,8 +81,8 @@ four-point identity (`InverseTrace.lean`).
 Both public theorems print the Lean defaults (`propext`, `Classical.choice`,
 `Quot.sound`).
 
-**Not in scope.** Full Schur residual identity, SVD nuclear-norm API, Neumann
-series, or signature switching.
+**Not in scope.** Full Schur residual identity, SVD nuclear-norm API, or
+Neumann series.
 
 Build: `lake build`. No `sorry` in the library target.
 
@@ -92,4 +102,5 @@ Build: `lake build`. No `sorry` in the library target.
 | `Counterexamples/SDDDim4.lean` | nonempty-base strictly SDD \(L_4\) |
 | `Counterexamples/SDDFamily.lean` | signed-triangle family \(L(t)\) and sharp interval |
 | `Counterexamples/Greedy.lean` | greedy one-column misselection on \(L(t)\) and \(L^\sharp\) |
+| `Signature.lean` | signature congruence, antibalance, order-3 Corollary 13 |
 | `Theorems.lean` | public theorems: SDDM supermodularity and SDD obstruction |

@@ -108,10 +108,18 @@ base cannot fail on three indices. So the obstruction is exactly that
 interval, not just the single witness \(t=2\).
 
 So the sign pattern is doing real work. “Diagonally dominant” is not enough.
-You need the M-matrix / Laplacian sign pattern as well. The failure is not an
-artifact of sitting on the boundary of the SDD cone: Colbrook’s strictly
-diagonally dominant perturbation \(L^\sharp\) (each row has a spare unit of
-dominance) still has \(\Delta=-1/1092<0\).
+You need the M-matrix / Laplacian sign pattern as well — or a sign pattern
+that can be *turned into* that one by flipping the signs of some variables
+(a \(\{\pm 1\}\) signature). Principal inverse-traces are unchanged by that
+flip, so the diminishing-returns guarantee survives. On a fully supported
+triangle this is possible for every positive-definite realization if and
+only if the unique 3-cycle has an even number of positive edges
+(antibalanced). A single positive triangle edge is the obstruction: the
+\(L^\sharp\) pattern has signs \(+,-,-\) and product \(+1\), so no signature
+can make it Stieltjes. The failure is not an artifact of sitting on the
+boundary of the SDD cone: Colbrook’s strictly diagonally dominant
+perturbation \(L^\sharp\) (each row has a spare unit of dominance) still
+has \(\Delta=-1/1092<0\).
 
 Dimension two cannot fail, even without any sign or dominance hypothesis: once
 only two indices remain unselected, the four-point defect is a square over a
@@ -136,8 +144,10 @@ greedy is on theoretically solid ground.
 If you allow mixed-sign partial correlations — some complements, some
 substitutes — diagonal dominance does **not** save you. A three-variable
 example is already a counter-example, and greedy can pick a landmark that
-is in no best pair. You would need extra structure, or you should not
-invoke the greedy guarantee.
+is in no best pair. You would need extra structure (an antibalanced signed
+support graph, so some signature restores the Laplacian pattern), or you
+should not invoke the greedy guarantee. Laplacian signs can themselves be
+flipped by a signature and greedy still has the guarantee.
 
 The object being optimized is the nuclear leftover, not mean-squared
 prediction error and not a Kullback–Leibler divergence. Those other losses

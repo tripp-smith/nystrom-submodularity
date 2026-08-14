@@ -5,6 +5,7 @@ import NystromSubmodularity.Counterexamples.SDDDim3
 import NystromSubmodularity.Counterexamples.SDDDim4
 import NystromSubmodularity.Counterexamples.SDDFamily
 import NystromSubmodularity.Counterexamples.Greedy
+import NystromSubmodularity.Signature
 import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Linarith
 import Mathlib.Data.Rat.Cast.Order
@@ -22,12 +23,16 @@ matrix \(L\). The same inequality fails for some SDD matrices already at
 minimal (Colbrook Proposition 5.5). With a nonempty selected base, dimension
 four is minimal (Colbrook (28)–(29)). The signed-triangle family \(L(t)\)
 fails to be supermodular if and only if
-\(\varphi<t<1+\sqrt{2}\) (Colbrook Theorem 10).
+\(\varphi<t<1+\sqrt{2}\) (Colbrook Theorem 10). A \(\{\pm 1\}\) signature
+that produces a Stieltjes matrix is enough for supermodularity (Proposition
+7); on a fully supported triangle this holds for every positive-definite
+realization if and only if the sign pattern is antibalanced (Corollary 13).
 
 The four-point algebra is in `InverseTrace.lean`. Minimality of the
 obstruction is in `Minimality.lean`. Greedy one-column misselection on
-\(L(t)\) and \(L^\sharp\) is in `Counterexamples/Greedy.lean`. A
-non-technical account is in `FINDINGS.md`.
+\(L(t)\) and \(L^\sharp\) is in `Counterexamples/Greedy.lean`. Signature
+switching and the order-3 antibalance criterion are in `Signature.lean`.
+A non-technical account is in `FINDINGS.md`.
 -/
 
 namespace NystromSubmodularity
@@ -193,5 +198,11 @@ theorem Lsharp_greedy_misses_optimal_pair :
     nystromError (toReal Msharp) ({0, 2} : Finset (Fin 3)) = ((1 / 5 : ℚ) : ℝ) ∧
     ((1 / 6 : ℚ) : ℝ) < ((1 / 5 : ℚ) : ℝ) :=
   Counterexamples.Lsharp_greedy_misses_optimal_pair
+
+/-! Colbrook Proposition 7, Proposition 8 (\(n=3\)), and Corollary 13 are
+`nystromError_supermodular_of_signature_stieltjes`,
+`exists_signature_stieltjes_of_antibalanced_triangle`, and
+`triangle_pd_nystrom_supermodular_iff_antibalanced` in `Signature.lean`.
+Sanity: `pathM3_signature_flip_supermodular`, `Lsharp_not_antibalanced_pattern`. -/
 
 end NystromSubmodularity

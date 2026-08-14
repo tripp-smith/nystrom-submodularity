@@ -12,8 +12,8 @@ positive diagonal shift) and certified exhaustive four-point checks of
 `Counterexamples.SDDDim3`.
 
 Module comment (SPEC §2.4): SDDM held on all tested \(n\le 5\); SDD fails at
-\(n=3\) with a signed triangle. Phase 2 proves Stieltjes in general and
-packages the \(3\times 3\) counterexample.
+\(n=3\) with a signed triangle. Phase 2 packages that obstruction and proves
+inverse-trace supermodularity on Stieltjes matrices in general.
 -/
 
 namespace NystromSubmodularity

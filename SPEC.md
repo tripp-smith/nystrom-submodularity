@@ -7,6 +7,41 @@
 
 ---
 
+## Outcome (recorded)
+
+The plan below is the original attack. The formalization is complete for both
+cases of the primary goal, with the Wikipedia names (see `README.md`):
+
+- **(a) SDDM.** `nystromError_supermodular_of_isSDDM` in `Phase2_Proof.lean`:
+  for `IsSDDM L` and `γ > 0`, \(\mathcal{E}(S)=\operatorname{tr}((L+\gamma I)[S^{\mathsf{c}}]^{-1})\)
+  is supermodular. Proof: Stieltjes inverse-nonnegativity (`Stieltjes.lean`)
+  plus the Atamtürk–Gómez four-point identity (`InverseTrace.lean`).
+  Axioms: `propext`, `Classical.choice`, `Quot.sound`.
+- **(b) SDD.** `not_nystromError_supermodular_of_isSDD`: Colbrook’s \(3\times 3\)
+  signed triangle \(L_0\) at \(\gamma=1\) has \(\Delta=-7/2040<0\). The Cramer
+  traces of \(M_0\) still use `native_decide`.
+
+No Python was used. `lake build` is sorry-free.
+
+**Directory (actual, vs the sketch in §1.5):**
+
+```
+NystromSubmodularity.lean
+NystromSubmodularity/
+├── Definitions.lean
+├── PrincipalSubmatrix.lean
+├── Computable.lean
+├── Nystrom.lean
+├── Stieltjes.lean
+├── InverseTrace.lean
+├── Phase1_Exploration.lean
+├── Phase2_Proof.lean
+└── Counterexamples/SDDDim3.lean
+lakefile.toml
+```
+
+---
+
 ## 0. Overall Goals & Success Criteria
 
 **Primary goal**
@@ -152,6 +187,11 @@ Produce a `sorry`-free theorem (or a machine-checked counter-example) for the ge
   ```
 - A short README explaining the proof structure and any reductions used.
 - (Optional) a PR-ready contribution to mathlib or a dedicated repository.
+
+**As delivered.** Both: `nystromError_supermodular_of_isSDDM` (positive SDDM
+theorem; the inequality is supermodularity of \(\mathcal{E}\), not submodularity)
+and `not_nystromError_supermodular_of_isSDD` (SDD counter-example). README
+records the Schur reduction and module map.
 
 ---
 

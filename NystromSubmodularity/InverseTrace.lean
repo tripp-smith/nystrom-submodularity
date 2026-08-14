@@ -504,14 +504,4 @@ theorem traceInv_supermodular_of_isStieltjes {A : Matrix ι ι ℝ} (hA : IsStie
     Supermodular (traceInv A) :=
   supermodular_of_fourPointSupermodular (traceInv_fourPointSupermodular_of_isStieltjes hA)
 
-theorem nystromError_supermodular_of_isStieltjes {A : Matrix ι ι ℝ} (hA : IsStieltjes A) :
-    Supermodular (nystromError A) :=
-  supermodular_compl (traceInv_supermodular_of_isStieltjes hA)
-
-/-- Nyström nuclear error is supermodular for SDDM precision matrices. -/
-theorem nystromError_supermodular_of_isSDDM {L : Matrix ι ι ℝ} {γ : ℝ}
-    (hL : IsSDDM L) (hγ : 0 < γ) :
-    Supermodular (nystromError (L + γ • (1 : Matrix ι ι ℝ))) :=
-  nystromError_supermodular_of_isStieltjes (hL.add_pos_smul_one_isStieltjes hγ)
-
 end NystromSubmodularity

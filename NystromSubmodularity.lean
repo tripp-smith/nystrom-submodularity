@@ -15,5 +15,6 @@ Root module for the Lean 4 / mathlib4 formalization of Problem 4.6:
 supermodularity of the nuclear-norm Nyström residual for SDDM matrices,
 and a 3×3 SDD obstruction.
 
-See `SPEC.md` and `README.md` for the two-phase plan and the Schur reduction.
+Public theorems live in `Phase2_Proof.lean`. See `README.md` for the module
+map and `SPEC.md` for the original two-phase plan plus recorded outcome.
 -/

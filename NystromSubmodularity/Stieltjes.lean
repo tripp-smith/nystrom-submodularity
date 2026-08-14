@@ -18,13 +18,11 @@ import Mathlib.Tactic.FinCases
 import Mathlib.Tactic.NormNum
 
 /-!
-# Stieltjes matrices and inverse-trace supermodularity
+# Stieltjes matrices
 
-Colbrook Theorem 4, proved algebraically (Atamtürk–Gómez four-point):
-Stieltjes matrices have entrywise-nonnegative inverses (block induction),
-principal Schur complements remain Stieltjes, and
-\(T\mapsto\operatorname{tr}(M[T]^{-1})\) is supermodular. Complements then
-give supermodularity of the Nyström error.
+Colbrook Theorem 4, first half: Stieltjes matrices have entrywise-nonnegative
+inverses (block induction), and an SDDM matrix plus a positive shift is
+Stieltjes. The four-point inverse-trace argument lives in `InverseTrace.lean`.
 -/
 
 namespace NystromSubmodularity

@@ -51,4 +51,15 @@ theorem not_nystromError_supermodular_of_isSDD :
   convert not_supermodular_nystromError_M0
   rw [M0_toReal_eq, one_smul]
 
+theorem nystromError_supermodular_of_isStieltjes {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {A : Matrix ι ι ℝ} (hA : IsStieltjes A) :
+    Supermodular (nystromError A) :=
+  supermodular_compl (traceInv_supermodular_of_isStieltjes hA)
+
+/-- Nyström nuclear error is supermodular for SDDM precision matrices. -/
+theorem nystromError_supermodular_of_isSDDM {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {L : Matrix ι ι ℝ} {γ : ℝ} (hL : IsSDDM L) (hγ : 0 < γ) :
+    Supermodular (nystromError (L + γ • (1 : Matrix ι ι ℝ))) :=
+  nystromError_supermodular_of_isStieltjes (hL.add_pos_smul_one_isStieltjes hγ)
+
 end NystromSubmodularity

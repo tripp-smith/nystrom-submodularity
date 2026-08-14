@@ -409,7 +409,6 @@ theorem principalSubmatrix_insert₂ {ι : Type*} [DecidableEq ι]
               insert₂Equiv_symm_eq_inr1 hi hj hij y hyi hyS]
           simp [fromBlocks, pairDiagBlock, principalSubmatrix, hxj, hyj]
 
-
 theorem trace_reindex {ι κ R : Type*} [Fintype ι] [Fintype κ] [AddCommMonoid R]
     (e : ι ≃ κ) (B : Matrix ι ι R) :
     (B.reindex e e).trace = B.trace :=

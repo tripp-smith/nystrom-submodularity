@@ -1,4 +1,5 @@
 import NystromSubmodularity.Stieltjes
+import NystromSubmodularity.InverseTrace
 import NystromSubmodularity.Counterexamples.SDDDim3
 import Mathlib.Tactic.NormNum
 
@@ -19,17 +20,19 @@ is \(0\)). This is the working definition of `nystromError`.
 with \(\gamma=1\) has \(\Delta=-7/2040<0\). Packaged as
 `not_nystromError_supermodular_of_isSDD`.
 
-**SDDM (remaining).** Colbrook Theorem 4: Stieltjes \(\Rightarrow\)
-entrywise-nonnegative inverse (proved by block induction in `Stieltjes.lean`)
-\(\Rightarrow\) four-point supermodularity of \(T\mapsto\operatorname{tr}(M[T]^{-1})\)
-via the \(2\times 2\) Schur complement \(Q\) and Gram \(H=C^{\mathsf{T}}N^{-2}C\).
-The assembly `nystromError_supermodular_of_isSDDM` is the remaining Phase 2 theorem.
+**SDDM (done).** Colbrook Theorem 4: `IsSDDM L` and `0 < γ` imply
+`IsStieltjes (L+γI)`. Stieltjes matrices have entrywise-nonnegative inverses
+(block induction in `Stieltjes.lean`). The Atamtürk–Gómez four-point identity
+in `InverseTrace.lean` then gives supermodularity of
+\(T\mapsto\operatorname{tr}(A[T]^{-1})\) via the \(2\times 2\) Schur
+complement `Q` and Gram `H = Cᵀ N⁻² C`. Complements yield
+`nystromError_supermodular_of_isSDDM`.
 
-`#print axioms IsStieltjes.inv_nonneg` is the Lean defaults (`propext` /
-`Classical.choice` / `Quot.sound`). The SDD existence theorem currently
-also depends on `native_decide` certificates for the rational Cramer
-traces of `M0`. Replacing those with kernel `norm_num` proofs is a
-closing item for Phase 2, not a blocker for the combinatorial statement.
+`#print axioms nystromError_supermodular_of_isSDDM` is the Lean defaults
+(`propext` / `Classical.choice` / `Quot.sound`). The SDD existence theorem
+currently also depends on `native_decide` certificates for the rational Cramer
+traces of `M0`. Replacing those with kernel `norm_num` proofs is a closing
+item, not a blocker for the combinatorial SDDM statement.
 -/
 
 namespace NystromSubmodularity

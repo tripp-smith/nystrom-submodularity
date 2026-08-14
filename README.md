@@ -39,10 +39,10 @@ signed triangle \(L_0\) with certified values
 there exist \(n\), SDD PD \(L\), and \(\gamma>0\) such that \(\mathcal{E}\) is not
 supermodular. The proof still inherits the `native_decide` Cramer traces of \(M_0\).
 
-**Phase 2, SDDM (the remaining theorem).** `IsSDDM L → 0 < γ → IsStieltjes (L+γI)`
-and Stieltjes inverse-nonnegativity are sorry-free. Missing: the four-point
-inequality for \(T\mapsto\operatorname{tr}(M[T]^{-1})\) on Stieltjes matrices,
-plus complement, packaged as `nystromError_supermodular_of_isSDDM`.
+**Phase 2, SDDM (landed).** `nystromError_supermodular_of_isSDDM`:
+`IsSDDM L` and `0 < γ` imply supermodularity of \(\mathcal{E}\) for \(M=L+\gamma I\).
+The argument is Stieltjes inverse-nonnegativity plus the Atamtürk–Gómez
+four-point identity on \(T\mapsto\operatorname{tr}(A[T]^{-1})\) (`InverseTrace.lean`).
 
 **Not required to close Phase 1–2.** Full Schur residual identity
 (`nystromResidual M⁻¹ S` equal to the padded inverse), SVD nuclear-norm API,

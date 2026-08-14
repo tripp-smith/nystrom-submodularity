@@ -3,6 +3,7 @@ import NystromSubmodularity.PrincipalSubmatrix
 import NystromSubmodularity.Nystrom
 import NystromSubmodularity.Computable
 import NystromSubmodularity.Stieltjes
+import NystromSubmodularity.InverseTrace
 import NystromSubmodularity.Phase1_Exploration
 import NystromSubmodularity.Phase2_Proof
 import NystromSubmodularity.Counterexamples.SDDDim3

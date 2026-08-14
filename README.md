@@ -44,6 +44,9 @@ is kernel `norm_num` / Cramer traces.
 SDD PD \(L\), and \(\gamma>0\) such that \(\mathcal{E}\) is not supermodular.
 The same failure occurs under *strict* diagonal dominance
 (`not_nystromError_supermodular_of_isStrictSDD`, Colbrook’s \(L^\sharp\)).
+The one-parameter family \(L(t)\) is SDD and positive definite for every
+\(t>0\), and the empty-base defect on \(\{0,1\}\) is negative if and only if
+\(\varphi<t<1+\sqrt{2}\) (`Lfam_fourPoint_neg_iff`, Colbrook Theorem 10).
 
 **Minimality.** `nystromError_supermodular_of_card_le_two_posDef`: every
 positive-definite precision matrix on at most two indices has supermodular
@@ -80,4 +83,5 @@ Build: `lake build`. No `sorry` in the library target.
 | `SmallInstanceChecks.lean` | exhaustive \(n\le 5\) SDDM checks |
 | `Counterexamples/SDDDim3.lean` | signed triangle \(L_0\) and strictly SDD \(L^\sharp\) |
 | `Counterexamples/SDDDim4.lean` | nonempty-base strictly SDD \(L_4\) |
+| `Counterexamples/SDDFamily.lean` | signed-triangle family \(L(t)\) and sharp interval |
 | `Theorems.lean` | public theorems: SDDM supermodularity and SDD obstruction |

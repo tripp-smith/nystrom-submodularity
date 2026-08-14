@@ -3,9 +3,12 @@ import NystromSubmodularity.InverseTrace
 import NystromSubmodularity.Minimality
 import NystromSubmodularity.Counterexamples.SDDDim3
 import NystromSubmodularity.Counterexamples.SDDDim4
+import NystromSubmodularity.Counterexamples.SDDFamily
 import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Linarith
 import Mathlib.Data.Rat.Cast.Order
+import Mathlib.NumberTheory.Real.GoldenRatio
+import Mathlib.Analysis.Real.Sqrt
 
 /-!
 # Main theorems
@@ -15,7 +18,9 @@ has diminishing returns (is **supermodular**) when \(M=L+\gamma I\) for an SDDM
 matrix \(L\). The same inequality fails for some SDD matrices already at
 \(n=3\), including strictly diagonally dominant ones; dimension three is
 minimal (Colbrook Proposition 5.5). With a nonempty selected base, dimension
-four is minimal (Colbrook (28)–(29)).
+four is minimal (Colbrook (28)–(29)). The signed-triangle family \(L(t)\)
+fails on the empty-base pair \(\{0,1\}\) precisely for
+\(\varphi<t<1+\sqrt{2}\) (Colbrook Theorem 10).
 
 The four-point algebra is in `InverseTrace.lean`. Minimality of the
 obstruction is in `Minimality.lean`. A non-technical account is in
@@ -86,5 +91,27 @@ theorem exists_nystromError_fourPoint_neg_of_isStrictSDD_nonempty :
     have h013 : ({1, 0, 3} : Finset (Fin 4)) = ({0, 1, 3} : Finset (Fin 4)) := by decide
     rw [h013]
     exact M4_delta_neg_real
+
+/-- Colbrook Theorem 10: for \(t>0\), the empty-base \((0,1)\) defect of
+\(L(t)\) is negative if and only if \(\varphi<t<1+\sqrt{2}\). -/
+theorem Lfam_fourPoint_neg_iff {t : ℝ} (ht : 0 < t) :
+    nystromError (Lfam t + 1) (∅ : Finset (Fin 3)) +
+        nystromError (Lfam t + 1) ({0, 1} : Finset (Fin 3)) <
+      nystromError (Lfam t + 1) ({0} : Finset (Fin 3)) +
+        nystromError (Lfam t + 1) ({1} : Finset (Fin 3)) ↔
+      Real.goldenRatio < t ∧ t < 1 + √2 := by
+  simpa [Lfam_eq_Mfam_sub_one t, cramerNystromError_eq_nystromError] using
+    Mfam_delta_neg_iff ht
+
+/-- Every parameter in the open Colbrook interval yields an SDD
+positive-definite obstruction. -/
+theorem not_nystromError_supermodular_of_Lfam {t : ℝ}
+    (hφ : Real.goldenRatio < t) (hsil : t < 1 + √2) :
+    IsSDD (Lfam t) ∧ (Lfam t).PosDef ∧
+      ¬ Supermodular (nystromError (Lfam t + (1 : Matrix (Fin 3) (Fin 3) ℝ))) := by
+  have ht : 0 < t := lt_trans Real.goldenRatio_pos hφ
+  refine ⟨Lfam_isSDD ht.le, Lfam_posDef ht, ?_⟩
+  convert not_supermodular_nystromError_Mfam ht hφ hsil
+  exact (Lfam_eq_Mfam_sub_one t).symm
 
 end NystromSubmodularity

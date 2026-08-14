@@ -10,6 +10,7 @@ import NystromSubmodularity.Theorems
 import NystromSubmodularity.Counterexamples.SDDDim3
 import NystromSubmodularity.Counterexamples.SDDDim4
 import NystromSubmodularity.Counterexamples.SDDFamily
+import NystromSubmodularity.Counterexamples.Greedy
 
 /-!
 # NystromSubmodularity
@@ -19,7 +20,9 @@ supermodularity of the nuclear-norm Nyström residual for SDDM matrices,
 and a 3×3 SDD obstruction (including a strictly diagonally dominant witness).
 Dimension three is minimal. With a nonempty selected base, dimension four is
 minimal. The signed-triangle family \(L(t)\) fails to be supermodular if and only if
-\(\varphi<t<1+\sqrt{2}\) (Colbrook Theorem 10).
+\(\varphi<t<1+\sqrt{2}\) (Colbrook Theorem 10). On that interval, and on
+\(L^\sharp\), greedy one-column selection picks a landmark that lies in no
+optimal pair.
 
 Public theorems live in `Theorems.lean`. See `FINDINGS.md` for a
 non-technical account, `README.md` for the module map, and `SPEC.md` for the

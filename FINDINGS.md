@@ -95,7 +95,11 @@ off-diagonal signs, \(\gamma=1\), and four exact error values
 The four-point defect is \(\Delta=-7/2040<0\). Adding the *second* of \(\{0,1\}\)
 helps *more* than adding the first did: increasing returns, not diminishing.
 Greedy, which looks only at the next best single add, can therefore pick the
-wrong pair. This is not a floating-point accident: the four traces are
+wrong pair: on this family it uniquely prefers the singleton \(\{2\}\), but
+the unique best pair is \(\{0,1\}\), so the first greedy landmark lies in no
+optimal pair. At \(t=2\) the resulting pair residual is \(5/4\) times the
+optimum; the strictly dominant \(L^\sharp\) does the same (\(5/12<11/26\),
+then \(1/5\) versus \(1/6\)). This is not a floating-point accident: the four traces are
 ordinary 3×3 / 2×2 / 1×1 determinants. The same matrix is the \(t=2\) member
 of a one-parameter family \(L(t)\). For that family, diminishing returns
 fails if and only if the golden ratio is less than \(t\) and \(t\) is less
@@ -131,8 +135,9 @@ greedy is on theoretically solid ground.
 
 If you allow mixed-sign partial correlations — some complements, some
 substitutes — diagonal dominance does **not** save you. A three-variable
-example is already a counter-example. You would need extra structure, or you
-should not invoke the greedy guarantee.
+example is already a counter-example, and greedy can pick a landmark that
+is in no best pair. You would need extra structure, or you should not
+invoke the greedy guarantee.
 
 The object being optimized is the nuclear leftover, not mean-squared
 prediction error and not a Kullback–Leibler divergence. Those other losses

@@ -49,6 +49,11 @@ The one-parameter family \(L(t)\) is SDD and positive definite for every
 \(\varphi<t<1+\sqrt{2}\) (`Lfam_not_supermodular_iff`, Colbrook Theorem 10
 complete). The empty-base pairs involving index \(2\) have positive defect;
 a nonempty base cannot fail at \(n=3\).
+On that interval greedy one-column selection picks index \(2\), which lies
+in no optimal pair (`Lfam_greedy_misses_optimal_pair`); the pair-error
+ratio is \((2t+1)/(t+2)\) (\(5/4\) at \(t=2\)). The same misselection
+occurs for \(L^\sharp\) (`Lsharp_greedy_misses_optimal_pair`: residual
+\(1/5\) versus optimum \(1/6\)).
 
 **Minimality.** `nystromError_supermodular_of_card_le_two_posDef`: every
 positive-definite precision matrix on at most two indices has supermodular
@@ -86,4 +91,5 @@ Build: `lake build`. No `sorry` in the library target.
 | `Counterexamples/SDDDim3.lean` | signed triangle \(L_0\) and strictly SDD \(L^\sharp\) |
 | `Counterexamples/SDDDim4.lean` | nonempty-base strictly SDD \(L_4\) |
 | `Counterexamples/SDDFamily.lean` | signed-triangle family \(L(t)\) and sharp interval |
+| `Counterexamples/Greedy.lean` | greedy one-column misselection on \(L(t)\) and \(L^\sharp\) |
 | `Theorems.lean` | public theorems: SDDM supermodularity and SDD obstruction |

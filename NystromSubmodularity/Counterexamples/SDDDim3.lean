@@ -427,6 +427,36 @@ theorem Msharp_cramer_zero_one :
   rw [cramerNystromError, hc, cramerTraceInv_singleton]
   simp [Msharp]
 
+lemma Msharp_block_zero_one :
+    (principalSubmatrix Msharp {0, 1}).submatrix fin2Equiv_zero_one fin2Equiv_zero_one =
+      !![5, 1; 1, 5] := by
+  ext i j
+  fin_cases i <;> fin_cases j <;> simp [principalSubmatrix, Msharp, fin2Equiv_zero_one]
+
+lemma cramerInv_block55_trace :
+    (cramerInv (!![5, 1; 1, 5] : Matrix (Fin 2) (Fin 2) ℚ)).trace = 5 / 12 := by
+  rw [cramerInv, det_fin_two, adjugate_fin_two, trace_smul, trace_fin_two]
+  simp
+  norm_num
+
+theorem Msharp_cramer_two : cramerNystromError Msharp ({2} : Finset (Fin 3)) = 5 / 12 := by
+  have hc : compl ({2} : Finset (Fin 3)) = {0, 1} := by decide
+  rw [cramerNystromError, hc,
+    cramerTraceInv_submatrix_equiv Msharp {0, 1} fin2Equiv_zero_one, Msharp_block_zero_one,
+    cramerInv_block55_trace]
+
+theorem Msharp_cramer_zero_two :
+    cramerNystromError Msharp ({0, 2} : Finset (Fin 3)) = 1 / 5 := by
+  have hc : compl ({0, 2} : Finset (Fin 3)) = {1} := by decide
+  rw [cramerNystromError, hc, cramerTraceInv_singleton]
+  simp [Msharp]
+
+theorem Msharp_cramer_one_two :
+    cramerNystromError Msharp ({1, 2} : Finset (Fin 3)) = 1 / 5 := by
+  have hc : compl ({1, 2} : Finset (Fin 3)) = {0} := by decide
+  rw [cramerNystromError, hc, cramerTraceInv_singleton]
+  simp [Msharp]
+
 theorem Msharp_delta :
     cramerNystromSupermodularDiff Msharp ({0} : Finset (Fin 3)) {1} = -1 / 1092 := by
   unfold cramerNystromSupermodularDiff

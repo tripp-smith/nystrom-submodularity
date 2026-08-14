@@ -29,6 +29,9 @@ non-technical writeup `FINDINGS.md`):
   dimension four is minimal (`exists_nystromError_fourPoint_neg_of_isStrictSDD_nonempty`,
   \(L_4\), \(\Delta=-7/20400\)).   The family \(L(t)\) fails to be supermodular iff
   \(\varphi<t<1+\sqrt{2}\) (`Lfam_not_supermodular_iff`).
+  Greedy one-column selection on that interval, and on \(L^\sharp\),
+  picks a landmark that lies in no optimal pair
+  (`Lfam_greedy_misses_optimal_pair`, `Lsharp_greedy_misses_optimal_pair`).
 
 No Python was used. `lake build` is sorry-free.
 
@@ -49,7 +52,8 @@ NystromSubmodularity/
 ├── Theorems.lean
 ├── Counterexamples/SDDDim3.lean
 ├── Counterexamples/SDDDim4.lean
-└── Counterexamples/SDDFamily.lean
+├── Counterexamples/SDDFamily.lean
+└── Counterexamples/Greedy.lean
 lakefile.toml
 ```
 

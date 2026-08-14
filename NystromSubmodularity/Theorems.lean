@@ -4,6 +4,7 @@ import NystromSubmodularity.Minimality
 import NystromSubmodularity.Counterexamples.SDDDim3
 import NystromSubmodularity.Counterexamples.SDDDim4
 import NystromSubmodularity.Counterexamples.SDDFamily
+import NystromSubmodularity.Counterexamples.Greedy
 import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Linarith
 import Mathlib.Data.Rat.Cast.Order
@@ -24,8 +25,9 @@ fails to be supermodular if and only if
 \(\varphi<t<1+\sqrt{2}\) (Colbrook Theorem 10).
 
 The four-point algebra is in `InverseTrace.lean`. Minimality of the
-obstruction is in `Minimality.lean`. A non-technical account is in
-`FINDINGS.md`.
+obstruction is in `Minimality.lean`. Greedy one-column misselection on
+\(L(t)\) and \(L^\sharp\) is in `Counterexamples/Greedy.lean`. A
+non-technical account is in `FINDINGS.md`.
 -/
 
 namespace NystromSubmodularity
@@ -166,5 +168,30 @@ theorem Lfam_not_supermodular_iff {t : ℝ} (ht : 0 < t) :
   · intro ⟨hφ, hsil⟩
     rw [hLM]
     exact not_supermodular_nystromError_Mfam ht hφ hsil
+
+/-- Colbrook (31)–(33): on the failure interval, greedy one-column
+selection on \(L(t)\) picks index \(2\), which lies in no optimal pair. -/
+theorem Lfam_greedy_misses_optimal_pair {t : ℝ}
+    (hφ : Real.goldenRatio < t) (hsil : t < 1 + √2) :
+    (∀ i : Fin 3, i ≠ 2 →
+      nystromError (Lfam t + 1) ({2} : Finset (Fin 3)) <
+        nystromError (Lfam t + 1) {i}) ∧
+    (∀ s : Finset (Fin 3), s.card = 2 → s ≠ {0, 1} →
+      nystromError (Lfam t + 1) ({0, 1} : Finset (Fin 3)) <
+        nystromError (Lfam t + 1) s) ∧
+    nystromError (Lfam t + 1) ({0, 2} : Finset (Fin 3)) /
+        nystromError (Lfam t + 1) ({0, 1} : Finset (Fin 3)) =
+      (2 * t + 1) / (t + 2) :=
+  Counterexamples.Lfam_greedy_misses_optimal_pair hφ hsil
+
+/-- The same greedy misselection on the strictly SDD witness \(L^\sharp\). -/
+theorem Lsharp_greedy_misses_optimal_pair :
+    nystromError (toReal Msharp) ({2} : Finset (Fin 3)) = ((5 / 12 : ℚ) : ℝ) ∧
+    nystromError (toReal Msharp) ({0} : Finset (Fin 3)) = ((11 / 26 : ℚ) : ℝ) ∧
+    ((5 / 12 : ℚ) : ℝ) < ((11 / 26 : ℚ) : ℝ) ∧
+    nystromError (toReal Msharp) ({0, 1} : Finset (Fin 3)) = ((1 / 6 : ℚ) : ℝ) ∧
+    nystromError (toReal Msharp) ({0, 2} : Finset (Fin 3)) = ((1 / 5 : ℚ) : ℝ) ∧
+    ((1 / 6 : ℚ) : ℝ) < ((1 / 5 : ℚ) : ℝ) :=
+  Counterexamples.Lsharp_greedy_misses_optimal_pair
 
 end NystromSubmodularity

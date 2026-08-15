@@ -171,5 +171,9 @@ def leverage_sample(
 
 
 def attach_guarantee(result: SelectionResult, M: Array | sparse.spmatrix) -> SelectionResult:
-    result.guarantee = ONE_MINUS_1_E if is_sddm(M) else None
+    """Attach the classical ``1-1/e`` factor only for exact/lazy greedy on SDDM."""
+    if result.mode in {"exact", "lazy"} and is_sddm(M):
+        result.guarantee = ONE_MINUS_1_E
+    else:
+        result.guarantee = None
     return result

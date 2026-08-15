@@ -1,10 +1,12 @@
 # nystrom-submodularity
 
-Lean 4 / mathlib4 formalization of Simons workshop [Problem 4.6](https://arxiv.org/abs/2607.19282)
-(Colbrook, *Nyström Error Beyond M-Matrices*).
+Lean 4 / mathlib4 formalization of Simons workshop
+[Problem 4.6](https://arxiv.org/abs/2602.05394)
+(open-problem report) as resolved by Colbrook,
+[*Nyström Error Beyond M-Matrices*](https://arxiv.org/abs/2607.19282).
 
 The [specification](SPEC.md) is complete: both cases of Problem 4.6, the
-nuclear-norm justification, and Colbrook Theorem 1(a)–(c). The leftover research threads are specified in [RESEARCH.md](RESEARCH.md)
+nuclear-norm justification, and Colbrook Theorem 1.1(a)–(c). The leftover research threads are specified in [RESEARCH.md](RESEARCH.md)
 and delivered in the library. New phases follow
 [`.cursor/skills/nystrom-phase/SKILL.md`](.cursor/skills/nystrom-phase/SKILL.md).
 
@@ -20,22 +22,22 @@ the error \(\mathcal{E}\) (equivalently, submodularity of the gain
 inequality “submodularity of the error”. Theorems in this library use the
 Wikipedia names.
 
-## Schur reduction (Colbrook Theorem 2)
+## Schur reduction (Colbrook Theorem 2.1)
 
 For symmetric positive-definite \(M=L+\gamma I\), after permuting \(S\) before \(S^{\mathsf{c}}\),
 
 \[
 K-\mathcal{N}_S(K)=\begin{pmatrix}0&0\\0&M[S^{\mathsf{c}}]^{-1}\end{pmatrix},
 \qquad
-\mathcal{E}(S)=\operatorname{tr}(M[S^{\mathsf{c}}]^{-1}),
+\operatorname{schattenOne}\bigl(K-\mathcal{N}_S(K)\bigr)
+=\operatorname{tr}(M[S^{\mathsf{c}}]^{-1})=\mathcal{E}(S),
 \]
 
 with the empty-matrix convention \(\operatorname{tr}(M[\emptyset]^{-1})=0\).
-This block identity is `nystromResidual_eq_padded_compl_inv`. The residual is
-PSD, so its nuclear (Schatten-1) norm equals its trace and
-`nuclearNystromError_eq_nystromError`. `schattenOne` is the singular-value
-sum on any real (including rectangular) matrix; on a PSD residual it
-agrees with that trace.
+The block identity is `nystromResidual_eq_padded_compl_inv`. The residual is
+PSD, so its Schatten-1 norm equals its trace:
+`schattenOne_nystromResidual_eq_nystromError`. `psdNuclearMass` is that
+trace, named so it is not claimed as a nuclear norm for a general matrix.
 
 ## Status
 
@@ -57,7 +59,7 @@ The same failure occurs under *strict* diagonal dominance
 (`not_nystromError_supermodular_of_isStrictSDD`, Colbrook’s \(L^\sharp\)).
 The one-parameter family \(L(t)\) is SDD and positive definite for every
 \(t>0\), and \(\mathcal{E}_t\) is not supermodular if and only if
-\(\varphi<t<1+\sqrt{2}\) (`Lfam_not_supermodular_iff`, Colbrook Theorem 10
+\(\varphi<t<1+\sqrt{2}\) (`Lfam_not_supermodular_iff`, Colbrook Theorem 4.3
 complete). The empty-base pairs involving index \(2\) have positive defect;
 a nonempty base cannot fail at \(n=3\).
 On that interval greedy one-column selection picks index \(2\), which lies
@@ -90,22 +92,24 @@ The argument is Stieltjes inverse-nonnegativity plus the Atamtürk–Gómez
 four-point identity (`InverseTrace.lean`).
 
 **Schur residual and exact marginal.** `nystromResidual_eq_padded_compl_inv`
-is Colbrook Theorem 2. `exact_marginal` is Lemma 3 for every
+is Colbrook Theorem 2.1. `exact_marginal` is Lemma 2.2 for every
 positive-definite precision matrix, so \(\mathcal{E}\) is strictly
 decreasing (`nystromError_strict_anti_monotone`). Scaling \(M\) by
 \(\alpha\neq 0\) multiplies every inverse-trace by \(\alpha^{-1}\)
-(`nystromError_smul_scale`). On \(M_0\), the nuclear error at \(\{0\}\)
+(`nystromError_smul_scale`). On \(M_0\), the Schatten-1 residual at \(\{0\}\)
 is the certified Cramer value \(9/16\); the traces of \(10\cdot M_0\)
 are one-tenth of those of \(M_0\).
 
 Public theorems print the Lean defaults (`propext`, `Classical.choice`,
-`Quot.sound`). Headline names: `nystromError_supermodular_of_isSDDM`
-(Theorem 1(a)); `not_nystromError_supermodular_of_isSDD` and
-`Lfam_not_supermodular_iff` (Theorem 1(b) / Theorem 10);
+`Quot.sound`). Headline names: `nystromError_supermodular_of_isSDDM` and
+`schattenOne_nystromResidual_supermodular_of_isSDDM`
+(Theorem 1.1(a)); `not_nystromError_supermodular_of_isSDD` and
+`Lfam_not_supermodular_iff` (Theorem 1.1(b) / Theorem 4.3);
 `nystromError_supermodular_of_card_le_two_posDef` and
-`exists_nystromError_fourPoint_neg_of_isStrictSDD_nonempty` (Theorem 1(c));
-`nystromResidual_eq_padded_compl_inv` (Theorem 2);
-`nystromError_supermodular_of_signature_stieltjes` (Proposition 7);
+`exists_nystromError_fourPoint_neg_of_isStrictSDD_nonempty` (Theorem 1.1(c));
+`nystromResidual_eq_padded_compl_inv` (Theorem 2.1);
+`schattenOne_nystromResidual_eq_nystromError` (nuclear residual);
+`nystromError_supermodular_of_signature_stieltjes` (signature switching);
 `triangle_pd_nystrom_supermodular_iff_antibalanced` (Corollary 13);
 `Lfam_greedy_misses_optimal_pair`.
 
@@ -155,7 +159,7 @@ Build: `lake build` or `scripts/verify.sh`. Application tests:
 | `Definitions.lean` | `Submodular` / `Supermodular`, SDDM/SDD/Stieltjes predicates |
 | `PrincipalSubmatrix.lean` | `traceInv`, `nystromError`, insert₁/insert₂ block identifications |
 | `Computable.lean` | exact \(\mathbb{Q}\) Cramer traces; scaling identity |
-| `Nystrom.lean` | Nyström residual identity; nuclear error equals inverse-trace |
+| `Nystrom.lean` | Nyström residual identity; `psdNuclearMass` of the residual |
 | `Stieltjes.lean` | inverse-nonnegativity; SDDM + \(\gamma I\) is Stieltjes |
 | `InverseTrace.lean` | four-point identity; exact marginal for every PD matrix |
 | `Minimality.lean` | terminal \(2\times 2\) identity; \(n\le 2\) never fails |
@@ -169,11 +173,11 @@ Build: `lake build` or `scripts/verify.sh`. Application tests:
 | `Census.lean` | family grid and 64-matrix integer SDD census |
 | `Singular.lean` | SDDM is PSD; unshifted path Laplacian |
 | `NuclearNormSVD.lean` | Hermitian nuclear norm; rectangular `matrixSingularValues`; `schattenOne` |
-| `Schur.lean` | block-diagonal nuclear additivity; Schur re-exports |
+| `Schur.lean` | block-diagonal nuclear additivity; Schatten-1 residual bridge |
 | `Neumann.lean` | Stieltjes splitting; walks; infinite Neumann series |
 | `Perturbation.lean` | ridge neighborhood of \(M_0\); scale preserves sign |
 | `ApproxSubmodular.lean` | approximate supermodularity ratio; entry-\(\ell^1\) Lipschitz |
 | `MathlibReady.lean` | re-exports for a future mathlib PR |
-| `Theorems.lean` | public theorems: Theorem 1(a)–(c), 2, 7–8, 10, greedy |
+| `Theorems.lean` | public theorems: Theorem 1.1(a)–(c), 2.1, 2.2, 4.3, greedy |
 | `APPLICATION.md` | application-layer contract for `graphnystrom` |
 | `graphnystrom/` | greedy / lazy Nyström landmark selector (Python) |

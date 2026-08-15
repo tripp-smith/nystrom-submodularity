@@ -13,11 +13,13 @@ import Mathlib.Tactic.Ring
 The nuclear-norm Nyström error of \(K=M^{-1}\) is defined in
 `PrincipalSubmatrix.nystromError` via Colbrook's identity
 \(\mathcal{E}(S)=\operatorname{tr}(M[S^{\mathsf{c}}]^{-1})\). Colbrook
-Theorem 2 identifies the residual, after reindexing by
+Theorem 2.1 identifies the residual, after reindexing by
 `Equiv.sumCompl (· ∈ S)`, with the block matrix that is zero on \(S\)
 and \(M[S^{\mathsf{c}}]^{-1}\) on the complement. The residual is
-positive semidefinite, so the nuclear (Schatten-1) norm equals the
-trace and `nuclearNystromError` agrees with `nystromError`.
+positive semidefinite, so its Schatten-1 norm equals the trace.
+`psdNuclearMass` is that trace (not a general nuclear norm);
+`schattenOne_nystromResidual_eq_nystromError` in `Schur.lean` is the
+literal nuclear-norm identity.
 -/
 
 namespace NystromSubmodularity
@@ -37,11 +39,10 @@ noncomputable def nystromResidual {ι R : Type*} [Fintype ι] [DecidableEq ι] [
     (K : Matrix ι ι R) (S : Finset ι) : Matrix ι ι R :=
   K - nystromApprox K S
 
-/-- Nuclear (Schatten-1) norm. On a positive-semidefinite matrix this equals the
-trace (singular values = eigenvalues). All residuals arising from a
-positive-definite precision matrix `M` are PSD by Colbrook Theorem 2, so the
-identification is the one used throughout the development. -/
-noncomputable def nuclearNorm {ι : Type*} [Fintype ι] (A : Matrix ι ι ℝ) : ℝ :=
+/-- Trace mass of a matrix. On a positive-semidefinite matrix this equals the
+Schatten-1 / nuclear norm, but the equality is false for a general real
+matrix. Use `schattenOne` for the actual singular-value sum. -/
+noncomputable def psdNuclearMass {ι : Type*} [Fintype ι] (A : Matrix ι ι ℝ) : ℝ :=
   A.trace
 
 theorem nystromApprox_empty {ι R : Type*} [Fintype ι] [DecidableEq ι] [Field R]
@@ -53,15 +54,16 @@ theorem nystromResidual_empty {ι R : Type*} [Fintype ι] [DecidableEq ι] [Fiel
     (K : Matrix ι ι R) : nystromResidual K ∅ = K := by
   simp [nystromResidual, nystromApprox_empty]
 
-/-- SVD-style nuclear error of the residual of \(K=M^{-1}\). Equals `nystromError M`
-on the PSD residual of a positive-definite precision matrix. -/
+/-- Trace of the residual of \(K=M^{-1}\). Equals `nystromError M` on the
+PSD residual of a positive-definite precision matrix. The Schatten-1
+form is `schattenOne (nystromResidual M⁻¹ S)`. -/
 noncomputable def nuclearNystromError {ι : Type*} [Fintype ι] [DecidableEq ι]
     (M : Matrix ι ι ℝ) (S : Finset ι) : ℝ :=
-  nuclearNorm (nystromResidual M⁻¹ S)
+  psdNuclearMass (nystromResidual M⁻¹ S)
 
 theorem nuclearNystromError_empty {ι : Type*} [Fintype ι] [DecidableEq ι]
     (M : Matrix ι ι ℝ) : nuclearNystromError M ∅ = M⁻¹.trace := by
-  simp [nuclearNystromError, nuclearNorm, nystromResidual_empty]
+  simp [nuclearNystromError, psdNuclearMass, nystromResidual_empty]
 
 theorem trace_reindex_self {ι κ R : Type*} [Fintype ι] [Fintype κ] [AddCommMonoid R]
     (e : ι ≃ κ) (M : Matrix κ κ R) :
@@ -273,7 +275,7 @@ lemma residual_compl_block_eq_inv {M : Matrix ι ι ℝ} (hM : M.PosDef) (S : Fi
   rw [nystromResidual_toBlock_compl, principalSubmatrix_eq_toBlock]
   exact hschur
 
-/-- Colbrook Theorem 2: after reindexing by `S ⊕ Sᶜ`, the Nyström residual of
+/-- Colbrook Theorem 2.1: after reindexing by `S ⊕ Sᶜ`, the Nyström residual of
 \(M^{-1}\) is zero on \(S\) and \(M[S^{\mathsf{c}}]^{-1}\) on the complement. -/
 theorem nystromResidual_eq_padded_compl_inv {M : Matrix ι ι ℝ} (hM : M.PosDef)
     (S : Finset ι) :
@@ -310,7 +312,7 @@ theorem nuclearNystromError_eq_nystromError {M : Matrix ι ι ℝ} (hM : M.PosDe
           (M.toBlock (fun x => x ∉ S) (fun x => x ∉ S))⁻¹).trace := by
     have := congrArg Matrix.trace hre
     rwa [trace_reindex] at this
-  rw [nuclearNystromError, nuclearNorm, htr, trace_fromBlocks, trace_zero, zero_add]
+  rw [nuclearNystromError, psdNuclearMass, htr, trace_fromBlocks, trace_zero, zero_add]
   have hconv := toBlock_eq_principal_compl M S
   have : (M.toBlock (fun x => x ∉ S) (fun x => x ∉ S))⁻¹.trace =
       (principalSubmatrix M (compl S))⁻¹.trace := by

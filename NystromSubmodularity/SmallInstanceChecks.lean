@@ -67,57 +67,61 @@ def pathM5 : Matrix (Fin 5) (Fin 5) ℚ := pathLap5 + 1
 def cycleM5 : Matrix (Fin 5) (Fin 5) ℚ := cycleLap5 + 1
 
 theorem pathLap3_isSDDM : IsSDDM pathLap3 := by
-  refine ⟨⟨?_, ?_⟩, ?_, ?_⟩
+  refine ⟨⟨?_, ?_⟩, ?_⟩
   · ext i j; fin_cases i <;> fin_cases j <;> simp [pathLap3]
-  · intro i; fin_cases i <;> native_decide
   · intro i; fin_cases i <;> native_decide
   · intro i j hij
     fin_cases i <;> fin_cases j <;> first | exact (hij rfl).elim | native_decide
 
 theorem cycleLap3_isSDDM : IsSDDM cycleLap3 := by
-  refine ⟨⟨?_, ?_⟩, ?_, ?_⟩
+  refine ⟨⟨?_, ?_⟩, ?_⟩
   · ext i j; fin_cases i <;> fin_cases j <;> simp [cycleLap3]
-  · intro i; fin_cases i <;> native_decide
   · intro i; fin_cases i <;> native_decide
   · intro i j hij
     fin_cases i <;> fin_cases j <;> first | exact (hij rfl).elim | native_decide
 
 theorem pathLap4_isSDDM : IsSDDM pathLap4 := by
-  refine ⟨⟨?_, ?_⟩, ?_, ?_⟩
+  refine ⟨⟨?_, ?_⟩, ?_⟩
   · ext i j; fin_cases i <;> fin_cases j <;> simp [pathLap4]
-  · intro i; fin_cases i <;> native_decide
   · intro i; fin_cases i <;> native_decide
   · intro i j hij
     fin_cases i <;> fin_cases j <;> first | exact (hij rfl).elim | native_decide
 
 theorem cycleLap4_isSDDM : IsSDDM cycleLap4 := by
-  refine ⟨⟨?_, ?_⟩, ?_, ?_⟩
+  refine ⟨⟨?_, ?_⟩, ?_⟩
   · ext i j; fin_cases i <;> fin_cases j <;> simp [cycleLap4]
-  · intro i; fin_cases i <;> native_decide
   · intro i; fin_cases i <;> native_decide
   · intro i j hij
     fin_cases i <;> fin_cases j <;> first | exact (hij rfl).elim | native_decide
 
 theorem pathLap5_isSDDM : IsSDDM pathLap5 := by
-  refine ⟨⟨?_, ?_⟩, ?_, ?_⟩
+  refine ⟨⟨?_, ?_⟩, ?_⟩
   · ext i j; fin_cases i <;> fin_cases j <;> simp [pathLap5]
-  · intro i; fin_cases i <;> native_decide
   · intro i; fin_cases i <;> native_decide
   · intro i j hij
     fin_cases i <;> fin_cases j <;> first | exact (hij rfl).elim | native_decide
 
 theorem cycleLap5_isSDDM : IsSDDM cycleLap5 := by
-  refine ⟨⟨?_, ?_⟩, ?_, ?_⟩
+  refine ⟨⟨?_, ?_⟩, ?_⟩
   · ext i j; fin_cases i <;> fin_cases j <;> simp [cycleLap5]
-  · intro i; fin_cases i <;> native_decide
   · intro i; fin_cases i <;> native_decide
   · intro i j hij
     fin_cases i <;> fin_cases j <;> first | exact (hij rfl).elim | native_decide
 
 theorem strictStieltjes3_isSDDM : IsSDDM strictStieltjes3 := by
-  refine ⟨⟨?_, ?_⟩, ?_, ?_⟩
+  refine ⟨⟨?_, ?_⟩, ?_⟩
   · ext i j; fin_cases i <;> fin_cases j <;> simp [strictStieltjes3]
   · intro i; fin_cases i <;> native_decide
+  · intro i j hij
+    fin_cases i <;> fin_cases j <;> first | exact (hij rfl).elim | native_decide
+
+/-- Path on two vertices plus an isolated node: the zero diagonal is SDDM. -/
+def isolatedNodeLap : Matrix (Fin 3) (Fin 3) ℚ :=
+  !![1, -1, 0; -1, 1, 0; 0, 0, 0]
+
+theorem isolatedNodeLap_isSDDM : IsSDDM isolatedNodeLap := by
+  refine ⟨⟨?_, ?_⟩, ?_⟩
+  · ext i j; fin_cases i <;> fin_cases j <;> simp [isolatedNodeLap]
   · intro i; fin_cases i <;> native_decide
   · intro i j hij
     fin_cases i <;> fin_cases j <;> first | exact (hij rfl).elim | native_decide

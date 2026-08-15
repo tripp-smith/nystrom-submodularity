@@ -14,7 +14,7 @@ import Mathlib.Data.Real.Star
 
 `traceInv M T` is \(\operatorname{tr}(M[T]^{-1})\), with the empty-matrix
 convention that the unique \(0\times 0\) matrix is invertible and has trace
-zero. By Colbrook Theorem 2 this is the nuclear Nyström error of \(M^{-1}\)
+zero. By Colbrook Theorem 2.1 this is the nuclear Nyström error of \(M^{-1}\)
 evaluated at the complement of `T`.
 -/
 

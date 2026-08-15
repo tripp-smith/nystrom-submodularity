@@ -3,7 +3,7 @@
 This note is the application-layer contract for turning the
 machine-checked results in this repository into a usable landmark
 selector. It is **not** a replacement for [SPEC.md](SPEC.md) (Problem
-4.6 / Colbrook Theorem 1) or [RESEARCH.md](RESEARCH.md) (leftover Lean
+4.6 / Colbrook Theorem 1.1) or [RESEARCH.md](RESEARCH.md) (leftover Lean
 threads). Lean remains the source of truth for every identity below.
 Python is an operational layer: it must match the certified rationals
 and must not introduce new mathematical claims.
@@ -29,7 +29,7 @@ What this phase **does** deliver:
 - A standalone Python package `graphnystrom` in this repo, with a
   Networkit-style `run()` / getter API.
 - Exact residual and exact one-index increments from Colbrook Theorem
-  2 / Lemma 3 (`nystromError`, `exact_marginal`).
+  2.1 / Lemma 2.2 (`nystromError`, `exact_marginal`).
 - Pure greedy and lazy greedy (priority queue, using supermodularity
   of \(\mathcal{E}\) / submodularity of \(G\) for early acceptance).
 - Stochastic and approximate (leverage) modes for larger sparse
@@ -71,9 +71,13 @@ contract.
 - Landmark task: choose \(S\subset V\), \(|S|=k\), minimising
   \(\mathcal{E}(S)\) (equivalently maximising \(G(S)\)).
 - Guarantee: if \(L\) is SDDM and \(\gamma>0\), then \(\mathcal{E}\)
-  is supermodular (`nystromError_supermodular_of_isSDDM`), so greedy
-  has factor \(1-1/e\). The package detects SDDM / Stieltjes structure
-  and exposes `getGuarantee()` as \(1-1/e\) only in that case.
+  is supermodular (`nystromError_supermodular_of_isSDDM`), so exact and
+  lazy greedy have factor \(1-1/e\). `getGuarantee()` returns that
+  factor only for `mode in {"exact","lazy"}` on an SDDM matrix.
+  Stochastic and approximate modes are heuristics and report `None`.
+- Exact versus estimated residual: `nystrom_error` is always
+  \(\operatorname{tr}(M[S^{\mathsf{c}}]^{-1})\). Hutchinson / CG lives
+  in `estimate_nystrom_error` and is never a silent fallback.
 - Incremental identity: if \(\operatorname{Inv}=M[S^{\mathsf{c}}]^{-1}\)
   and \(i\in S^{\mathsf{c}}\) has complement-local index \(j\), the
   exact reduction is
@@ -104,7 +108,7 @@ selector = GreedyNystromLandmarks(
 selector.run()
 landmarks = selector.getLandmarks()
 gains = selector.getMarginalGains()
-bound = selector.getGuarantee()      # 1 - 1/e iff SDDM + nuclear
+bound = selector.getGuarantee()      # 1 - 1/e iff exact/lazy + SDDM
 
 approx = NystromResolvent(G, landmarks, gamma=1.0)
 y = approx.matvec(x)
@@ -116,7 +120,8 @@ is accepted as an alias.
 
 | Name | Claim |
 |------|--------|
-| `evaluate_residual` | \(\mathcal{E}(S)=\operatorname{tr}(M[S^{\mathsf{c}}]^{-1})\) |
+| `evaluate_residual` / `nystrom_error` | exact \(\mathcal{E}(S)=\operatorname{tr}(M[S^{\mathsf{c}}]^{-1})\) |
+| `estimate_nystrom_error` | Hutchinson estimator; not the mathematical residual |
 | `four_point_defect` | \(\Delta(A;i,j)=\mathcal{E}(A)+\mathcal{E}(A\cup\{i,j\})-\mathcal{E}(A\cup\{i\})-\mathcal{E}(A\cup\{j\})\) |
 | `exact_marginal_gain` | \(\mathcal{E}(S)-\mathcal{E}(S\cup\{i\})=\|v\|_2^2/v_i\) for the complement-inverse column |
 | `GreedyNystromLandmarks` | Networkit-style greedy / lazy / stochastic / approx selector |

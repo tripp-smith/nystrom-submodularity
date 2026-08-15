@@ -18,7 +18,7 @@ Mathlib’s spectral theorem supplies eigenvalues of a Hermitian matrix.
 The nuclear (Schatten-1) norm of a Hermitian matrix is
 \(\sum_i|\lambda_i|\). On a positive-semidefinite matrix the eigenvalues
 are nonnegative, so this coincides with the trace — the identification
-used by `nuclearNorm` throughout the library.
+used by `psdNuclearMass` throughout the library.
 
 `matrixSingularValues` wraps `LinearMap.singularValues` on
 `toEuclideanLin` for rectangular real matrices. `schattenOne` is the
@@ -47,11 +47,11 @@ theorem hermitianNuclearNorm_eq_trace_of_posSemidef {n : Type*} [Fintype n]
   refine Finset.sum_congr rfl fun i _ => ?_
   exact abs_of_nonneg (hA.eigenvalues_nonneg i)
 
-/-- The library `nuclearNorm` (trace) agrees with the eigenvalue definition
+/-- The library `psdNuclearMass` (trace) agrees with the eigenvalue definition
 on every PSD matrix. -/
-theorem nuclearNorm_eq_hermitianNuclearNorm {n : Type*} [Fintype n]
+theorem psdNuclearMass_eq_hermitianNuclearNorm {n : Type*} [Fintype n]
     [DecidableEq n] {A : Matrix n n ℝ} (hA : A.PosSemidef) :
-    nuclearNorm A = hermitianNuclearNorm A hA.1 :=
+    psdNuclearMass A = hermitianNuclearNorm A hA.1 :=
   (hermitianNuclearNorm_eq_trace_of_posSemidef hA).symm
 
 /-- Nyström error is the Hermitian nuclear norm of the complementary
@@ -246,11 +246,11 @@ theorem sum_matrixSingularValues_eq_hermitianNuclearNorm {n : Type*}
   intro i
   simp [IsHermitian.eigenvalues, e]
 
-/-- On a PSD matrix the library nuclear norm is the singular-value sum. -/
-theorem nuclearNorm_eq_sum_matrixSingularValues {n : Type*} [Fintype n]
+/-- On a PSD matrix the trace mass is the singular-value sum. -/
+theorem psdNuclearMass_eq_sum_matrixSingularValues {n : Type*} [Fintype n]
     [DecidableEq n] {A : Matrix n n ℝ} (hA : A.PosSemidef) :
-    nuclearNorm A = ∑ i ∈ Finset.range (Fintype.card n), matrixSingularValues A i := by
-  rw [nuclearNorm_eq_hermitianNuclearNorm hA,
+    psdNuclearMass A = ∑ i ∈ Finset.range (Fintype.card n), matrixSingularValues A i := by
+  rw [psdNuclearMass_eq_hermitianNuclearNorm hA,
     sum_matrixSingularValues_eq_hermitianNuclearNorm hA.1]
 
 /-- Nyström error is the singular-value sum of the complementary inverse. -/
@@ -262,7 +262,7 @@ theorem nystromError_eq_sum_matrixSingularValues_compl {ι : Type*} [Fintype ι]
   have hP : (principalSubmatrix M (compl S)).PosDef :=
     hM.submatrix Subtype.val_injective
   have hInv : ((principalSubmatrix M (compl S))⁻¹).PosSemidef := hP.inv.posSemidef
-  rw [nystromError, traceInv, ← nuclearNorm_eq_sum_matrixSingularValues hInv]
+  rw [nystromError, traceInv, ← psdNuclearMass_eq_sum_matrixSingularValues hInv]
   rfl
 
 /-- On a Hermitian matrix the Schatten-1 norm is the sum of absolute

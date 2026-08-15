@@ -26,8 +26,9 @@ We keep the Wikipedia names: `Submodular` is the \(\ge\) four-set inequality
 and `Supermodular` is the \(\le\) inequality. The main theorems are
 stated for `Supermodular` of the Nyström error.
 
-References: Colbrook, *Nyström Error Beyond M-Matrices* (arXiv:2607.19282);
-Fornace–Lindsey (arXiv:2407.01698), Theorem 5.
+References: Colbrook, *Nyström Error Beyond M-Matrices* (arXiv:2607.19282),
+resolving Simons workshop Problem 4.6 from the open-problem report
+(arXiv:2602.05394); Fornace–Lindsey (arXiv:2407.01698), Theorem 5.
 -/
 
 namespace NystromSubmodularity
@@ -343,11 +344,19 @@ theorem IsStrictSDD.isSDD {ι : Type*} {R : Type*} [Fintype ι] [DecidableEq ι]
     (h : IsStrictSDD M) : IsSDD M :=
   ⟨h.1, h.2.isDiagDominant⟩
 
-/-- Symmetric diagonally dominant M-matrix (SDDM): an SDD matrix with strictly
-positive diagonal and non-positive off-diagonal entries. -/
+theorem IsDiagDominant.diag_nonneg {ι : Type*} {R : Type*} [Fintype ι]
+    [DecidableEq ι] [Ring R] [LinearOrder R] [IsOrderedRing R]
+    {M : Matrix ι ι R} (h : IsDiagDominant M) (i : ι) : 0 ≤ M i i :=
+  le_trans (Finset.sum_nonneg fun _ _ => abs_nonneg _) (h i)
+
+/-- Symmetric diagonally dominant M-matrix (SDDM): an SDD matrix with
+nonpositive off-diagonal entries. Diagonal dominance already forces a
+nonnegative diagonal; a zero diagonal (an isolated graph vertex) is
+allowed. A positive ridge \(\gamma I\) supplies strict positive
+definiteness where the Nyström error is formed. -/
 def IsSDDM {ι : Type*} {R : Type*} [Fintype ι] [DecidableEq ι]
     [Ring R] [LinearOrder R] [IsOrderedRing R] (M : Matrix ι ι R) : Prop :=
-  IsSDD M ∧ (∀ i, 0 < M i i) ∧ (∀ i j, i ≠ j → M i j ≤ 0)
+  IsSDD M ∧ (∀ i j, i ≠ j → M i j ≤ 0)
 
 theorem IsSDDM.isSDD {ι : Type*} {R : Type*} [Fintype ι] [DecidableEq ι]
     [Ring R] [LinearOrder R] [IsOrderedRing R] {M : Matrix ι ι R} (h : IsSDDM M) :
@@ -364,15 +373,20 @@ theorem IsSDDM.isDiagDominant {ι : Type*} {R : Type*} [Fintype ι] [DecidableEq
     IsDiagDominant M :=
   h.1.2
 
-theorem IsSDDM.diag_pos {ι : Type*} {R : Type*} [Fintype ι] [DecidableEq ι]
-    [Ring R] [LinearOrder R] [IsOrderedRing R] {M : Matrix ι ι R} (h : IsSDDM M) (i : ι) :
-    0 < M i i :=
-  h.2.1 i
+theorem IsSDDM.diag_nonneg {ι : Type*} {R : Type*} [Fintype ι] [DecidableEq ι]
+    [Ring R] [LinearOrder R] [IsOrderedRing R] {M : Matrix ι ι R} (h : IsSDDM M)
+    (i : ι) : 0 ≤ M i i :=
+  h.isDiagDominant.diag_nonneg i
 
 theorem IsSDDM.offDiag_nonpos {ι : Type*} {R : Type*} [Fintype ι] [DecidableEq ι]
     [Ring R] [LinearOrder R] [IsOrderedRing R] {M : Matrix ι ι R} (h : IsSDDM M)
     {i j : ι} (hij : i ≠ j) : M i j ≤ 0 :=
-  h.2.2 i j hij
+  h.2 i j hij
+
+theorem Supermodular.congr {ι : Type*} [DecidableEq ι] {f g : Finset ι → ℝ}
+    (hf : Supermodular f) (hfg : ∀ s, f s = g s) : Supermodular g := by
+  intro A B
+  simpa [hfg] using hf A B
 
 /-- A Stieltjes matrix: symmetric positive definite with nonpositive
 off-diagonal entries. Equivalent to a symmetric nonsingular M-matrix. -/

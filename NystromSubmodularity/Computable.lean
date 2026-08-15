@@ -181,11 +181,9 @@ theorem toReal_isStrictSDD {ι : Type*} [Fintype ι] [DecidableEq ι]
 
 theorem toReal_isSDDM {ι : Type*} [Fintype ι] [DecidableEq ι]
     {M : Matrix ι ι ℚ} (h : IsSDDM M) : IsSDDM (toReal M) := by
-  refine ⟨toReal_isSDD h.1, ?_, ?_⟩
-  · intro i
-    simpa [toReal_apply] using (Rat.cast_pos (K := ℝ)).mpr (h.2.1 i)
-  · intro i j hij
-    simpa [toReal_apply] using (Rat.cast_nonpos (K := ℝ)).mpr (h.2.2 i j hij)
+  refine ⟨toReal_isSDD h.1, ?_⟩
+  intro i j hij
+  simpa [toReal_apply] using (Rat.cast_nonpos (K := ℝ)).mpr (h.2 i j hij)
 
 theorem toReal_principalSubmatrix {ι : Type*} (M : Matrix ι ι ℚ) (T : Finset ι) :
     principalSubmatrix (toReal M) T = toReal (principalSubmatrix M T) :=

@@ -19,34 +19,63 @@ Array = NDArray[np.float64]
 
 def is_symmetric(M: Array | sparse.spmatrix, atol: float = 1e-10) -> bool:
     if sparse.issparse(M):
-        return (M - M.T).nnz == 0 or np.allclose(M.toarray(), M.T.toarray(), atol=atol)
+        D = M - M.T
+        if D.nnz == 0:
+            return True
+        return bool(np.all(np.abs(D.data) <= atol))
     A = as_dense(M)
     return bool(np.allclose(A, A.T, atol=atol))
 
 
-def is_diag_dominant(M: Array | sparse.spmatrix, strict: bool = False) -> bool:
+def _row_abs_offdiag(M: Array | sparse.spmatrix) -> Array:
+    """Row ℓ¹ mass of off-diagonal entries, without densifying a sparse matrix."""
+    if sparse.issparse(M):
+        A = M.tocsr()
+        absA = A.copy()
+        absA.data = np.abs(absA.data)
+        row_sum = np.asarray(absA.sum(axis=1)).ravel()
+        return row_sum - np.abs(A.diagonal())
     A = as_dense(M)
-    off = np.sum(np.abs(A), axis=1) - np.abs(np.diag(A))
+    return np.sum(np.abs(A), axis=1) - np.abs(np.diag(A))
+
+
+def is_diag_dominant(M: Array | sparse.spmatrix, strict: bool = False) -> bool:
+    diag = np.asarray(M.diagonal() if sparse.issparse(M) else np.diag(as_dense(M)))
+    off = _row_abs_offdiag(M)
     if strict:
-        return bool(np.all(off < np.diag(A) - 1e-14))
-    return bool(np.all(off <= np.diag(A) + 1e-12))
+        return bool(np.all(off < diag - 1e-14))
+    return bool(np.all(off <= diag + 1e-12))
 
 
 def is_sdd(M: Array | sparse.spmatrix) -> bool:
     return is_symmetric(M) and is_diag_dominant(M)
 
 
-def is_sddm(M: Array | sparse.spmatrix) -> bool:
-    """``IsSDDM``: SDD, positive diagonal, nonpositive off-diagonals."""
+def _offdiag_nonpos(M: Array | sparse.spmatrix, atol: float = 1e-12) -> bool:
+    if sparse.issparse(M):
+        A = M.tocsr()
+        for i in range(A.shape[0]):
+            start, end = A.indptr[i], A.indptr[i + 1]
+            for j, v in zip(A.indices[start:end], A.data[start:end]):
+                if i != j and v > atol:
+                    return False
+        return True
     A = as_dense(M)
-    n = A.shape[0]
-    if not is_sdd(A):
-        return False
-    if not np.all(np.diag(A) > 0):
-        return False
     off = A.copy()
     np.fill_diagonal(off, 0.0)
-    return bool(np.all(off <= 1e-12)) and n > 0
+    return bool(np.all(off <= atol))
+
+
+def is_sddm(M: Array | sparse.spmatrix) -> bool:
+    """``IsSDDM``: SDD with nonpositive off-diagonals.
+
+    A zero diagonal (isolated vertex) is allowed; diagonal dominance already
+    forces a nonnegative diagonal. Does not densify a CSR matrix.
+    """
+    n = M.shape[0]
+    if n == 0:
+        return False
+    return is_sdd(M) and _offdiag_nonpos(M)
 
 
 def is_stieltjes(M: Array | sparse.spmatrix) -> bool:

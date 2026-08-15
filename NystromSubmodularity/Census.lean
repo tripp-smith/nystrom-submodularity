@@ -11,7 +11,7 @@ import Mathlib.Data.Rat.Cast.Order
 
 Two finite certified censuses. On the Colbrook family, a seven-point
 positive rational grid has a single failure (\(t=2\)), matching
-Theorem 10. Among the 64 complete-support integer triangles with
+Theorem 4.3. Among the 64 complete-support integer triangles with
 off-diagonals in \(\{\pm 1,\pm 2\}\) and strictly dominant integer
 diagonals, exactly four have a negative empty-base \((0,1)\) defect —
 the \(L^\sharp\) sign pattern and its signature orbit.

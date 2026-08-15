@@ -15,7 +15,7 @@ import Mathlib.Algebra.BigOperators.Fin
 /-!
 # The one-parameter SDD family \(L(t)\)
 
-Colbrook (arXiv:2607.19282), equations (14)–(19) / Theorem 10. For \(t>0\),
+Colbrook (arXiv:2607.19282), equations (14)–(19) / Theorem 4.3. For \(t>0\),
 
 \[
 L(t)=\begin{pmatrix}t+1&1&-t\\1&t+1&-t\\-t&-t&2t\end{pmatrix}
@@ -25,7 +25,7 @@ is positive definite and SDD. The empty-base defects on \(\{0,2\}\) and
 \(\{1,2\}\) are positive for every \(t>0\), and the defect on \(\{0,1\}\) is
 negative if and only if \(\varphi<t<1+\sqrt{2}\). Combined with the
 \(n=3\) nonempty-base identity, \(\mathcal{E}_t\) fails to be supermodular
-exactly on that interval (Colbrook Theorem 10).
+exactly on that interval (Colbrook Theorem 4.3).
 -/
 
 namespace NystromSubmodularity

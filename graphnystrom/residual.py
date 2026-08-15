@@ -43,15 +43,49 @@ def _complement(n: int, S: Sequence[int]) -> list[int]:
 
 
 def nystrom_error(M: Array | sparse.spmatrix, S: Sequence[int]) -> float:
-    """``ℰ(S) = tr(M[Sᶜ]⁻¹)``, with the empty-complement convention 0."""
+    """Exact ``ℰ(S) = tr(M[Sᶜ]⁻¹)``, with the empty-complement convention 0.
+
+    Densifies the complementary principal block when ``M`` is sparse. For a
+    stochastic estimator use ``estimate_nystrom_error``.
+    """
     n = M.shape[0]
     C = _complement(n, S)
     if not C:
         return 0.0
-    if sparse.issparse(M) and len(C) > 256:
-        return _hutchinson_trace_inv(M, C)
-    block = as_dense(M)[np.ix_(C, C)]
+    if sparse.issparse(M):
+        idx = np.asarray(C, dtype=int)
+        block = np.asarray(M.tocsr()[idx][:, idx].toarray(), dtype=np.float64)
+    else:
+        block = as_dense(M)[np.ix_(C, C)]
     return float(np.trace(np.linalg.inv(block)))
+
+
+def estimate_nystrom_error(
+    M: Array | sparse.spmatrix,
+    S: Sequence[int],
+    *,
+    probes: int = 8,
+    rtol: float = 1e-6,
+    maxiter: int | None = None,
+    seed: int = 0,
+) -> float:
+    """Hutchinson estimator of ``ℰ(S)``. Not the mathematical residual."""
+    n = M.shape[0]
+    C = _complement(n, S)
+    if not C:
+        return 0.0
+    if sparse.issparse(M):
+        return _hutchinson_trace_inv(
+            M, C, probes=probes, rtol=rtol, maxiter=maxiter, seed=seed
+        )
+    block = as_dense(M)[np.ix_(C, C)]
+    rng = np.random.default_rng(seed)
+    acc = 0.0
+    for _ in range(probes):
+        z = rng.choice(np.array([-1.0, 1.0]), size=len(C))
+        x = np.linalg.solve(block, z)
+        acc += float(np.dot(z, x))
+    return acc / probes
 
 
 def evaluate_residual(
@@ -111,6 +145,8 @@ def _hutchinson_trace_inv(
     M: sparse.spmatrix,
     C: Sequence[int],
     probes: int = 8,
+    rtol: float = 1e-6,
+    maxiter: int | None = None,
     seed: int = 0,
 ) -> float:
     """Unbiased Hutchinson estimate of ``tr(M[C]⁻¹)`` via CG."""
@@ -118,12 +154,13 @@ def _hutchinson_trace_inv(
     block = M.tocsr()[idx][:, idx]
     rng = np.random.default_rng(seed)
     n = len(C)
+    iters = maxiter if maxiter is not None else max(50, 4 * n)
     acc = 0.0
     for _ in range(probes):
         z = rng.choice(np.array([-1.0, 1.0]), size=n)
-        x, info = cg(block, z, rtol=1e-6, maxiter=max(50, 4 * n))
-        if info < 0:
-            x = spsolve(block, z)
+        x, info = cg(block, z, rtol=rtol, maxiter=iters)
+        if info != 0:
+            x = np.asarray(spsolve(block, z), dtype=np.float64)
         acc += float(np.dot(z, x))
     return acc / probes
 

@@ -12,7 +12,8 @@
 The plan below is the original two-phase attack. The formalization is
 **finished**: both cases of the primary goal, the nuclear-norm justification
 asked for in §2.1, and Colbrook’s resolution of Problem 4.6
-(arXiv:2607.19282, Theorem 1(a)–(c) and the supporting results). Theorems
+(arXiv:2607.19282, Theorem 1.1(a)–(c); workshop statement
+arXiv:2602.05394). Theorems
 use the Wikipedia names (see `README.md` and `FINDINGS.md`).
 
 ### Success criteria (§0)
@@ -44,25 +45,25 @@ Public theorems print only the Lean defaults `propext`, `Classical.choice`,
 
 ### Definitional items (§2.1)
 
-Nuclear norm was specified via singular values. Colbrook Theorem 2
+Nuclear norm was specified via singular values. Colbrook Theorem 2.1
 (`nystromResidual_eq_padded_compl_inv`) identifies the residual of
-\(M^{-1}\) with a padded complement inverse. That residual is PSD, so
-`nuclearNystromError_eq_nystromError`: nuclear error equals inverse-trace.
-There is no general SVD API; that identification is the justification
-the specification required.
+\(M^{-1}\) with a padded complement inverse. That residual is PSD, and
+`schattenOne_nystromResidual_eq_nystromError` is the literal Schatten-1
+identity \(\|K-\mathcal{N}_S(K)\|_*=\mathcal{E}(S)\).
+`psdNuclearMass` is the trace of a matrix, not a general nuclear norm.
 
-`exact_marginal` (Lemma 3) and `nystromError_strict_anti_monotone` hold
+`exact_marginal` (Lemma 2.2) and `nystromError_strict_anti_monotone` hold
 for every positive-definite precision matrix.
 `nystromError_smul_scale` is Colbrook (30).
 
-### Colbrook Theorem 1 (resolution of Problem 4.6)
+### Colbrook Theorem 1.1 (resolution of Problem 4.6)
 
 - **(a)** SDDM \(\Rightarrow\) diminishing returns:
   `nystromError_supermodular_of_isSDDM`.
 - **(b)** SDD can fail, including strictly SDD:
   `not_nystromError_supermodular_of_isSDD`,
   `not_nystromError_supermodular_of_isStrictSDD`,
-  `Lfam_not_supermodular_iff` (Theorem 10: failure iff
+  `Lfam_not_supermodular_iff` (Theorem 4.3: failure iff
   \(\varphi<t<1+\sqrt{2}\)).
 - **(c)** Dimension three is minimal; with a nonempty base, four is
   minimal and may be strictly SDD with complete support:
@@ -70,8 +71,9 @@ for every positive-definite precision matrix.
   `nystromError_fourPoint_nonempty_of_card_le_three`,
   `exists_nystromError_fourPoint_neg_of_isStrictSDD_nonempty`.
 
-Supporting results in the library: Theorem 2 (residual identity);
-Propositions 7–8 and Corollary 13 (`Signature.lean`); greedy
+Supporting results in the library: Theorem 2.1 (residual identity);
+Lemma 2.2 (exact marginal); Theorem 3.1 (Stieltjes inverse traces);
+signature switching and Corollary 13 (`Signature.lean`); greedy
 misselection (`Lfam_greedy_misses_optimal_pair`,
 `Lsharp_greedy_misses_optimal_pair`).
 
@@ -304,7 +306,7 @@ Produce a `sorry`-free theorem (or a machine-checked counter-example) for the ge
 (positive SDDM theorem; the inequality is supermodularity of \(\mathcal{E}\),
 not submodularity) and `not_nystromError_supermodular_of_isSDD` (SDD
 counter-example), together with the Theorem 1(c) minimality statements,
-Theorem 2, Theorem 10, Propositions 7–8, Corollary 13, and the greedy
+Theorem 2.1, Theorem 4.3, signature switching, Corollary 13, and the greedy
 example. `FINDINGS.md` is the non-technical account; `README.md` records
 the Schur identity and module map. The optional mathlib PR was not
 opened.

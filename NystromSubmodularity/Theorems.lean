@@ -34,15 +34,16 @@ matrix \(L\). The same inequality fails for some SDD matrices already at
 minimal (Colbrook Proposition 5.5). With a nonempty selected base, dimension
 four is minimal (Colbrook (28)–(29)). The signed-triangle family \(L(t)\)
 fails to be supermodular if and only if
-\(\varphi<t<1+\sqrt{2}\) (Colbrook Theorem 10). A \(\{\pm 1\}\) signature
-that produces a Stieltjes matrix is enough for supermodularity (Proposition
-7); on a fully supported triangle this holds for every positive-definite
-realization if and only if the sign pattern is antibalanced (Corollary 13).
-Colbrook Theorem 2 identifies the Nyström residual with a padded complement
-inverse, so the nuclear error equals the inverse-trace on that PSD residual.
-The exact one-index increment (Lemma 3) holds for every positive-definite
-precision matrix, \(\mathcal{E}\) is strictly decreasing, and scaling \(M\)
-by \(\alpha\neq 0\) multiplies every inverse-trace by \(\alpha^{-1}\).
+\(\varphi<t<1+\sqrt{2}\) (Colbrook Theorem 4.3). A \(\{\pm 1\}\) signature
+that produces a Stieltjes matrix is enough for supermodularity; on a fully
+supported triangle this holds for every positive-definite realization if
+and only if the sign pattern is antibalanced (Corollary 13).
+Colbrook Theorem 2.1 identifies the Nyström residual with a padded complement
+inverse, and `schattenOne_nystromResidual_eq_nystromError` is the Schatten-1
+norm of that residual. The exact one-index increment (Lemma 2.2) holds for
+every positive-definite precision matrix, \(\mathcal{E}\) is strictly
+decreasing, and scaling \(M\) by \(\alpha\neq 0\) multiplies every
+inverse-trace by \(\alpha^{-1}\).
 
 The four-point algebra is in `InverseTrace.lean`. Minimality of the
 obstruction is in `Minimality.lean`. Greedy one-column misselection on
@@ -90,6 +91,16 @@ theorem nystromError_supermodular_of_isSDDM {ι : Type*} [Fintype ι] [Decidable
     Supermodular (nystromError (L + γ • (1 : Matrix ι ι ℝ))) :=
   nystromError_supermodular_of_isStieltjes (hL.add_pos_smul_one_isStieltjes hγ)
 
+/-- Problem 4.6(a) with the actual Schatten-1 residual: Colbrook Theorem 1.1(a). -/
+theorem schattenOne_nystromResidual_supermodular_of_isSDDM
+    {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {L : Matrix ι ι ℝ} {γ : ℝ} (hL : IsSDDM L) (hγ : 0 < γ) :
+    Supermodular fun S =>
+      schattenOne (nystromResidual (L + γ • (1 : Matrix ι ι ℝ))⁻¹ S) :=
+  (nystromError_supermodular_of_isSDDM hL hγ).congr fun S =>
+    (schattenOne_nystromResidual_eq_nystromError
+      (hL.add_pos_smul_one_posDef hγ) S).symm
+
 /-- Dimension at most two never fails, even without an SDD or sign hypothesis. -/
 theorem nystromError_supermodular_of_card_le_two_posDef {ι : Type*} [Fintype ι]
     [DecidableEq ι] {M : Matrix ι ι ℝ} (hM : M.PosDef) (hcard : Fintype.card ι ≤ 2) :
@@ -119,7 +130,7 @@ theorem exists_nystromError_fourPoint_neg_of_isStrictSDD_nonempty :
     rw [h013]
     exact M4_delta_neg_real
 
-/-- Colbrook Theorem 10: for \(t>0\), the empty-base \((0,1)\) defect of
+/-- Colbrook Theorem 4.3: for \(t>0\), the empty-base \((0,1)\) defect of
 \(L(t)\) is negative if and only if \(\varphi<t<1+\sqrt{2}\). -/
 theorem Lfam_fourPoint_neg_iff {t : ℝ} (ht : 0 < t) :
     nystromError (Lfam t + 1) (∅ : Finset (Fin 3)) +
@@ -141,7 +152,7 @@ theorem not_nystromError_supermodular_of_Lfam {t : ℝ}
   convert not_supermodular_nystromError_Mfam ht hφ hsil
   exact (Lfam_eq_Mfam_sub_one t).symm
 
-/-- Colbrook Theorem 10 (complete): \(\mathcal{E}_t\) is not supermodular
+/-- Colbrook Theorem 4.3 (complete): \(\mathcal{E}_t\) is not supermodular
 if and only if \(\varphi<t<1+\sqrt{2}\). Nonempty bases cannot fail at
 \(n=3\), and the empty-base pairs involving index \(2\) have positive
 defect. -/
@@ -224,9 +235,10 @@ theorem Lsharp_greedy_misses_optimal_pair :
 `triangle_pd_nystrom_supermodular_iff_antibalanced` in `Signature.lean`.
 Sanity: `pathM3_signature_flip_supermodular`, `Lsharp_not_antibalanced_pattern`.
 
-Colbrook Theorem 2, Lemma 3, and (30) are
-`nystromResidual_eq_padded_compl_inv`, `nuclearNystromError_eq_nystromError`
-in `Nystrom.lean`, `exact_marginal` and `nystromError_strict_anti_monotone`
+Colbrook Theorem 2.1, Lemma 2.2, and (30) are
+`nystromResidual_eq_padded_compl_inv`,
+`schattenOne_nystromResidual_eq_nystromError` in `Schur.lean`,
+`exact_marginal` and `nystromError_strict_anti_monotone`
 in `InverseTrace.lean`, and `nystromError_smul_scale` in `Computable.lean`.
 
 Remaining research: `OtherLosses.lean`, `Census.lean`, `Singular.lean`,
@@ -257,6 +269,13 @@ the nuclear error of \(M_0\) at \(\{0\}\) is the certified Cramer value. -/
 theorem nuclearNystromError_M0_zero :
     nuclearNystromError (toReal M0) ({0} : Finset (Fin 3)) = ((9 / 16 : ℚ) : ℝ) := by
   rw [nuclearNystromError_eq_nystromError M0_posDef, ← toReal_nystromError, M0_cramer_zero]
+
+/-- The Schatten-1 residual of \(M_0\) at \(\{0\}\) is the same certified value. -/
+theorem schattenOne_nystromResidual_M0_zero :
+    schattenOne (nystromResidual (toReal M0)⁻¹ ({0} : Finset (Fin 3))) =
+      ((9 / 16 : ℚ) : ℝ) := by
+  rw [schattenOne_nystromResidual_eq_nystromError M0_posDef, ← toReal_nystromError,
+    M0_cramer_zero]
 
 /-- Colbrook (30) on \(M_0\): scaling by \(10\) multiplies every inverse-trace
 by \(1/10\). -/
@@ -344,5 +363,12 @@ theorem schattenOne_diag_two_three :
       (fromBlocks (!![2] : Matrix (Fin 1) (Fin 1) ℝ) 0 0
         (!![3] : Matrix (Fin 1) (Fin 1) ℝ)) = 5 :=
   schattenOne_fromBlocks_two_three
+
+/-- Colbrook Theorem 2.1 plus reindex invariance: the Schatten-1 norm of
+the full residual is the complementary inverse-trace. -/
+theorem schattenOne_residual_eq_nystromError {ι : Type*} [Fintype ι]
+    [DecidableEq ι] {M : Matrix ι ι ℝ} (hM : M.PosDef) (S : Finset ι) :
+    schattenOne (nystromResidual M⁻¹ S) = nystromError M S :=
+  schattenOne_nystromResidual_eq_nystromError hM S
 
 end NystromSubmodularity

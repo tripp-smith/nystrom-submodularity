@@ -14,7 +14,7 @@ import Mathlib.Data.Fin.VecNotation
 Atamtürk–Gómez four-point identity: for a Stieltjes matrix `A` and
 `F(T)=tr(A[T]⁻¹)`, the defect on `{i,j}` relative to a base set `S`
 splits as a sum of two nonnegative `2×2` expressions in the Schur
-complement `Q` and Gram `H = Cᵀ A[S]⁻² C`. Colbrook Lemma 3
+complement `Q` and Gram `H = Cᵀ A[S]⁻² C`. Colbrook Lemma 2.2
 (`exact_marginal`) and strict decrease of \(\mathcal{E}\) hold for
 every positive-definite precision matrix, not only Stieltjes matrices.
 -/
@@ -214,7 +214,7 @@ lemma schurPair_posDef {A : Matrix ι ι ℝ} (hA : IsStieltjes A)
   have hBlk := fromBlocks_insert₂_posDef hA hi hj hij
   simpa [schurPair] using schurComplement_posDef hN hBlk
 
-/-- Colbrook Lemma 3: the exact one-index inverse-trace increment for any
+/-- Colbrook Lemma 2.2: the exact one-index inverse-trace increment for any
 positive-definite precision matrix. -/
 theorem exact_marginal {A : Matrix ι ι ℝ} (hA : A.PosDef)
     {S : Finset ι} {i : ι} (hi : i ∉ S) :

@@ -164,6 +164,41 @@ Intentional after these threads: opening an actual mathlib PR on
 `leanprover-community/mathlib4` (the phase skill does not open
 upstream PRs); a Networkit C++ module; a Rust + PyO3 wheel.
 
+## Thread 13 — Schatten-1 residual bridge and application semantics
+
+Phase cadence: `.cursor/skills/nystrom-phase/SKILL.md`.
+
+Threads 4, 9, and 11 give a true Schatten-1 norm (`schattenOne`) and
+identify it with the trace on PSD matrices, plus Colbrook Theorem 2.1’s
+block residual. The library `nuclearNorm` was still `A.trace` for an
+arbitrary real matrix, which is not a nuclear norm. This thread makes
+the nuclear-norm statement of Problem 4.6 literal, aligns `IsSDDM`
+with Colbrook’s definition, and tightens the Python package so
+heuristic modes and sparse estimators cannot silently claim exact
+mathematics.
+
+| Name | Claim |
+|------|--------|
+| `psdNuclearMass` | former `nuclearNorm`; the trace, named so it is not a general nuclear norm |
+| `schattenOne_reindex_of_posSemidef` | Schatten-1 is invariant under reindexing a PSD matrix |
+| `nystromResidual_posSemidef` | the Nyström residual of \(M^{-1}\) is PSD |
+| `schattenOne_nystromResidual_eq_nystromError` | \(\operatorname{schattenOne}(K-\mathcal N_S(K))=\mathcal{E}(S)\) |
+| `schattenOne_nystromResidual_supermodular_of_isSDDM` | Problem 4.6(a) stated with `schattenOne` of the residual |
+| `IsSDDM` | SDD plus nonpositive off-diagonals; no strict-positive-diagonal clause |
+| `isolatedNodeLap_isSDDM` | a Laplacian with a zero-degree vertex is SDDM |
+| `attach_guarantee` | \(1-1/e\) only for `exact` / `lazy` on SDDM matrices |
+| `nystrom_error` | always the exact complementary inverse-trace |
+| `estimate_nystrom_error` | optional Hutchinson estimator; CG treats `info != 0` as failure |
+| `is_sddm` | sparse-native; accepts a zero diagonal |
+
+Do **not** claim: nuclear-norm triangle inequality / Ky Fan; an actual
+mathlib4 PR; a Networkit C++ module; an unbounded greedy approximation
+ratio on the SDD class.
+
+Files: `Nystrom.lean` (rename), `Schur.lean` (bridge),
+`Definitions.lean` / `SmallInstanceChecks.lean` (`IsSDDM`),
+`Theorems.lean` (public wrappers), `graphnystrom/`, `tests/`.
+
 ## Verification (every thread)
 
 - `lake build` sorry-free

@@ -39,8 +39,10 @@ does the benefit of adding index \(i\) shrink as the set you already have gets
 larger? That is the same structure as greedy facility location or greedy
 instrument selection. If yes, a simple greedy rule — always add the landmark
 that helps most right now — has the usual \((1-1/e)\) performance guarantee
-relative to the best set of the same size. If no, greedy can be arbitrarily
-misleading, and you are back to combinatorics.
+relative to the best set of the same size. If no, greedy can lose that
+standard approximation guarantee and can make a provably suboptimal first
+choice — the library certifies a \(5/4\) residual ratio at \(t=2\), not an
+unbounded ratio over the SDD class.
 
 Workshop language calls this “submodularity of the error.” In the usual
 combinatorial dictionary, diminishing returns of \(\mathcal{E}\) is
@@ -53,8 +55,9 @@ The precision matrix is \(M = L + \gamma I\) with \(\gamma>0\). The interesting
 object is \(L\).
 
 **SDDM** (“symmetric diagonally dominant M-matrix”). Off-diagonal entries are
-all \(\le 0\), the diagonal is positive, and each row’s diagonal at least
-covers the rest of the row in absolute value. Graph Laplacians live here:
+all \(\le 0\), and each row’s diagonal at least covers the rest of the row
+in absolute value (so the diagonal is nonnegative; a zero-degree vertex is
+allowed). Graph Laplacians live here:
 variables are nodes, off-diagonals are (minus) edge weights. In a Gaussian
 graphical model this is the uniform “substitutes / competitive” sign pattern —
 partial correlations that do not flip sign.
@@ -185,8 +188,11 @@ might behave differently; we did not prove anything about them.
    supermodular.
 4. **Hermitian nuclear-norm / Schatten-1 API.** \(\sum_i|\lambda_i|\) via
    mathlib eigenvalues equals the trace on every PSD matrix, so it
-   agrees with `nuclearNorm` and with `nystromError` on the complementary
-   inverse. `matrixSingularValues` wraps `LinearMap.singularValues` on
+   agrees with `psdNuclearMass` (the trace) and with `nystromError` on the
+   complementary inverse. The headline identity
+   `schattenOne (nystromResidual M⁻¹ S) = nystromError M S` is the
+   literal nuclear-norm statement of Problem 4.6.
+   `matrixSingularValues` wraps `LinearMap.singularValues` on
    rectangular real matrices; `schattenOne` is their singular-value sum.
    On a Hermitian matrix that sum equals \(\sum_i|\lambda_i|\). Absolute
    homogeneity `schattenOne (c • A) = |c| * schattenOne A` holds, and
@@ -217,9 +223,11 @@ might behave differently; we did not prove anything about them.
    \(2288/2295<1\), matching the defect \(-7/2040\).
 
 9. **Application layer.** `graphnystrom` turns the certified inverse-trace
-   into a Networkit-style greedy landmark selector. On SDDM Laplacians
-   it reports the \((1-1/e)\) guarantee; on Colbrook’s \(M_0\) it
-   reproduces \(\Delta=-7/2040\) and shows greedy picking the bad
+   into a Networkit-style greedy landmark selector. Exact and lazy
+   modes report the \((1-1/e)\) guarantee on SDDM matrices; stochastic
+   and approximate modes report none. `nystrom_error` is always exact;
+   Hutchinson lives in `estimate_nystrom_error`. On Colbrook’s \(M_0\)
+   it reproduces \(\Delta=-7/2040\) and shows greedy picking the bad
    first landmark. See `APPLICATION.md`.
 
 ## What we still do not claim
@@ -233,7 +241,8 @@ GitHub Actions CI, and the `graphnystrom` selector are now in the
 repository.
 
 Build the library with `lake build`. The headline theorems are
-`nystromError_supermodular_of_isSDDM` and
+`nystromError_supermodular_of_isSDDM`,
+`schattenOne_nystromResidual_eq_nystromError`, and
 `not_nystromError_supermodular_of_isSDD` in `NystromSubmodularity/Theorems.lean`.
 The small exhaustive checks live in `SmallInstanceChecks.lean`; the signed
 triangle is in `Counterexamples/SDDDim3.lean`; the nonempty-base \(4\times 4\)

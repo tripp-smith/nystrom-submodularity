@@ -103,4 +103,55 @@ theorem schattenOne_fromBlocks_two_three :
   simp [trace_fin_one_of]
   norm_num
 
+lemma posSemidef_reindex {ι κ : Type*} [Fintype ι] [Fintype κ]
+    {A : Matrix ι ι ℝ} (e : ι ≃ κ) :
+    (A.reindex e e).PosSemidef ↔ A.PosSemidef :=
+  posSemidef_submatrix_equiv e.symm
+
+/-- Schatten-1 is invariant under reindexing a PSD matrix (permutation of
+the index type). The residual identity of Theorem 2.1 is a reindex, so
+this is the missing invariance in the nuclear-norm bridge. -/
+theorem schattenOne_reindex_of_posSemidef {ι κ : Type*} [Fintype ι] [Fintype κ]
+    [DecidableEq ι] [DecidableEq κ] {A : Matrix ι ι ℝ} (hA : A.PosSemidef)
+    (e : ι ≃ κ) : schattenOne (A.reindex e e) = schattenOne A := by
+  have hR : (A.reindex e e).PosSemidef := (posSemidef_reindex e).mpr hA
+  rw [schattenOne_eq_trace_of_posSemidef hR, schattenOne_eq_trace_of_posSemidef hA,
+    trace_reindex]
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+
+/-- The Nyström residual of \(M^{-1}\) is positive semidefinite. -/
+theorem nystromResidual_posSemidef {M : Matrix ι ι ℝ} (hM : M.PosDef)
+    (S : Finset ι) : (nystromResidual M⁻¹ S).PosSemidef := by
+  have hre := nystromResidual_eq_padded_compl_inv hM S
+  have hD : (M.toBlock (fun x => x ∉ S) (fun x => x ∉ S)).PosDef :=
+    hM.submatrix Subtype.val_injective
+  have hBlk := fromBlocks_diagonal_posSemidef
+    (PosSemidef.zero : (0 : Matrix { x // x ∈ S } { x // x ∈ S } ℝ).PosSemidef)
+    hD.inv.posSemidef
+  exact (posSemidef_reindex (Equiv.sumCompl (fun x => x ∈ S)).symm).mp (hre ▸ hBlk)
+
+/-- Headline nuclear-norm identity: the Schatten-1 norm of the full
+Nyström residual equals the complementary inverse-trace. This is the
+literal statement of Problem 4.6’s nuclear error, via Theorem 2.1,
+reindex invariance, and block-diagonal additivity. -/
+theorem schattenOne_nystromResidual_eq_nystromError {M : Matrix ι ι ℝ}
+    (hM : M.PosDef) (S : Finset ι) :
+    schattenOne (nystromResidual M⁻¹ S) = nystromError M S := by
+  have hre := nystromResidual_eq_padded_compl_inv hM S
+  have hD : (M.toBlock (fun x => x ∉ S) (fun x => x ∉ S)).PosDef :=
+    hM.submatrix Subtype.val_injective
+  have h0 : (0 : Matrix { x // x ∈ S } { x // x ∈ S } ℝ).PosSemidef :=
+    PosSemidef.zero
+  have hInv : ((M.toBlock (fun x => x ∉ S) (fun x => x ∉ S))⁻¹).PosSemidef :=
+    hD.inv.posSemidef
+  have hres := nystromResidual_posSemidef hM S
+  rw [← schattenOne_reindex_of_posSemidef hres (Equiv.sumCompl (fun x => x ∈ S)).symm,
+    hre, schattenOne_fromBlocks_diagonal_of_posSemidef h0 hInv, trace_zero, zero_add]
+  have hconv := toBlock_eq_principal_compl M S
+  have : (M.toBlock (fun x => x ∉ S) (fun x => x ∉ S))⁻¹.trace =
+      (principalSubmatrix M (compl S))⁻¹.trace := by
+    rw [hconv, inv_submatrix_equiv, trace_submatrix_equiv]
+  simpa [nystromError, traceInv] using this
+
 end NystromSubmodularity

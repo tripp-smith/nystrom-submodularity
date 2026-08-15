@@ -19,8 +19,8 @@ are nonnegative, so this coincides with the trace — the identification
 used by `nuclearNorm` throughout the library.
 
 `matrixSingularValues` wraps `LinearMap.singularValues` on
-`toEuclideanLin`. For a PSD matrix the singular-value sum equals that
-Hermitian nuclear norm, so Nyström error is a singular-value sum.
+`toEuclideanLin`. On every Hermitian matrix the singular-value sum
+equals that nuclear norm, so Nyström error is a singular-value sum.
 -/
 
 namespace NystromSubmodularity

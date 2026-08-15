@@ -11,7 +11,8 @@ pattern (off-diagonals all \(\le 0\)), greedy landmark selection for Nyström
 nuclear error has the usual diminishing-returns guarantee. If off-diagonals
 are allowed to mix signs — some complements, some substitutes — that
 guarantee can already fail on a \(3\times 3\) example. Diagonal dominance
-alone is not enough.
+alone is not enough. The specification in `SPEC.md` is complete; the
+list at the end is leftover research, not unfinished formalization.
 
 ## The practical question
 
@@ -164,7 +165,8 @@ might behave differently; we did not prove anything about them.
 
 ## What remains
 
-These are genuine leftovers, not hidden holes in the two theorems above.
+These are genuine leftovers, not hidden holes in the specification or in
+Colbrook Theorem 1.
 
 1. **Other losses.** Frobenius error, operator-norm error, and downstream
    prediction risk are open. Nuclear error was the question we were asked.
@@ -182,16 +184,19 @@ These are genuine leftovers, not hidden holes in the two theorems above.
    trace on this PSD residual; we did not add a general singular-value
    definition.
 5. **Mathlib extraction.** The Stieltjes and four-point lemmas could be
-   upstreamed; they are not yet a mathlib PR.
-6. **Neumann series and other losses.** A Neumann-series rewrite of the
-   Stieltjes argument, and Frobenius / operator-norm / prediction-risk
-   losses, remain open.
+   upstreamed; they are not a mathlib PR.
+6. **Neumann series.** A Neumann-series rewrite of the Stieltjes argument
+   was not formalized.
+7. **Perturbation robustness.** Approximate-submodularity ratios for
+   matrices near the SDDM cone are open.
 
-Build the library with `lake build`. The two headline theorems are
+Build the library with `lake build`. The headline theorems are
 `nystromError_supermodular_of_isSDDM` and
 `not_nystromError_supermodular_of_isSDD` in `NystromSubmodularity/Theorems.lean`.
 The small exhaustive checks live in `SmallInstanceChecks.lean`; the signed
 triangle is in `Counterexamples/SDDDim3.lean`; the nonempty-base \(4\times 4\)
 witness is in `Counterexamples/SDDDim4.lean`; the sharp interval for \(L(t)\)
-is in `Counterexamples/SDDFamily.lean`. `SPEC.md` is the original
-two-phase attack plan plus a recorded outcome.
+is in `Counterexamples/SDDFamily.lean`; greedy misselection is in
+`Counterexamples/Greedy.lean`; signature switching is in `Signature.lean`;
+the residual identity is in `Nystrom.lean`. `SPEC.md` is the original
+two-phase attack plan plus the recorded completion.

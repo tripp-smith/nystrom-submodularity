@@ -7,50 +7,97 @@
 
 ---
 
-## Outcome (recorded)
+## Outcome (specification complete)
 
-The plan below is the original attack. The formalization is complete for both
-cases of the primary goal, with the Wikipedia names (see `README.md` and the
-non-technical writeup `FINDINGS.md`):
+The plan below is the original two-phase attack. The formalization is
+**finished**: both cases of the primary goal, the nuclear-norm justification
+asked for in §2.1, and Colbrook’s resolution of Problem 4.6
+(arXiv:2607.19282, Theorem 1(a)–(c) and the supporting results). Theorems
+use the Wikipedia names (see `README.md` and `FINDINGS.md`).
 
-- **(a) SDDM.** `nystromError_supermodular_of_isSDDM` in `Theorems.lean`:
-  for `IsSDDM L` and `γ > 0`, \(\mathcal{E}(S)=\operatorname{tr}((L+\gamma I)[S^{\mathsf{c}}]^{-1})\)
+### Success criteria (§0)
+
+| Criterion | Delivery |
+|-----------|----------|
+| Sorry-free Lean 4 proof or counter-example, kernel-accepted | `lake build`; `rg sorry --glob '*.lean'` empty |
+| Self-contained enough for a library | Dedicated repo; mathlib extraction remains optional (`FINDINGS.md`) |
+| Intermediate checks machine-checked in Lean | Exact \(\mathbb{Q}\) Cramer traces; \(n\le 5\) exhaustive SDDM four-point checks; kernel `norm_num` on \(L_0\) |
+| No unjustified Python | None used |
+
+Public theorems print only the Lean defaults `propext`, `Classical.choice`,
+`Quot.sound`.
+
+### Primary goal (§0)
+
+- **(a) SDDM.** `nystromError_supermodular_of_isSDDM`: for `IsSDDM L` and
+  `γ > 0`, \(\mathcal{E}(S)=\operatorname{tr}((L+\gamma I)[S^{\mathsf{c}}]^{-1})\)
   is supermodular. Proof: Stieltjes inverse-nonnegativity (`Stieltjes.lean`)
   plus the Atamtürk–Gómez four-point identity (`InverseTrace.lean`).
-  Axioms: `propext`, `Classical.choice`, `Quot.sound`.
-- **(b) SDD.** `not_nystromError_supermodular_of_isSDD`: Colbrook’s \(3\times 3\)
-  signed triangle \(L_0\) at \(\gamma=1\) has \(\Delta=-7/2040<0\). The Cramer
-  traces of \(M_0\) and diagonal dominance of \(L_0\) are kernel proofs
-  (`norm_num` / explicit \(3\times 3\) determinants), not `native_decide`.
-  Strict diagonal dominance does not restore the inequality
-  (`not_nystromError_supermodular_of_isStrictSDD`, \(L^\sharp\),
-  \(\Delta=-1/1092\)). Dimension two never fails
-  (`nystromError_supermodular_of_card_le_two_posDef`). With a nonempty base,
-  dimension four is minimal (`exists_nystromError_fourPoint_neg_of_isStrictSDD_nonempty`,
-  \(L_4\), \(\Delta=-7/20400\)).   The family \(L(t)\) fails to be supermodular iff
-  \(\varphi<t<1+\sqrt{2}\) (`Lfam_not_supermodular_iff`).
-  Greedy one-column selection on that interval, and on \(L^\sharp\),
-  picks a landmark that lies in no optimal pair
-  (`Lfam_greedy_misses_optimal_pair`, `Lsharp_greedy_misses_optimal_pair`).
-  A \(\{\pm 1\}\) signature that produces a Stieltjes matrix implies
-  supermodularity (`nystromError_supermodular_of_signature_stieltjes`).
-  On a fully supported triangle this holds for every positive-definite
-  realization iff the sign pattern is antibalanced
-  (`triangle_pd_nystrom_supermodular_iff_antibalanced`).
-  Colbrook Theorem 2 is `nystromResidual_eq_padded_compl_inv`: the Nyström
-  residual of \(M^{-1}\) is the padded complement inverse, so
-  `nuclearNystromError_eq_nystromError` on that PSD residual. The
-  definitional gap is closed. Lemma 3 (`exact_marginal`) and strict
-  decrease of \(\mathcal{E}\) hold for every positive-definite precision
-  matrix. Scaling by \(\alpha\neq 0\) multiplies every inverse-trace by
-  \(\alpha^{-1}\) (`nystromError_smul_scale`).
+- **(b) SDD.** `not_nystromError_supermodular_of_isSDD`: Colbrook’s
+  \(3\times 3\) signed triangle \(L_0\) at \(\gamma=1\) has
+  \(\Delta=-7/2040<0\). Traces and diagonal dominance are kernel proofs,
+  not `native_decide`.
+- **\(\gamma\to 0^+\).** The stated theorem is \(\gamma>0\). That, with
+  `IsSDDM.quad_nonneg`, is the limit the goal asked for. Unshifted
+  Laplacians (\(\gamma=0\), kernel the constants) are an intentional
+  leftover, not a hole in (a).
 
-No Python was used. `lake build` is sorry-free.
+### Definitional items (§2.1)
+
+Nuclear norm was specified via singular values. Colbrook Theorem 2
+(`nystromResidual_eq_padded_compl_inv`) identifies the residual of
+\(M^{-1}\) with a padded complement inverse. That residual is PSD, so
+`nuclearNystromError_eq_nystromError`: nuclear error equals inverse-trace.
+There is no general SVD API; that identification is the justification
+the specification required.
+
+`exact_marginal` (Lemma 3) and `nystromError_strict_anti_monotone` hold
+for every positive-definite precision matrix.
+`nystromError_smul_scale` is Colbrook (30).
+
+### Colbrook Theorem 1 (resolution of Problem 4.6)
+
+- **(a)** SDDM \(\Rightarrow\) diminishing returns:
+  `nystromError_supermodular_of_isSDDM`.
+- **(b)** SDD can fail, including strictly SDD:
+  `not_nystromError_supermodular_of_isSDD`,
+  `not_nystromError_supermodular_of_isStrictSDD`,
+  `Lfam_not_supermodular_iff` (Theorem 10: failure iff
+  \(\varphi<t<1+\sqrt{2}\)).
+- **(c)** Dimension three is minimal; with a nonempty base, four is
+  minimal and may be strictly SDD with complete support:
+  `nystromError_supermodular_of_card_le_two_posDef`,
+  `nystromError_fourPoint_nonempty_of_card_le_three`,
+  `exists_nystromError_fourPoint_neg_of_isStrictSDD_nonempty`.
+
+Supporting results in the library: Theorem 2 (residual identity);
+Propositions 7–8 and Corollary 13 (`Signature.lean`); greedy
+misselection (`Lfam_greedy_misses_optimal_pair`,
+`Lsharp_greedy_misses_optimal_pair`).
+
+### Intentional leftovers (not required by this specification)
+
+Other losses; a general SVD nuclear-norm API; a Neumann-series rewrite;
+perturbation / approximate-submodularity ratios; a mathlib upstream PR;
+the true singular case \(\gamma=0\).
+
+### Phase-1 / Phase-2 deliverables
+
+Phase 1 (`SmallInstanceChecks.lean`): every tested SDDM instance with
+\(n\le 5\) satisfies the four-point inequality; SDD already fails at
+\(n=3\). Exhaustive search was restricted to \(n\le 5\) as the §4
+fallback (not \(n=6\)).
+
+Phase 2 (`Theorems.lean`): both the SDDM theorem and the SDD
+counter-example, under the names above. `FINDINGS.md` is the
+non-technical account; `README.md` is the module map.
 
 **Directory (actual):**
 
 ```
+README.md
 FINDINGS.md
+SPEC.md
 NystromSubmodularity.lean
 NystromSubmodularity/
 ├── Definitions.lean
@@ -179,6 +226,12 @@ Python is allowed solely for the following, and must be accompanied by a Lean co
   - Either a formal counter-example for SDD (or a large SDDM) or a statement "no counter-example found up to $n=6$".
 - A short comment summarizing the empirical picture that will drive Phase 2 strategy.
 
+**As delivered.** `SmallInstanceChecks.lean` confirms the four-point
+inequality on path/cycle SDDM instances for \(n\le 5\). The SDD
+counter-example is `L0` in `Counterexamples/SDDDim3.lean`. No \(n=6\)
+exhaustive search was run (the §4 fallback). `FINDINGS.md` records the
+empirical picture.
+
 ---
 
 ## 3. Phase 2 – Full Formalization in Lean 4
@@ -226,8 +279,11 @@ Produce a `sorry`-free theorem (or a machine-checked counter-example) for the ge
 **As delivered.** Both: `nystromError_supermodular_of_isSDDM` in `Theorems.lean`
 (positive SDDM theorem; the inequality is supermodularity of \(\mathcal{E}\),
 not submodularity) and `not_nystromError_supermodular_of_isSDD` (SDD
-counter-example). `FINDINGS.md` is the non-technical account; `README.md`
-records the Schur reduction and module map.
+counter-example), together with the Theorem 1(c) minimality statements,
+Theorem 2, Theorem 10, Propositions 7–8, Corollary 13, and the greedy
+example. `FINDINGS.md` is the non-technical account; `README.md` records
+the Schur identity and module map. The optional mathlib PR was not
+opened.
 
 ---
 

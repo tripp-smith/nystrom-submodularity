@@ -36,5 +36,5 @@ reciprocal.
 
 Public theorems live in `Theorems.lean`. See `FINDINGS.md` for a
 non-technical account, `README.md` for the module map, and `SPEC.md` for the
-original two-phase plan plus recorded outcome.
+original two-phase plan. The specification is complete.
 -/

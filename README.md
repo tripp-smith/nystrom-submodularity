@@ -3,6 +3,9 @@
 Lean 4 / mathlib4 formalization of Simons workshop [Problem 4.6](https://arxiv.org/abs/2607.19282)
 (Colbrook, *Nyström Error Beyond M-Matrices*).
 
+The [specification](SPEC.md) is complete: both cases of Problem 4.6, the
+nuclear-norm justification, and Colbrook Theorem 1(a)–(c).
+
 **Start here if you are not a mathematician:** [FINDINGS.md](FINDINGS.md) explains
 what was proved, why the sign pattern of a precision matrix matters for greedy
 landmark selection, and what is still open.
@@ -32,6 +35,10 @@ PSD, so its nuclear (Schatten-1) norm equals its trace and
 trace on this residual; there is no general SVD API.
 
 ## Status
+
+**Specification.** Finished. The original two-phase attack in `SPEC.md` and
+Colbrook’s resolution of Problem 4.6 are in the library. Leftovers listed
+below are intentional and are not holes in that specification.
 
 **Small-instance checks.** Exact \(\mathbb{Q}\) checker (`cramerTraceInv`); path/cycle
 SDDM instances on \(n=3,4,5\) with exhaustive four-point checks; Colbrook’s
@@ -88,8 +95,16 @@ decreasing (`nystromError_strict_anti_monotone`). Scaling \(M\) by
 is the certified Cramer value \(9/16\); the traces of \(10\cdot M_0\)
 are one-tenth of those of \(M_0\).
 
-Both public theorems print the Lean defaults (`propext`, `Classical.choice`,
-`Quot.sound`).
+Public theorems print the Lean defaults (`propext`, `Classical.choice`,
+`Quot.sound`). Headline names: `nystromError_supermodular_of_isSDDM`
+(Theorem 1(a)); `not_nystromError_supermodular_of_isSDD` and
+`Lfam_not_supermodular_iff` (Theorem 1(b) / Theorem 10);
+`nystromError_supermodular_of_card_le_two_posDef` and
+`exists_nystromError_fourPoint_neg_of_isStrictSDD_nonempty` (Theorem 1(c));
+`nystromResidual_eq_padded_compl_inv` (Theorem 2);
+`nystromError_supermodular_of_signature_stieltjes` (Proposition 7);
+`triangle_pd_nystrom_supermodular_iff_antibalanced` (Corollary 13);
+`Lfam_greedy_misses_optimal_pair`.
 
 **Not in scope.** SVD nuclear-norm API, Neumann series, other losses, or
 the true singular case \(\gamma=0\).
@@ -102,7 +117,7 @@ Build: `lake build`. No `sorry` in the library target.
 |------|------|
 | `Definitions.lean` | `Submodular` / `Supermodular`, SDDM/SDD/Stieltjes predicates |
 | `PrincipalSubmatrix.lean` | `traceInv`, `nystromError`, insert₁/insert₂ block identifications |
-| `Computable.lean` | exact \(\mathbb{Q}\) Cramer traces |
+| `Computable.lean` | exact \(\mathbb{Q}\) Cramer traces; scaling identity |
 | `Nystrom.lean` | Nyström residual identity; nuclear error equals inverse-trace |
 | `Stieltjes.lean` | inverse-nonnegativity; SDDM + \(\gamma I\) is Stieltjes |
 | `InverseTrace.lean` | four-point identity; exact marginal for every PD matrix |
@@ -113,4 +128,4 @@ Build: `lake build`. No `sorry` in the library target.
 | `Counterexamples/SDDFamily.lean` | signed-triangle family \(L(t)\) and sharp interval |
 | `Counterexamples/Greedy.lean` | greedy one-column misselection on \(L(t)\) and \(L^\sharp\) |
 | `Signature.lean` | signature congruence, antibalance, order-3 Corollary 13 |
-| `Theorems.lean` | public theorems: SDDM supermodularity and SDD obstruction |
+| `Theorems.lean` | public theorems: Theorem 1(a)–(c), 2, 7–8, 10, greedy |

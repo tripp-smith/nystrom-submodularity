@@ -39,7 +39,7 @@ obstruction is in `Minimality.lean`. Greedy one-column misselection on
 \(L(t)\) and \(L^\sharp\) is in `Counterexamples/Greedy.lean`. Signature
 switching and the order-3 antibalance criterion are in `Signature.lean`.
 The residual identity is in `Nystrom.lean`. A non-technical account is in
-`FINDINGS.md`.
+`FINDINGS.md`. The specification in `SPEC.md` is complete.
 -/
 
 namespace NystromSubmodularity

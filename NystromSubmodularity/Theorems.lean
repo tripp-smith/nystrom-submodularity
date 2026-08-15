@@ -11,6 +11,7 @@ import NystromSubmodularity.OtherLosses
 import NystromSubmodularity.Census
 import NystromSubmodularity.Singular
 import NystromSubmodularity.NuclearNormSVD
+import NystromSubmodularity.Schur
 import NystromSubmodularity.Neumann
 import NystromSubmodularity.Perturbation
 import NystromSubmodularity.ApproxSubmodular
@@ -229,7 +230,7 @@ in `Nystrom.lean`, `exact_marginal` and `nystromError_strict_anti_monotone`
 in `InverseTrace.lean`, and `nystromError_smul_scale` in `Computable.lean`.
 
 Remaining research: `OtherLosses.lean`, `Census.lean`, `Singular.lean`,
-`NuclearNormSVD.lean`, `Neumann.lean`, `Perturbation.lean`,
+`NuclearNormSVD.lean`, `Schur.lean`, `Neumann.lean`, `Perturbation.lean`,
 `ApproxSubmodular.lean`, and `MATHLIB.md`. See `RESEARCH.md`.
 
 The general approximate-supermodularity ratio is
@@ -240,14 +241,16 @@ positive-definite perturbation moves each Nyström value by at most
 defect by at most `fourPointLipschitzBound`. On \(M_0\) the empty-base
 \((0,1)\) ratio is \(2288/2295\).
 
-Singular values of a real matrix are `matrixSingularValues`; on a
-Hermitian matrix their sum equals the Hermitian nuclear norm
+Singular values of a real (including rectangular) matrix are
+`matrixSingularValues`; `schattenOne` is their sum. On a Hermitian
+matrix that sum equals the Hermitian nuclear norm
 (`sum_matrixSingularValues_eq_hermitianNuclearNorm`), so Nyström
-error is a singular-value sum of the complementary inverse. The
-infinite Neumann series equals the inverse whenever the \(\ell^2\)
-operator norm is less than one (`neumann_series_inv`); every
-positive-definite matrix admits such a splitting
-(`exists_neumannSplit_series_of_posDef`). -/
+error is a singular-value sum of the complementary inverse.
+Block-diagonal Hermitian nuclear mass adds
+(`hermitianNuclearNorm_fromBlocks_diagonal`). The infinite Neumann
+series equals the inverse whenever the \(\ell^2\) operator norm is
+less than one (`neumann_series_inv`); every positive-definite matrix
+admits such a splitting (`exists_neumannSplit_series_of_posDef`). -/
 
 /-- Forces the residual identity, not only the inverse-trace definition:
 the nuclear error of \(M_0\) at \(\{0\}\) is the certified Cramer value. -/
@@ -314,5 +317,32 @@ theorem neumann_series_half :
     let A : Matrix (Fin 1) (Fin 1) ℝ := !![1 / 2]
     (1 - A)⁻¹ = ∑' k : ℕ, A ^ k ∧ (1 - A)⁻¹ = !![2] :=
   neumann_series_inv_half
+
+/-- The Schatten-1 norm of a \(1\times 1\) matrix is the absolute value. -/
+theorem schattenOne_abs_of_fin_one (a : ℝ) :
+    schattenOne (!![a] : Matrix (Fin 1) (Fin 1) ℝ) = |a| :=
+  schattenOne_fin_one a
+
+/-- Certified \(1\times 1\) Schatten-1 check: \(\operatorname{schattenOne}\,[\![-3]\!]=3\). -/
+theorem schattenOne_neg_three_check :
+    schattenOne (!![-3] : Matrix (Fin 1) (Fin 1) ℝ) = 3 :=
+  schattenOne_neg_three
+
+/-- Block-diagonal Hermitian nuclear mass adds. -/
+theorem hermitianNuclearNorm_blockDiag {m n : Type*}
+    [Fintype m] [Fintype n] [DecidableEq m] [DecidableEq n]
+    {A : Matrix m m ℝ} {D : Matrix n n ℝ}
+    (hA : A.IsHermitian) (hD : D.IsHermitian) :
+    hermitianNuclearNorm (fromBlocks A (0 : Matrix m n ℝ) 0 D)
+      (isHermitian_fromBlocks_diagonal hA hD) =
+      hermitianNuclearNorm A hA + hermitianNuclearNorm D hD :=
+  hermitianNuclearNorm_fromBlocks_diagonal hA hD
+
+/-- Certified block-diagonal Schatten-1 check: \(\operatorname{diag}(2,3)\) has mass \(5\). -/
+theorem schattenOne_diag_two_three :
+    schattenOne
+      (fromBlocks (!![2] : Matrix (Fin 1) (Fin 1) ℝ) 0 0
+        (!![3] : Matrix (Fin 1) (Fin 1) ℝ)) = 5 :=
+  schattenOne_fromBlocks_two_three
 
 end NystromSubmodularity

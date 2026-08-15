@@ -6,8 +6,10 @@ import Mathlib.Analysis.InnerProductSpace.SingularValues
 import Mathlib.Analysis.InnerProductSpace.Positive
 import Mathlib.LinearAlgebra.Matrix.Charpoly.Basic
 import Mathlib.LinearAlgebra.Charpoly.ToMatrix
+import Mathlib.LinearAlgebra.Matrix.Notation
 import Mathlib.Data.Multiset.Sort
 import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.NormNum
 
 /-!
 # Hermitian nuclear-norm API
@@ -19,8 +21,10 @@ are nonnegative, so this coincides with the trace — the identification
 used by `nuclearNorm` throughout the library.
 
 `matrixSingularValues` wraps `LinearMap.singularValues` on
-`toEuclideanLin`. On every Hermitian matrix the singular-value sum
-equals that nuclear norm, so Nyström error is a singular-value sum.
+`toEuclideanLin` for rectangular real matrices. `schattenOne` is the
+true nuclear / Schatten-1 norm \(\sum_i\sigma_i\). On every Hermitian
+matrix that sum equals \(\sum_i|\lambda_i|\), so Nyström error is a
+singular-value sum.
 -/
 
 namespace NystromSubmodularity
@@ -66,22 +70,37 @@ theorem nystromError_eq_hermitianNuclearNorm_compl {ι : Type*} [Fintype ι]
 
 open Polynomial
 
-/-- Singular values of a real square matrix, via mathlib’s
-`LinearMap.singularValues` on `toEuclideanLin`. -/
-noncomputable def matrixSingularValues {n : Type*} [Fintype n] [DecidableEq n]
-    (A : Matrix n n ℝ) : ℕ →₀ ℝ :=
+/-- Singular values of a real matrix, via mathlib’s
+`LinearMap.singularValues` on `toEuclideanLin`. The sequence is
+indexed by the column space: entries after `Fintype.card n` vanish. -/
+noncomputable def matrixSingularValues {m n : Type*} [Fintype m] [Fintype n]
+    [DecidableEq n] (A : Matrix m n ℝ) : ℕ →₀ ℝ :=
   A.toEuclideanLin.singularValues
 
-theorem matrixSingularValues_nonneg {n : Type*} [Fintype n] [DecidableEq n]
-    (A : Matrix n n ℝ) (i : ℕ) : 0 ≤ matrixSingularValues A i :=
+theorem matrixSingularValues_nonneg {m n : Type*} [Fintype m] [Fintype n]
+    [DecidableEq n] (A : Matrix m n ℝ) (i : ℕ) :
+    0 ≤ matrixSingularValues A i :=
   A.toEuclideanLin.singularValues_nonneg i
 
-theorem matrixSingularValues_eq_zero_of_card_le {n : Type*} [Fintype n] [DecidableEq n]
-    (A : Matrix n n ℝ) {i : ℕ} (hi : Fintype.card n ≤ i) :
-    matrixSingularValues A i = 0 := by
+theorem matrixSingularValues_eq_zero_of_card_le {m n : Type*} [Fintype m]
+    [Fintype n] [DecidableEq n] (A : Matrix m n ℝ) {i : ℕ}
+    (hi : Fintype.card n ≤ i) : matrixSingularValues A i = 0 := by
   have : Module.finrank ℝ (EuclideanSpace ℝ n) ≤ i := by
     simpa [finrank_euclideanSpace] using hi
   exact A.toEuclideanLin.singularValues_of_finrank_le this
+
+/-- Schatten-1 (nuclear) norm of a real matrix: sum of singular values. -/
+noncomputable def schattenOne {m n : Type*} [Fintype m] [Fintype n]
+    [DecidableEq n] (A : Matrix m n ℝ) : ℝ :=
+  ∑ i ∈ Finset.range (Fintype.card n), matrixSingularValues A i
+
+theorem schattenOne_nonneg {m n : Type*} [Fintype m] [Fintype n]
+    [DecidableEq n] (A : Matrix m n ℝ) : 0 ≤ schattenOne A :=
+  Finset.sum_nonneg fun i _ => matrixSingularValues_nonneg A i
+
+theorem schattenOne_zero {m n : Type*} [Fintype m] [Fintype n]
+    [DecidableEq n] : schattenOne (0 : Matrix m n ℝ) = 0 := by
+  simp [schattenOne, matrixSingularValues, LinearMap.singularValues_zero]
 
 /-- For a real symmetric map the Gram characteristic polynomial is
 the product over squared eigenvalues. -/
@@ -245,5 +264,139 @@ theorem nystromError_eq_sum_matrixSingularValues_compl {ι : Type*} [Fintype ι]
   have hInv : ((principalSubmatrix M (compl S))⁻¹).PosSemidef := hP.inv.posSemidef
   rw [nystromError, traceInv, ← nuclearNorm_eq_sum_matrixSingularValues hInv]
   rfl
+
+/-- On a Hermitian matrix the Schatten-1 norm is the sum of absolute
+eigenvalues. -/
+theorem schattenOne_eq_hermitianNuclearNorm {n : Type*} [Fintype n]
+    [DecidableEq n] {A : Matrix n n ℝ} (hA : A.IsHermitian) :
+    schattenOne A = hermitianNuclearNorm A hA :=
+  sum_matrixSingularValues_eq_hermitianNuclearNorm hA
+
+/-- On a PSD matrix the Schatten-1 norm equals the trace. -/
+theorem schattenOne_eq_trace_of_posSemidef {n : Type*} [Fintype n]
+    [DecidableEq n] {A : Matrix n n ℝ} (hA : A.PosSemidef) :
+    schattenOne A = A.trace := by
+  rw [schattenOne_eq_hermitianNuclearNorm hA.1,
+    hermitianNuclearNorm_eq_trace_of_posSemidef hA]
+
+lemma isSymmetric_smul {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {T : E →ₗ[ℝ] E} (hT : T.IsSymmetric) (c : ℝ) : (c • T).IsSymmetric := by
+  intro x y
+  rw [LinearMap.smul_apply, LinearMap.smul_apply, inner_smul_left, inner_smul_right,
+    hT x y]
+  simp
+
+lemma adjoint_comp_self_smul {E F : Type*} [NormedAddCommGroup E]
+    [InnerProductSpace ℝ E] [FiniteDimensional ℝ E] [NormedAddCommGroup F]
+    [InnerProductSpace ℝ F] [FiniteDimensional ℝ F] (c : ℝ) (T : E →ₗ[ℝ] F) :
+    (c • T).adjoint ∘ₗ (c • T) = (c ^ 2) • (T.adjoint ∘ₗ T) := by
+  have hadj : (c • T).adjoint = c • T.adjoint := by
+    calc (c • T).adjoint = starRingEnd ℝ c • T.adjoint :=
+        LinearMap.adjoint.map_smulₛₗ c T
+      _ = c • T.adjoint := by simp
+  rw [hadj, LinearMap.comp_smul, LinearMap.smul_comp, smul_smul, ← pow_two]
+
+/-- Nonnegative scaling preserves the antitone eigenvalue listing. -/
+lemma eigenvalues_smul_of_nonneg {E : Type*} [NormedAddCommGroup E]
+    [InnerProductSpace ℝ E] [FiniteDimensional ℝ E] {T : E →ₗ[ℝ] E}
+    (hT : T.IsSymmetric) {μ : ℝ} (hμ : 0 ≤ μ) {n : ℕ}
+    (hn : Module.finrank ℝ E = n) (i : Fin n) :
+    (isSymmetric_smul hT μ).eigenvalues hn i = μ * hT.eigenvalues hn i := by
+  have hanti : Antitone fun j : Fin n => μ * hT.eigenvalues hn j := by
+    intro a b hab
+    exact mul_le_mul_of_nonneg_left (hT.eigenvalues_antitone hn hab) hμ
+  let b := (hT.eigenvectorBasis hn).toBasis
+  have hmat : LinearMap.toMatrix b b (μ • T) =
+      diagonal fun j : Fin n => (μ * hT.eigenvalues hn j : ℝ) := by
+    have hlin : LinearMap.toMatrix b b (μ • T) = μ • LinearMap.toMatrix b b T :=
+      map_smul (LinearMap.toMatrix b b) μ T
+    rw [hlin, hT.toMatrix_eigenvectorBasis]
+    ext i j
+    simp [diagonal, smul_eq_mul]
+  have hchar : (μ • T).charpoly =
+      ∏ j : Fin n, (X - C (μ * hT.eigenvalues hn j : ℝ)) := by
+    rw [← LinearMap.charpoly_toMatrix (μ • T) b, hmat, charpoly_diagonal]
+  have hlist :
+      List.ofFn ((isSymmetric_smul hT μ).eigenvalues hn) =
+        List.ofFn fun j : Fin n => μ * hT.eigenvalues hn j := by
+    rw [← (isSymmetric_smul hT μ).sort_roots_charpoly_eq_eigenvalues hn, hchar]
+    have hroots := roots_multiset_prod_X_sub_C
+      (Finset.univ.val.map fun j : Fin n => μ * hT.eigenvalues hn j)
+    have hprod : (∏ j : Fin n, (X - C (μ * hT.eigenvalues hn j : ℝ))) =
+        (Finset.univ.val.map fun j : Fin n =>
+          (X - C (μ * hT.eigenvalues hn j : ℝ))).prod :=
+      Finset.prod_eq_multiset_prod _ _
+    have hmap : (Finset.univ.val.map fun j : Fin n =>
+        (X - C (μ * hT.eigenvalues hn j : ℝ))) =
+        (Finset.univ.val.map fun j : Fin n =>
+          μ * hT.eigenvalues hn j).map fun a : ℝ => X - C a := by
+      rw [Multiset.map_map]
+      rfl
+    rw [hprod, hmap, hroots, Fin.univ_val_map, Multiset.map_coe, List.map_ofFn,
+      Multiset.coe_sort]
+    exact List.mergeSort_eq_self (r := (· ≥ ·))
+      (List.sortedGE_iff_pairwise.mp hanti.sortedGE_ofFn)
+  exact congrFun (List.ofFn_inj.mp hlist) i
+
+lemma matrixSingularValues_smul {m n : Type*} [Fintype m] [Fintype n]
+    [DecidableEq n] (c : ℝ) (A : Matrix m n ℝ) (i : ℕ) :
+    matrixSingularValues (c • A) i = |c| * matrixSingularValues A i := by
+  have hn : Module.finrank ℝ (EuclideanSpace ℝ n) = Fintype.card n :=
+    finrank_euclideanSpace
+  have hcT : (c • A).toEuclideanLin = c • A.toEuclideanLin :=
+    map_smul Matrix.toEuclideanLin c A
+  by_cases hi : Fintype.card n ≤ i
+  · rw [matrixSingularValues_eq_zero_of_card_le (c • A) hi,
+      matrixSingularValues_eq_zero_of_card_le A hi, mul_zero]
+  · push Not at hi
+    have hG := adjoint_comp_self_smul c A.toEuclideanLin
+    have hEig := eigenvalues_smul_of_nonneg
+      A.toEuclideanLin.isSymmetric_adjoint_comp_self (sq_nonneg c) hn ⟨i, hi⟩
+    have hσc := (c • A).toEuclideanLin.singularValues_of_lt hn hi
+    have hσ := A.toEuclideanLin.singularValues_of_lt hn hi
+    rw [matrixSingularValues, matrixSingularValues, hσc, hσ, hcT]
+    have hrew :
+        (c • A.toEuclideanLin).isSymmetric_adjoint_comp_self.eigenvalues hn
+            ⟨i, hi⟩ =
+          (c ^ 2) * A.toEuclideanLin.isSymmetric_adjoint_comp_self.eigenvalues
+            hn ⟨i, hi⟩ := by
+      have hiff := LinearMap.IsSymmetric.eigenvalues_eq_eigenvalues_iff
+        (c • A.toEuclideanLin).isSymmetric_adjoint_comp_self hn
+        (isSymmetric_smul A.toEuclideanLin.isSymmetric_adjoint_comp_self (c ^ 2))
+        hn
+      have heq := hiff.mpr (by rw [hG])
+      exact (congrFun heq ⟨i, hi⟩).trans hEig
+    rw [hrew, Real.sqrt_mul (sq_nonneg c), Real.sqrt_sq_eq_abs]
+
+theorem schattenOne_smul {m n : Type*} [Fintype m] [Fintype n]
+    [DecidableEq n] (c : ℝ) (A : Matrix m n ℝ) :
+    schattenOne (c • A) = |c| * schattenOne A := by
+  unfold schattenOne
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun i _ => matrixSingularValues_smul c A i
+
+theorem schattenOne_neg {m n : Type*} [Fintype m] [Fintype n]
+    [DecidableEq n] (A : Matrix m n ℝ) : schattenOne (-A) = schattenOne A := by
+  simpa [neg_one_smul, abs_neg, abs_one] using schattenOne_smul (-1) A
+
+theorem schattenOne_fin_one (a : ℝ) :
+    schattenOne (!![a] : Matrix (Fin 1) (Fin 1) ℝ) = |a| := by
+  have hA : (!![a] : Matrix (Fin 1) (Fin 1) ℝ).IsHermitian := by
+    rw [isHermitian_iff_isSymm]
+    exact IsSymm.ext fun i j => by
+      fin_cases i; fin_cases j
+      simp
+  rw [schattenOne_eq_hermitianNuclearNorm hA]
+  unfold hermitianNuclearNorm
+  have htr := Matrix.IsHermitian.trace_eq_sum_eigenvalues (𝕜 := ℝ) hA
+  have ha : hA.eigenvalues 0 = a := by
+    simpa [trace_fin_one_of] using htr.symm
+  simp [ha]
+
+/-- Certified \(1\times 1\) check: \(\operatorname{schattenOne}\,[\![-3]\!]=3\). -/
+theorem schattenOne_neg_three :
+    schattenOne (!![-3] : Matrix (Fin 1) (Fin 1) ℝ) = 3 := by
+  rw [schattenOne_fin_one]
+  norm_num
 
 end NystromSubmodularity

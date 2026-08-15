@@ -20,6 +20,9 @@ working copy; no PR has been opened on
 | `neumann_series_inv`, `exists_neumannSplit_series_of_posDef` | same, or `Mathlib.Analysis.Matrix.Neumann` (new) |
 | `hermitianNuclearNorm_eq_trace_of_posSemidef` | `Mathlib.Analysis.Matrix.Spectrum` (near `trace_eq_sum_eigenvalues`) |
 | `matrixSingularValues`, `sum_matrixSingularValues_eq_hermitianNuclearNorm` | `Mathlib.Analysis.InnerProductSpace.SingularValues` (matrix wrapper) |
+| `schattenOne`, `schattenOne_eq_hermitianNuclearNorm`, `schattenOne_smul` | same, or `Mathlib.Analysis.Matrix.Schatten` (new) |
+| `hermitianNuclearNorm_fromBlocks_diagonal` | `Mathlib.Analysis.Matrix.Spectrum` (near `charpoly_fromBlocks_zero₁₂`) |
+| `schurComplement_posDef`, `schur_of_inv_eq_compl_inv` | `Mathlib.LinearAlgebra.Matrix.SchurComplement` |
 
 ## Source files in this repo
 

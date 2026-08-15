@@ -23,6 +23,7 @@ Wikipedia supermodularity names are used throughout.
 | 8 Approx. ratio | Entry-\(\ell^1\) Lipschitz of \(\mathcal{E}\) and \(\Delta\); Stieltjes pairs have \(\gamma\ge 1\); \(M_0\) empty-base ratio \(2288/2295\) |
 | 9 Singular values | `matrixSingularValues` wraps `LinearMap.singularValues`; sum equals \(\sum_i|\lambda_i|\) on Hermitian matrices |
 | 10 Infinite Neumann | \(\|A\|_2<1\Rightarrow(I-A)^{-1}=\sum_k A^k\); every PD matrix admits a splitting; \(1\times 1\) check equals \(2\) |
+| 11 Schatten-1 / Schur / CI | Rectangular SVD; `schattenOne`; block-diagonal nuclear additivity; GitHub Actions `lake build` + no-`sorry` |
 
 ## Thread 8 — Approximate-supermodularity ratio
 
@@ -93,6 +94,48 @@ so \(M^{-1}=s^{-1}\sum_k (B/s)^k\).
 | `neumann_series_inv_half` | certified \(1\times 1\) check: \(A=(1/2)\), both sides equal \(2\) |
 
 File: `NystromSubmodularity/Neumann.lean`. Delivered.
+
+## Thread 11 — Schatten-1, Schur infrastructure, CI
+
+Phase cadence: `.cursor/skills/nystrom-phase/SKILL.md`.
+
+Thread 9 wraps singular values on **square** real matrices and identifies
+their sum with \(\sum_i|\lambda_i|\) on Hermitian matrices. The library
+`nuclearNorm` is still the trace (valid on PSD residuals). This thread
+extends that API to a usable Schatten-1 norm on rectangular matrices,
+adds block-diagonal nuclear identities next to the existing Schur
+complements, and installs CI so the mathlib-quality bar is checked on
+every push.
+
+| Name | Claim |
+|------|--------|
+| `matrixSingularValues` | `A.toEuclideanLin.singularValues` for `Matrix m n ℝ` |
+| `schattenOne` | \(\sum_{i<\#n}\sigma_i(A)\) (Schatten-1 / nuclear) |
+| `schattenOne_nonneg` | \(\operatorname{schattenOne} A\ge 0\) |
+| `schattenOne_zero` | `schattenOne 0 = 0` |
+| `schattenOne_eq_hermitianNuclearNorm` | on a Hermitian square matrix, equals \(\sum_i\|\lambda_i\|\) |
+| `schattenOne_eq_trace_of_posSemidef` | on a PSD matrix, equals `trace` |
+| `schattenOne_smul` | `schattenOne (c • A) = \|c\| * schattenOne A` |
+| `schattenOne_neg` | `schattenOne (-A) = schattenOne A` |
+| `schattenOne_fin_one` | `schattenOne !![a] = \|a\|` |
+| `schattenOne_neg_three` | certified `!![-3]` has Schatten-1 equal to `3` |
+| `isHermitian_fromBlocks_diagonal` | `fromBlocks A 0 0 D` is Hermitian if `A` and `D` are |
+| `fromBlocks_diagonal_posSemidef` | block-diagonal of PSD blocks is PSD |
+| `hermitianNuclearNorm_fromBlocks_diagonal` | \(\|\operatorname{diag}(A,D)\|_*=\|A\|_*+\|D\|_*\) |
+| `schattenOne_fromBlocks_diagonal_of_posSemidef` | equals `A.trace + D.trace` |
+| `schattenOne_fromBlocks_two_three` | certified `diag(2,3)` has Schatten-1 equal to `5` |
+
+Files: `NystromSubmodularity/NuclearNormSVD.lean` (rectangular SVD /
+`schattenOne`); `NystromSubmodularity/Schur.lean` (block-diagonal
+nuclear identities and Schur re-exports). Existing Schur positivity
+lemmas stay in `Stieltjes.lean` / `Nystrom.lean` (moving them would
+break imports). CI: `.github/workflows/lean.yml` (`lake build`, no
+`sorry`). Local cadence: `scripts/verify.sh`.
+
+Do **not** claim: nuclear-norm triangle inequality / Ky Fan; an actual
+mathlib4 PR; a change of Wikipedia vs workshop names.
+
+Delivered.
 
 Intentional after these threads: opening an actual mathlib PR on
 `leanprover-community/mathlib4` (the phase skill does not open

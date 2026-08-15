@@ -183,11 +183,15 @@ might behave differently; we did not prove anything about them.
    error is still defined on proper complements; the nonempty-base
    four-point defect stays positive, and every positive ridge remains
    supermodular.
-4. **Hermitian nuclear-norm API.** \(\sum_i|\lambda_i|\) via mathlib
-   eigenvalues equals the trace on every PSD matrix, so it agrees with
-   `nuclearNorm` and with `nystromError` on the complementary inverse.
-   `matrixSingularValues` wraps `LinearMap.singularValues`; on a
-   Hermitian matrix the singular-value sum equals that nuclear norm.
+4. **Hermitian nuclear-norm / Schatten-1 API.** \(\sum_i|\lambda_i|\) via
+   mathlib eigenvalues equals the trace on every PSD matrix, so it
+   agrees with `nuclearNorm` and with `nystromError` on the complementary
+   inverse. `matrixSingularValues` wraps `LinearMap.singularValues` on
+   rectangular real matrices; `schattenOne` is their singular-value sum.
+   On a Hermitian matrix that sum equals \(\sum_i|\lambda_i|\). Absolute
+   homogeneity `schattenOne (c • A) = |c| * schattenOne A` holds, and
+   `schattenOne !![a] = |a|`. Block-diagonal Hermitian nuclear mass
+   adds (`hermitianNuclearNorm_fromBlocks_diagonal`).
 5. **Mathlib extraction.** The linear-algebra core is packaged in
    `MathlibReady.lean` and `MATHLIB.md`. No PR has been opened on
    mathlib4.
@@ -215,8 +219,11 @@ might behave differently; we did not prove anything about them.
 ## What we still do not claim
 
 An actual mathlib4 pull request. That is a deliberate non-claim: the
-phase skill does not open upstream PRs. The singular-value wrapper and
-the infinite Neumann identity are now in the library.
+phase skill does not open upstream PRs. We also do not claim the
+nuclear-norm triangle inequality or Ky Fan inequalities. The
+rectangular Schatten-1 API, block-diagonal nuclear additivity, the
+infinite Neumann identity, and GitHub Actions CI are now in the
+library.
 
 Build the library with `lake build`. The headline theorems are
 `nystromError_supermodular_of_isSDDM` and

@@ -33,8 +33,9 @@ K-\mathcal{N}_S(K)=\begin{pmatrix}0&0\\0&M[S^{\mathsf{c}}]^{-1}\end{pmatrix},
 with the empty-matrix convention \(\operatorname{tr}(M[\emptyset]^{-1})=0\).
 This block identity is `nystromResidual_eq_padded_compl_inv`. The residual is
 PSD, so its nuclear (Schatten-1) norm equals its trace and
-`nuclearNystromError_eq_nystromError`. We identify the nuclear norm with that
-trace on this residual; there is no general SVD API.
+`nuclearNystromError_eq_nystromError`. `schattenOne` is the singular-value
+sum on any real (including rectangular) matrix; on a PSD residual it
+agrees with that trace.
 
 ## Status
 
@@ -114,9 +115,12 @@ exactly four empty-base failures (`Census.lean`). Unshifted SDDM
 matrices are PSD; the path Laplacian is singular and its nonempty-base
 four-point stays positive (`Singular.lean`). Hermitian nuclear norm
 \(\sum_i|\lambda_i|\) equals the trace on PSD matrices
-(`NuclearNormSVD.lean`); the singular-value sum equals that nuclear
-norm on every Hermitian matrix, so Nyström error is a singular-value
-sum of the complementary inverse. Neumann splitting, length-2 walk
+(`NuclearNormSVD.lean`); `matrixSingularValues` is defined for
+rectangular real matrices, and `schattenOne` is their singular-value
+sum. That sum equals the Hermitian nuclear norm on every Hermitian
+matrix, so Nyström error is a singular-value sum of the complementary
+inverse. Block-diagonal nuclear mass adds
+(`hermitianNuclearNorm_fromBlocks_diagonal` in `Schur.lean`). Neumann splitting, length-2 walk
 supermodularity, and the infinite series
 \((I-A)^{-1}=\sum_k A^k\) whenever \(\|A\|_2<1\) are in `Neumann.lean`.
 An explicit ridge neighborhood
@@ -155,7 +159,8 @@ Build: `lake build`. No `sorry` in the library target.
 | `OtherLosses.lean` | Frobenius and prediction residuals fail on \(M_0\) |
 | `Census.lean` | family grid and 64-matrix integer SDD census |
 | `Singular.lean` | SDDM is PSD; unshifted path Laplacian |
-| `NuclearNormSVD.lean` | Hermitian nuclear norm; `matrixSingularValues` |
+| `NuclearNormSVD.lean` | Hermitian nuclear norm; rectangular `matrixSingularValues`; `schattenOne` |
+| `Schur.lean` | block-diagonal nuclear additivity; Schur re-exports |
 | `Neumann.lean` | Stieltjes splitting; walks; infinite Neumann series |
 | `Perturbation.lean` | ridge neighborhood of \(M_0\); scale preserves sign |
 | `ApproxSubmodular.lean` | approximate supermodularity ratio; entry-\(\ell^1\) Lipschitz |

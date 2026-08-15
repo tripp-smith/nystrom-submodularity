@@ -84,10 +84,13 @@ ridge neighborhood of \(M_0\); and a general approximate-supermodularity
 ratio with an entry-\(\ell^1\) Lipschitz bound
 (`ApproxSubmodular.lean`, `M0_supermodularityRatio`); a
 `LinearMap.singularValues` wrapper whose sum equals the Hermitian
-nuclear norm; and the infinite Neumann identity
+nuclear norm; the infinite Neumann identity
 `(I-A)⁻¹ = ∑ Aᵏ` under an \(\ell^2\) contraction
-(`neumann_series_inv`, `exists_neumannSplit_series_of_posDef`). Still
-not claimed: an actual mathlib4 PR. New phases follow
+(`neumann_series_inv`, `exists_neumannSplit_series_of_posDef`); a
+rectangular Schatten-1 API (`schattenOne`) with absolute homogeneity
+and block-diagonal nuclear additivity (`Schur.lean`); and GitHub
+Actions CI. Still not claimed: an actual mathlib4 PR, or the
+nuclear-norm triangle inequality / Ky Fan. New phases follow
 `.cursor/skills/nystrom-phase/SKILL.md`.
 
 ### Phase-1 / Phase-2 deliverables
@@ -129,6 +132,7 @@ NystromSubmodularity/
 ├── Census.lean
 ├── Singular.lean
 ├── NuclearNormSVD.lean
+├── Schur.lean
 ├── Neumann.lean
 ├── Perturbation.lean
 └── MathlibReady.lean

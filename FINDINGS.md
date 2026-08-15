@@ -216,14 +216,21 @@ might behave differently; we did not prove anything about them.
    On \(M_0\) the empty-base \((0,1)\) ratio is the certified
    \(2288/2295<1\), matching the defect \(-7/2040\).
 
+9. **Application layer.** `graphnystrom` turns the certified inverse-trace
+   into a Networkit-style greedy landmark selector. On SDDM Laplacians
+   it reports the \((1-1/e)\) guarantee; on Colbrook’s \(M_0\) it
+   reproduces \(\Delta=-7/2040\) and shows greedy picking the bad
+   first landmark. See `APPLICATION.md`.
+
 ## What we still do not claim
 
 An actual mathlib4 pull request. That is a deliberate non-claim: the
 phase skill does not open upstream PRs. We also do not claim the
-nuclear-norm triangle inequality or Ky Fan inequalities. The
-rectangular Schatten-1 API, block-diagonal nuclear additivity, the
-infinite Neumann identity, and GitHub Actions CI are now in the
-library.
+nuclear-norm triangle inequality or Ky Fan inequalities, a Networkit
+C++ module, or a Rust + PyO3 wheel. The rectangular Schatten-1 API,
+block-diagonal nuclear additivity, the infinite Neumann identity,
+GitHub Actions CI, and the `graphnystrom` selector are now in the
+repository.
 
 Build the library with `lake build`. The headline theorems are
 `nystromError_supermodular_of_isSDDM` and

@@ -89,8 +89,10 @@ nuclear norm; the infinite Neumann identity
 (`neumann_series_inv`, `exists_neumannSplit_series_of_posDef`); a
 rectangular Schatten-1 API (`schattenOne`) with absolute homogeneity
 and block-diagonal nuclear additivity (`Schur.lean`); and GitHub
-Actions CI. Still not claimed: an actual mathlib4 PR, or the
-nuclear-norm triangle inequality / Ky Fan. New phases follow
+Actions CI; and an application layer (`APPLICATION.md`, `graphnystrom`)
+that selects landmarks by the certified nuclear residual. Still not
+claimed: an actual mathlib4 PR, the nuclear-norm triangle inequality /
+Ky Fan, or a Networkit C++ / Rust wheel. New phases follow
 `.cursor/skills/nystrom-phase/SKILL.md`.
 
 ### Phase-1 / Phase-2 deliverables

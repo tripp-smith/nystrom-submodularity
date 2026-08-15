@@ -134,12 +134,19 @@ drops \(\Delta\) by at most the four-term slack
 \((0,1)\) ratio is \(2288/2295\) (`M0_supermodularityRatio`). Mathlib
 packaging is `MATHLIB.md`.
 
+**Application layer.** [APPLICATION.md](APPLICATION.md) specifies the
+`graphnystrom` package: greedy / lazy landmark selection for the
+nuclear residual, with unit tests against the Lean-certified rationals
+(\(\Delta=-7/2040\) on \(M_0\)). Networkit C++ and Rust + PyO3 kernels
+are documented follow-on work, not this delivery.
+
 **Still open.** An actual mathlib4 pull request (the phase skill does
 not open upstream PRs). CI (`.github/workflows/lean.yml`) builds the
 library and rejects `sorry` on every push to `main` and every pull
-request.
+request; the `python` job runs `pytest`.
 
-Build: `lake build` or `scripts/verify.sh`. No `sorry` in the library target.
+Build: `lake build` or `scripts/verify.sh`. Application tests:
+`python3 -m pytest`. No `sorry` in the library target.
 
 ## Modules
 
@@ -168,3 +175,5 @@ Build: `lake build` or `scripts/verify.sh`. No `sorry` in the library target.
 | `ApproxSubmodular.lean` | approximate supermodularity ratio; entry-\(\ell^1\) Lipschitz |
 | `MathlibReady.lean` | re-exports for a future mathlib PR |
 | `Theorems.lean` | public theorems: Theorem 1(a)–(c), 2, 7–8, 10, greedy |
+| `APPLICATION.md` | application-layer contract for `graphnystrom` |
+| `graphnystrom/` | greedy / lazy Nyström landmark selector (Python) |

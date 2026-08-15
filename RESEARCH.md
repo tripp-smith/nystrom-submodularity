@@ -24,6 +24,7 @@ Wikipedia supermodularity names are used throughout.
 | 9 Singular values | `matrixSingularValues` wraps `LinearMap.singularValues`; sum equals \(\sum_i|\lambda_i|\) on Hermitian matrices |
 | 10 Infinite Neumann | \(\|A\|_2<1\Rightarrow(I-A)^{-1}=\sum_k A^k\); every PD matrix admits a splitting; \(1\times 1\) check equals \(2\) |
 | 11 Schatten-1 / Schur / CI | Rectangular SVD; `schattenOne`; block-diagonal nuclear additivity; GitHub Actions `lake build` + no-`sorry` |
+| 12 Application layer | `APPLICATION.md` + `graphnystrom`: greedy / lazy landmark selector matching Lean rationals |
 
 ## Thread 8 — Approximate-supermodularity ratio
 
@@ -137,9 +138,31 @@ mathlib4 PR; a change of Wikipedia vs workshop names.
 
 Delivered.
 
+## Thread 12 — Application layer (`graphnystrom`)
+
+Phase cadence: `.cursor/skills/nystrom-phase/SKILL.md`.
+Contract: [APPLICATION.md](APPLICATION.md).
+
+Lean stays the source of truth. This thread ships a Python operational
+layer that implements ``nystromError``, the Schur form of
+``exact_marginal``, SDDM / Stieltjes detection, and greedy / lazy
+selection. It does **not** fork Networkit or open a mathlib4 PR.
+
+| Name | Claim |
+|------|--------|
+| `evaluate_residual` / `nystrom_error` | \(\mathcal{E}(S)=\operatorname{tr}(M[S^{\mathsf{c}}]^{-1})\) |
+| `four_point_defect` | Colbrook \(\Delta\) |
+| `GreedyNystromLandmarks` | Networkit-style `run()` / getters; modes `exact`, `lazy`, `stochastic`, `approx` |
+| `NystromResolvent` | column Nyström matvec of \(M^{-1}\) |
+| `is_sddm` / `is_stieltjes` / `signature_switch` | Lean predicates / \(DMD\) |
+| `M0` certified values | \(\mathcal{E}(\emptyset)=47/51\), \(\Delta=-7/2040\) |
+
+Files: `graphnystrom/`, `tests/`, `examples/synthetic_demo.py`.
+Delivered.
+
 Intentional after these threads: opening an actual mathlib PR on
 `leanprover-community/mathlib4` (the phase skill does not open
-upstream PRs).
+upstream PRs); a Networkit C++ module; a Rust + PyO3 wheel.
 
 ## Verification (every thread)
 

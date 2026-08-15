@@ -1,2 +1,10 @@
 # cache and other artifacts produced by Lean's Lake build tool
 .lake/
+
+# Python application layer
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+examples/synthetic_demo_metrics.json
+.venv/

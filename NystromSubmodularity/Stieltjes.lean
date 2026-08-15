@@ -219,6 +219,11 @@ theorem IsSDDM.quad_nonneg {ι : Type*} [Fintype ι] [DecidableEq ι]
     nlinarith [hle, hexp, hdom]
   simpa [sub_eq_add_neg] using hgoal
 
+theorem IsSDDM.posSemidef {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {L : Matrix ι ι ℝ} (hL : IsSDDM L) : L.PosSemidef :=
+  Matrix.PosSemidef.of_dotProduct_mulVec_nonneg
+    ((Matrix.isHermitian_iff_isSymm).mpr hL.isSymm) hL.quad_nonneg
+
 theorem IsSDDM.add_pos_smul_one_posDef {ι : Type*} [Fintype ι] [DecidableEq ι]
     {L : Matrix ι ι ℝ} (hL : IsSDDM L) {γ : ℝ} (hγ : 0 < γ) :
     (L + γ • (1 : Matrix ι ι ℝ)).PosDef := by

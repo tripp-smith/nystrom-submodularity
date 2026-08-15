@@ -7,6 +7,12 @@ import NystromSubmodularity.Counterexamples.SDDDim4
 import NystromSubmodularity.Counterexamples.SDDFamily
 import NystromSubmodularity.Counterexamples.Greedy
 import NystromSubmodularity.Signature
+import NystromSubmodularity.OtherLosses
+import NystromSubmodularity.Census
+import NystromSubmodularity.Singular
+import NystromSubmodularity.NuclearNormSVD
+import NystromSubmodularity.Neumann
+import NystromSubmodularity.Perturbation
 import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Linarith
 import Mathlib.Data.Rat.Cast.Order
@@ -215,7 +221,11 @@ Sanity: `pathM3_signature_flip_supermodular`, `Lsharp_not_antibalanced_pattern`.
 Colbrook Theorem 2, Lemma 3, and (30) are
 `nystromResidual_eq_padded_compl_inv`, `nuclearNystromError_eq_nystromError`
 in `Nystrom.lean`, `exact_marginal` and `nystromError_strict_anti_monotone`
-in `InverseTrace.lean`, and `nystromError_smul_scale` in `Computable.lean`. -/
+in `InverseTrace.lean`, and `nystromError_smul_scale` in `Computable.lean`.
+
+Remaining research: `OtherLosses.lean`, `Census.lean`, `Singular.lean`,
+`NuclearNormSVD.lean`, `Neumann.lean`, `Perturbation.lean`, and
+`MATHLIB.md`. See `RESEARCH.md`. -/
 
 /-- Forces the residual identity, not only the inverse-trace definition:
 the nuclear error of \(M_0\) at \(\{0\}\) is the certified Cramer value. -/

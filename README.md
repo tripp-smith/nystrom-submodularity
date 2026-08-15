@@ -4,7 +4,9 @@ Lean 4 / mathlib4 formalization of Simons workshop [Problem 4.6](https://arxiv.o
 (Colbrook, *Nyström Error Beyond M-Matrices*).
 
 The [specification](SPEC.md) is complete: both cases of Problem 4.6, the
-nuclear-norm justification, and Colbrook Theorem 1(a)–(c).
+nuclear-norm justification, and Colbrook Theorem 1(a)–(c). The seven
+leftover research threads are specified in [RESEARCH.md](RESEARCH.md)
+and delivered in the library.
 
 **Start here if you are not a mathematician:** [FINDINGS.md](FINDINGS.md) explains
 what was proved, why the sign pattern of a precision matrix matters for greedy
@@ -106,8 +108,20 @@ Public theorems print the Lean defaults (`propext`, `Classical.choice`,
 `triangle_pd_nystrom_supermodular_iff_antibalanced` (Corollary 13);
 `Lfam_greedy_misses_optimal_pair`.
 
-**Not in scope.** SVD nuclear-norm API, Neumann series, other losses, or
-the true singular case \(\gamma=0\).
+**Research threads.** Frobenius and all-ones prediction residuals also
+fail on \(M_0\) (`OtherLosses.lean`). A 64-matrix integer census has
+exactly four empty-base failures (`Census.lean`). Unshifted SDDM
+matrices are PSD; the path Laplacian is singular and its nonempty-base
+four-point stays positive (`Singular.lean`). Hermitian nuclear norm
+\(\sum_i|\lambda_i|\) equals the trace on PSD matrices
+(`NuclearNormSVD.lean`). Neumann splitting and length-2 walk
+supermodularity are in `Neumann.lean`. An explicit ridge neighborhood
+of \(M_0\) keeps a negative defect (`Perturbation.lean`). Mathlib
+packaging is `MATHLIB.md`.
+
+**Still open.** A general approximate-submodularity ratio; wrapping
+`LinearMap.singularValues`; the infinite Neumann series identity; an
+actual mathlib4 pull request.
 
 Build: `lake build`. No `sorry` in the library target.
 
@@ -128,4 +142,11 @@ Build: `lake build`. No `sorry` in the library target.
 | `Counterexamples/SDDFamily.lean` | signed-triangle family \(L(t)\) and sharp interval |
 | `Counterexamples/Greedy.lean` | greedy one-column misselection on \(L(t)\) and \(L^\sharp\) |
 | `Signature.lean` | signature congruence, antibalance, order-3 Corollary 13 |
+| `OtherLosses.lean` | Frobenius and prediction residuals fail on \(M_0\) |
+| `Census.lean` | family grid and 64-matrix integer SDD census |
+| `Singular.lean` | SDDM is PSD; unshifted path Laplacian |
+| `NuclearNormSVD.lean` | Hermitian nuclear norm \(\sum_i|\lambda_i|\) |
+| `Neumann.lean` | Stieltjes splitting; modular / supermodular walks |
+| `Perturbation.lean` | ridge neighborhood of \(M_0\); scale preserves sign |
+| `MathlibReady.lean` | re-exports for a future mathlib PR |
 | `Theorems.lean` | public theorems: Theorem 1(a)–(c), 2, 7–8, 10, greedy |

@@ -12,6 +12,13 @@ import NystromSubmodularity.Counterexamples.SDDDim4
 import NystromSubmodularity.Counterexamples.SDDFamily
 import NystromSubmodularity.Counterexamples.Greedy
 import NystromSubmodularity.Signature
+import NystromSubmodularity.OtherLosses
+import NystromSubmodularity.Census
+import NystromSubmodularity.Singular
+import NystromSubmodularity.NuclearNormSVD
+import NystromSubmodularity.Neumann
+import NystromSubmodularity.Perturbation
+import NystromSubmodularity.MathlibReady
 
 /-!
 # NystromSubmodularity
@@ -36,5 +43,6 @@ reciprocal.
 
 Public theorems live in `Theorems.lean`. See `FINDINGS.md` for a
 non-technical account, `README.md` for the module map, and `SPEC.md` for the
-original two-phase plan. The specification is complete.
+original two-phase plan. The specification is complete. Leftover
+research threads are specified in `RESEARCH.md`.
 -/

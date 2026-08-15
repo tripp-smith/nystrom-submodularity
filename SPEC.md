@@ -75,11 +75,14 @@ Propositions 7–8 and Corollary 13 (`Signature.lean`); greedy
 misselection (`Lfam_greedy_misses_optimal_pair`,
 `Lsharp_greedy_misses_optimal_pair`).
 
-### Intentional leftovers (not required by this specification)
+### Remaining research (see `RESEARCH.md`)
 
-Other losses; a general SVD nuclear-norm API; a Neumann-series rewrite;
-perturbation / approximate-submodularity ratios; a mathlib upstream PR;
-the true singular case \(\gamma=0\).
+The seven leftovers are now formalized: other losses on \(M_0\); a
+finite SDD census; singular SDDM / path Laplacian; Hermitian nuclear
+norm; mathlib packaging; Neumann splitting and walk traces; an explicit
+ridge neighborhood of \(M_0\). Still not claimed: a general
+approximate-submodularity ratio, `LinearMap.singularValues`, the
+infinite Neumann identity, or an actual mathlib4 PR.
 
 ### Phase-1 / Phase-2 deliverables
 
@@ -98,6 +101,8 @@ non-technical account; `README.md` is the module map.
 README.md
 FINDINGS.md
 SPEC.md
+RESEARCH.md
+MATHLIB.md
 NystromSubmodularity.lean
 NystromSubmodularity/
 ├── Definitions.lean
@@ -113,7 +118,14 @@ NystromSubmodularity/
 ├── Counterexamples/SDDDim4.lean
 ├── Counterexamples/SDDFamily.lean
 ├── Counterexamples/Greedy.lean
-└── Signature.lean
+├── Signature.lean
+├── OtherLosses.lean
+├── Census.lean
+├── Singular.lean
+├── NuclearNormSVD.lean
+├── Neumann.lean
+├── Perturbation.lean
+└── MathlibReady.lean
 lakefile.toml
 ```
 

@@ -11,8 +11,10 @@ pattern (off-diagonals all \(\le 0\)), greedy landmark selection for Nyström
 nuclear error has the usual diminishing-returns guarantee. If off-diagonals
 are allowed to mix signs — some complements, some substitutes — that
 guarantee can already fail on a \(3\times 3\) example. Diagonal dominance
-alone is not enough. The specification in `SPEC.md` is complete; the
-list at the end is leftover research, not unfinished formalization.
+alone is not enough. The specification in `SPEC.md` is complete. The leftover research
+threads are specified in `RESEARCH.md` and are now in the library;
+what remains at the end is a short list of things we deliberately
+did not claim.
 
 ## The practical question
 
@@ -163,32 +165,43 @@ The object being optimized is the nuclear leftover, not mean-squared
 prediction error and not a Kullback–Leibler divergence. Those other losses
 might behave differently; we did not prove anything about them.
 
-## What remains
+## What the leftover threads now say
 
-These are genuine leftovers, not hidden holes in the specification or in
-Colbrook Theorem 1.
+1. **Other losses.** Nuclear is not special to the obstruction: on \(M_0\)
+   the squared-Frobenius residual and the all-ones residual quadratic
+   (a prediction-risk surrogate) both have a negative empty-base
+   \((0,1)\) defect. On a singleton complement the three numbers
+   collapse to the same scalar.
+2. **How common is the SDD failure?** On a seven-point rational grid of
+   \(L(t)\), only \(t=2\) lies in the Colbrook interval. Among 64
+   complete-support integer triangles with off-diagonals in
+   \(\{\pm 1,\pm 2\}\) and strictly dominant diagonals, exactly four
+   fail the empty-base \((0,1)\) test — the \(L^\sharp\) pattern and
+   its signature orbit.
+3. **Singular \(\gamma=0\).** Every SDDM matrix is positive semidefinite.
+   The unshifted 3-path Laplacian annihilates the constants. Nyström
+   error is still defined on proper complements; the nonempty-base
+   four-point defect stays positive, and every positive ridge remains
+   supermodular.
+4. **Hermitian nuclear-norm API.** \(\sum_i|\lambda_i|\) via mathlib
+   eigenvalues equals the trace on every PSD matrix, so it agrees with
+   `nuclearNorm` and with `nystromError` on the complementary inverse.
+5. **Mathlib extraction.** The linear-algebra core is packaged in
+   `MathlibReady.lean` and `MATHLIB.md`. No PR has been opened on
+   mathlib4.
+6. **Neumann / walks.** A Stieltjes matrix splits as \(B=sI-M\ge 0\).
+   Length-1 walk traces are modular; length-2 closed-walk traces are
+   supermodular. The infinite series identity is not claimed.
+7. **Perturbation.** \(M_0+\varepsilon I\) for
+   \(\varepsilon\in\{0,1/10,1/2,1\}\) all have a negative defect.
+   Scaling by \(c>0\) preserves the sign of every four-point defect.
 
-1. **Other losses.** Frobenius error, operator-norm error, and downstream
-   prediction risk are open. Nuclear error was the question we were asked.
-2. **How common is the SDD failure?** Colbrook’s family now has a complete
-   characterization: \(\mathcal{E}_t\) is not supermodular exactly on
-   \(\varphi<t<1+\sqrt{2}\). The library also has a strictly dominant
-   perturbation and a nonempty-base \(n=4\) witness. That is still not a
-   measure of how often mixed-sign SDD matrices violate diminishing returns
-   in applied covariances.
-3. **The true singular case \(\gamma=0\).** The theorem is for \(\gamma>0\).
-   SPEC’s “\(\gamma\to 0^+\)” is already that statement plus the SDDM
-   quadratic-form bound (`IsSDDM.quad_nonneg`). Unshifted Laplacians
-   (kernel the constants) are not given a separate singular theory.
-4. **A full SVD nuclear-norm API.** We identify the nuclear norm with the
-   trace on this PSD residual; we did not add a general singular-value
-   definition.
-5. **Mathlib extraction.** The Stieltjes and four-point lemmas could be
-   upstreamed; they are not a mathlib PR.
-6. **Neumann series.** A Neumann-series rewrite of the Stieltjes argument
-   was not formalized.
-7. **Perturbation robustness.** Approximate-submodularity ratios for
-   matrices near the SDDM cone are open.
+## What we still do not claim
+
+A general approximate-submodularity *ratio* for arbitrary perturbations;
+a `LinearMap.singularValues` wrapper; the infinite Neumann series
+equaling the inverse; an actual mathlib4 pull request. Those are
+deliberate non-claims, not holes in the threads above.
 
 Build the library with `lake build`. The headline theorems are
 `nystromError_supermodular_of_isSDDM` and
@@ -198,5 +211,6 @@ triangle is in `Counterexamples/SDDDim3.lean`; the nonempty-base \(4\times 4\)
 witness is in `Counterexamples/SDDDim4.lean`; the sharp interval for \(L(t)\)
 is in `Counterexamples/SDDFamily.lean`; greedy misselection is in
 `Counterexamples/Greedy.lean`; signature switching is in `Signature.lean`;
-the residual identity is in `Nystrom.lean`. `SPEC.md` is the original
-two-phase attack plan plus the recorded completion.
+the residual identity is in `Nystrom.lean`. Leftover-research modules
+are listed in `RESEARCH.md`. `SPEC.md` is the original two-phase attack
+plan plus the recorded completion.

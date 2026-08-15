@@ -195,11 +195,21 @@ might behave differently; we did not prove anything about them.
 7. **Perturbation.** \(M_0+\varepsilon I\) for
    \(\varepsilon\in\{0,1/10,1/2,1\}\) all have a negative defect.
    Scaling by \(c>0\) preserves the sign of every four-point defect.
+8. **Approximate supermodularity ratio.** For any four-point pair the
+   ratio \(\gamma=(\mathcal{E}(A)+\mathcal{E}(A\cup\{i,j\}))/(\mathcal{E}(A\cup\{i\})+\mathcal{E}(A\cup\{j\}))\)
+   is at least \(1\) on a Stieltjes matrix. An arbitrary perturbation
+   that keeps the matrix positive definite moves each Nyström value by
+   at most a product of inverse entry-\(\ell^1\) masses times the
+   complementary block of the perturbation, so a nonnegative defect can
+   drop by at most that four-term slack. If each of the four errors
+   moves by at most \(\varepsilon\le\mathrm{den}/2\), the perturbed
+   ratio is at least \(1-4\varepsilon/(\mathrm{den}+2\varepsilon)\).
+   On \(M_0\) the empty-base \((0,1)\) ratio is the certified
+   \(2288/2295<1\), matching the defect \(-7/2040\).
 
 ## What we still do not claim
 
-A general approximate-submodularity *ratio* for arbitrary perturbations;
-a `LinearMap.singularValues` wrapper; the infinite Neumann series
+A `LinearMap.singularValues` wrapper; the infinite Neumann series
 equaling the inverse; an actual mathlib4 pull request. Those are
 deliberate non-claims, not holes in the threads above.
 

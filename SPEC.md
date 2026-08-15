@@ -77,12 +77,15 @@ misselection (`Lfam_greedy_misses_optimal_pair`,
 
 ### Remaining research (see `RESEARCH.md`)
 
-The seven leftovers are now formalized: other losses on \(M_0\); a
+The leftover threads are now formalized: other losses on \(M_0\); a
 finite SDD census; singular SDDM / path Laplacian; Hermitian nuclear
 norm; mathlib packaging; Neumann splitting and walk traces; an explicit
-ridge neighborhood of \(M_0\). Still not claimed: a general
-approximate-submodularity ratio, `LinearMap.singularValues`, the
-infinite Neumann identity, or an actual mathlib4 PR.
+ridge neighborhood of \(M_0\); and a general approximate-supermodularity
+ratio with an entry-\(\ell^1\) Lipschitz bound
+(`ApproxSubmodular.lean`, `M0_supermodularityRatio`). Still not
+claimed: `LinearMap.singularValues`, the infinite Neumann identity, or
+an actual mathlib4 PR. New phases follow
+`.cursor/skills/nystrom-phase/SKILL.md`.
 
 ### Phase-1 / Phase-2 deliverables
 

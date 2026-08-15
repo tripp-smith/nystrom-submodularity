@@ -13,6 +13,7 @@ import NystromSubmodularity.Singular
 import NystromSubmodularity.NuclearNormSVD
 import NystromSubmodularity.Neumann
 import NystromSubmodularity.Perturbation
+import NystromSubmodularity.ApproxSubmodular
 import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Linarith
 import Mathlib.Data.Rat.Cast.Order
@@ -44,8 +45,10 @@ The four-point algebra is in `InverseTrace.lean`. Minimality of the
 obstruction is in `Minimality.lean`. Greedy one-column misselection on
 \(L(t)\) and \(L^\sharp\) is in `Counterexamples/Greedy.lean`. Signature
 switching and the order-3 antibalance criterion are in `Signature.lean`.
-The residual identity is in `Nystrom.lean`. A non-technical account is in
-`FINDINGS.md`. The specification in `SPEC.md` is complete.
+The residual identity is in `Nystrom.lean`. The approximate
+supermodularity ratio and entry-\(\ell^1\) Lipschitz bound are in
+`ApproxSubmodular.lean`. A non-technical account is in `FINDINGS.md`.
+The specification in `SPEC.md` is complete.
 -/
 
 namespace NystromSubmodularity
@@ -224,8 +227,16 @@ in `Nystrom.lean`, `exact_marginal` and `nystromError_strict_anti_monotone`
 in `InverseTrace.lean`, and `nystromError_smul_scale` in `Computable.lean`.
 
 Remaining research: `OtherLosses.lean`, `Census.lean`, `Singular.lean`,
-`NuclearNormSVD.lean`, `Neumann.lean`, `Perturbation.lean`, and
-`MATHLIB.md`. See `RESEARCH.md`. -/
+`NuclearNormSVD.lean`, `Neumann.lean`, `Perturbation.lean`,
+`ApproxSubmodular.lean`, and `MATHLIB.md`. See `RESEARCH.md`.
+
+The general approximate-supermodularity ratio is
+`supermodularityRatio`; Stieltjes pairs have ratio at least one
+(`one_le_supermodularityRatio_of_isStieltjes`). An arbitrary
+positive-definite perturbation moves each Nyström value by at most
+`nystromLipschitzBound` (`abs_nystromError_sub_le`) and the four-point
+defect by at most `fourPointLipschitzBound`. On \(M_0\) the empty-base
+\((0,1)\) ratio is \(2288/2295\). -/
 
 /-- Forces the residual identity, not only the inverse-trace definition:
 the nuclear error of \(M_0\) at \(\{0\}\) is the certified Cramer value. -/
@@ -245,5 +256,16 @@ theorem nystromError_ten_smul_M0_zero :
       ((9 / 160 : ℚ) : ℝ) := by
   rw [nystromError_ten_smul_M0, ← toReal_nystromError, M0_cramer_zero]
   norm_num
+
+/-- On Colbrook’s \(M_0\), the empty-base \((0,1)\) approximate
+supermodularity ratio is the certified rational \(2288/2295<1\). -/
+theorem M0_supermodularityRatio :
+    supermodularityRatio (toReal M0) (∅ : Finset (Fin 3)) 0 1 =
+      (2288 / 2295 : ℝ) ∧
+        supermodularityRatio (toReal M0) (∅ : Finset (Fin 3)) 0 1 < 1 ∧
+          fourPointDefect (toReal M0) (∅ : Finset (Fin 3)) 0 1 =
+            ((-7 / 2040 : ℚ) : ℝ) :=
+  ⟨M0_supermodularityRatio_empty_zero_one, M0_supermodularityRatio_lt_one,
+    M0_fourPointDefect_eq_ratio_form⟩
 
 end NystromSubmodularity

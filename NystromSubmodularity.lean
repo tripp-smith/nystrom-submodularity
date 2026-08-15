@@ -18,6 +18,7 @@ import NystromSubmodularity.Singular
 import NystromSubmodularity.NuclearNormSVD
 import NystromSubmodularity.Neumann
 import NystromSubmodularity.Perturbation
+import NystromSubmodularity.ApproxSubmodular
 import NystromSubmodularity.MathlibReady
 
 /-!
@@ -41,8 +42,14 @@ for every positive-definite precision matrix, \(\mathcal{E}\) is strictly
 decreasing, and a nonzero scale multiplies every inverse-trace by its
 reciprocal.
 
+The approximate supermodularity ratio of a four-point pair is at least
+one on every Stieltjes matrix; an arbitrary positive-definite
+perturbation changes \(\mathcal{E}\) by an entry-\(\ell^1\) Lipschitz
+bound. On \(M_0\) the empty-base \((0,1)\) ratio is \(2288/2295\).
+
 Public theorems live in `Theorems.lean`. See `FINDINGS.md` for a
 non-technical account, `README.md` for the module map, and `SPEC.md` for the
 original two-phase plan. The specification is complete. Leftover
-research threads are specified in `RESEARCH.md`.
+research threads are specified in `RESEARCH.md`. New phases follow
+`.cursor/skills/nystrom-phase/SKILL.md`.
 -/

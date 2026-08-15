@@ -4,9 +4,9 @@ Lean 4 / mathlib4 formalization of Simons workshop [Problem 4.6](https://arxiv.o
 (Colbrook, *Nyström Error Beyond M-Matrices*).
 
 The [specification](SPEC.md) is complete: both cases of Problem 4.6, the
-nuclear-norm justification, and Colbrook Theorem 1(a)–(c). The seven
-leftover research threads are specified in [RESEARCH.md](RESEARCH.md)
-and delivered in the library.
+nuclear-norm justification, and Colbrook Theorem 1(a)–(c). The leftover research threads are specified in [RESEARCH.md](RESEARCH.md)
+and delivered in the library. New phases follow
+[`.cursor/skills/nystrom-phase/SKILL.md`](.cursor/skills/nystrom-phase/SKILL.md).
 
 **Start here if you are not a mathematician:** [FINDINGS.md](FINDINGS.md) explains
 what was proved, why the sign pattern of a precision matrix matters for greedy
@@ -116,12 +116,18 @@ four-point stays positive (`Singular.lean`). Hermitian nuclear norm
 \(\sum_i|\lambda_i|\) equals the trace on PSD matrices
 (`NuclearNormSVD.lean`). Neumann splitting and length-2 walk
 supermodularity are in `Neumann.lean`. An explicit ridge neighborhood
-of \(M_0\) keeps a negative defect (`Perturbation.lean`). Mathlib
+of \(M_0\) keeps a negative defect (`Perturbation.lean`). The
+approximate supermodularity ratio \(\gamma\) is at least \(1\) on every
+Stieltjes pair (`one_le_supermodularityRatio_of_isStieltjes`); an
+arbitrary positive-definite perturbation moves \(\mathcal{E}\) by at
+most an entry-\(\ell^1\) Lipschitz bound (`abs_nystromError_sub_le`) and
+drops \(\Delta\) by at most the four-term slack
+(`fourPointDefect_approx_of_isStieltjes`). On \(M_0\) the empty-base
+\((0,1)\) ratio is \(2288/2295\) (`M0_supermodularityRatio`). Mathlib
 packaging is `MATHLIB.md`.
 
-**Still open.** A general approximate-submodularity ratio; wrapping
-`LinearMap.singularValues`; the infinite Neumann series identity; an
-actual mathlib4 pull request.
+**Still open.** Wrapping `LinearMap.singularValues`; the infinite
+Neumann series identity; an actual mathlib4 pull request.
 
 Build: `lake build`. No `sorry` in the library target.
 
@@ -148,5 +154,6 @@ Build: `lake build`. No `sorry` in the library target.
 | `NuclearNormSVD.lean` | Hermitian nuclear norm \(\sum_i|\lambda_i|\) |
 | `Neumann.lean` | Stieltjes splitting; modular / supermodular walks |
 | `Perturbation.lean` | ridge neighborhood of \(M_0\); scale preserves sign |
+| `ApproxSubmodular.lean` | approximate supermodularity ratio; entry-\(\ell^1\) Lipschitz |
 | `MathlibReady.lean` | re-exports for a future mathlib PR |
 | `Theorems.lean` | public theorems: Theorem 1(a)–(c), 2, 7–8, 10, greedy |

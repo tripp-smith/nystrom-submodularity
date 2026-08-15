@@ -186,12 +186,17 @@ might behave differently; we did not prove anything about them.
 4. **Hermitian nuclear-norm API.** \(\sum_i|\lambda_i|\) via mathlib
    eigenvalues equals the trace on every PSD matrix, so it agrees with
    `nuclearNorm` and with `nystromError` on the complementary inverse.
+   `matrixSingularValues` wraps `LinearMap.singularValues`; on a
+   Hermitian matrix the singular-value sum equals that nuclear norm.
 5. **Mathlib extraction.** The linear-algebra core is packaged in
    `MathlibReady.lean` and `MATHLIB.md`. No PR has been opened on
    mathlib4.
 6. **Neumann / walks.** A Stieltjes matrix splits as \(B=sI-M\ge 0\).
    Length-1 walk traces are modular; length-2 closed-walk traces are
-   supermodular. The infinite series identity is not claimed.
+   supermodular. If \(\|A\|_2<1\), then \((I-A)^{-1}=\sum_k A^k\).
+   Every positive-definite matrix admits a splitting to which this
+   applies; the \(1\times 1\) check \(A=1/2\) has both sides equal to
+   \(2\).
 7. **Perturbation.** \(M_0+\varepsilon I\) for
    \(\varepsilon\in\{0,1/10,1/2,1\}\) all have a negative defect.
    Scaling by \(c>0\) preserves the sign of every four-point defect.
@@ -209,9 +214,9 @@ might behave differently; we did not prove anything about them.
 
 ## What we still do not claim
 
-A `LinearMap.singularValues` wrapper; the infinite Neumann series
-equaling the inverse; an actual mathlib4 pull request. Those are
-deliberate non-claims, not holes in the threads above.
+An actual mathlib4 pull request. That is a deliberate non-claim: the
+phase skill does not open upstream PRs. The singular-value wrapper and
+the infinite Neumann identity are now in the library.
 
 Build the library with `lake build`. The headline theorems are
 `nystromError_supermodular_of_isSDDM` and

@@ -82,9 +82,12 @@ finite SDD census; singular SDDM / path Laplacian; Hermitian nuclear
 norm; mathlib packaging; Neumann splitting and walk traces; an explicit
 ridge neighborhood of \(M_0\); and a general approximate-supermodularity
 ratio with an entry-\(\ell^1\) Lipschitz bound
-(`ApproxSubmodular.lean`, `M0_supermodularityRatio`). Still not
-claimed: `LinearMap.singularValues`, the infinite Neumann identity, or
-an actual mathlib4 PR. New phases follow
+(`ApproxSubmodular.lean`, `M0_supermodularityRatio`); a
+`LinearMap.singularValues` wrapper whose sum equals the Hermitian
+nuclear norm; and the infinite Neumann identity
+`(I-A)⁻¹ = ∑ Aᵏ` under an \(\ell^2\) contraction
+(`neumann_series_inv`, `exists_neumannSplit_series_of_posDef`). Still
+not claimed: an actual mathlib4 PR. New phases follow
 `.cursor/skills/nystrom-phase/SKILL.md`.
 
 ### Phase-1 / Phase-2 deliverables

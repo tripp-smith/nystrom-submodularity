@@ -17,7 +17,9 @@ working copy; no PR has been opened on
 | `traceInv`, insert₁ / insert₂ block lemmas | `Mathlib.LinearAlgebra.Matrix.PrincipalSubmatrix` (new) |
 | `exact_marginal`, four-point identity | `Mathlib.LinearAlgebra.Matrix.InverseTrace` (new) |
 | `neumannSplit_nonneg`, `walkTraceTwo_supermodular` | same, or a remark in the Stieltjes module |
+| `neumann_series_inv`, `exists_neumannSplit_series_of_posDef` | same, or `Mathlib.Analysis.Matrix.Neumann` (new) |
 | `hermitianNuclearNorm_eq_trace_of_posSemidef` | `Mathlib.Analysis.Matrix.Spectrum` (near `trace_eq_sum_eigenvalues`) |
+| `matrixSingularValues`, `sum_matrixSingularValues_eq_hermitianNuclearNorm` | `Mathlib.Analysis.InnerProductSpace.SingularValues` (matrix wrapper) |
 
 ## Source files in this repo
 

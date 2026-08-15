@@ -20,6 +20,8 @@ import Mathlib.Data.Rat.Cast.Order
 import Mathlib.Data.Fintype.Card
 import Mathlib.NumberTheory.Real.GoldenRatio
 import Mathlib.Analysis.Real.Sqrt
+import Mathlib.LinearAlgebra.Matrix.Notation
+import Mathlib.Analysis.CStarAlgebra.Matrix
 
 /-!
 # Main theorems
@@ -236,7 +238,16 @@ The general approximate-supermodularity ratio is
 positive-definite perturbation moves each Nyström value by at most
 `nystromLipschitzBound` (`abs_nystromError_sub_le`) and the four-point
 defect by at most `fourPointLipschitzBound`. On \(M_0\) the empty-base
-\((0,1)\) ratio is \(2288/2295\). -/
+\((0,1)\) ratio is \(2288/2295\).
+
+Singular values of a real matrix are `matrixSingularValues`; on a
+Hermitian matrix their sum equals the Hermitian nuclear norm
+(`sum_matrixSingularValues_eq_hermitianNuclearNorm`), so Nyström
+error is a singular-value sum of the complementary inverse. The
+infinite Neumann series equals the inverse whenever the \(\ell^2\)
+operator norm is less than one (`neumann_series_inv`); every
+positive-definite matrix admits such a splitting
+(`exists_neumannSplit_series_of_posDef`). -/
 
 /-- Forces the residual identity, not only the inverse-trace definition:
 the nuclear error of \(M_0\) at \(\{0\}\) is the certified Cramer value. -/
@@ -267,5 +278,41 @@ theorem M0_supermodularityRatio :
             ((-7 / 2040 : ℚ) : ℝ) :=
   ⟨M0_supermodularityRatio_empty_zero_one, M0_supermodularityRatio_lt_one,
     M0_fourPointDefect_eq_ratio_form⟩
+
+open scoped Matrix.Norms.L2Operator
+
+/-- On a Hermitian matrix the singular-value sum equals \(\sum_i|\lambda_i|\). -/
+theorem sum_singularValues_eq_hermitianNuclearNorm {n : Type*} [Fintype n]
+    [DecidableEq n] {A : Matrix n n ℝ} (hA : A.IsHermitian) :
+    ∑ i ∈ Finset.range (Fintype.card n), matrixSingularValues A i =
+      hermitianNuclearNorm A hA :=
+  sum_matrixSingularValues_eq_hermitianNuclearNorm hA
+
+/-- Nyström error is the singular-value sum of the complementary inverse. -/
+theorem nystromError_eq_sum_singularValues_compl {ι : Type*} [Fintype ι]
+    [DecidableEq ι] {M : Matrix ι ι ℝ} (hM : M.PosDef) (S : Finset ι) :
+    nystromError M S =
+      ∑ i ∈ Finset.range (Fintype.card (PrincipalIndex (compl S))),
+        matrixSingularValues (principalSubmatrix M (compl S))⁻¹ i :=
+  nystromError_eq_sum_matrixSingularValues_compl hM S
+
+/-- If \(\|A\|_2<1\), then \((I-A)^{-1}=\sum_k A^k\). -/
+theorem neumann_series_eq_inv {n : Type*} [Fintype n] [DecidableEq n]
+    (A : Matrix n n ℝ) (hA : ‖A‖ < 1) :
+    (1 - A)⁻¹ = ∑' k : ℕ, A ^ k :=
+  neumann_series_inv A hA
+
+/-- Every positive-definite matrix admits a Neumann splitting. -/
+theorem exists_neumann_series_of_posDef {n : Type*} [Fintype n] [DecidableEq n]
+    {M : Matrix n n ℝ} (hM : M.PosDef) :
+    ∃ s : ℝ, 0 < s ∧ ‖s⁻¹ • neumannSplit s M‖ < 1 ∧
+      M⁻¹ = s⁻¹ • ∑' k : ℕ, (s⁻¹ • neumannSplit s M) ^ k :=
+  exists_neumannSplit_series_of_posDef hM
+
+/-- Certified \(1\times 1\) check: \(A=1/2\), both sides equal \(2\). -/
+theorem neumann_series_half :
+    let A : Matrix (Fin 1) (Fin 1) ℝ := !![1 / 2]
+    (1 - A)⁻¹ = ∑' k : ℕ, A ^ k ∧ (1 - A)⁻¹ = !![2] :=
+  neumann_series_inv_half
 
 end NystromSubmodularity

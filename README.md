@@ -114,8 +114,12 @@ exactly four empty-base failures (`Census.lean`). Unshifted SDDM
 matrices are PSD; the path Laplacian is singular and its nonempty-base
 four-point stays positive (`Singular.lean`). Hermitian nuclear norm
 \(\sum_i|\lambda_i|\) equals the trace on PSD matrices
-(`NuclearNormSVD.lean`). Neumann splitting and length-2 walk
-supermodularity are in `Neumann.lean`. An explicit ridge neighborhood
+(`NuclearNormSVD.lean`); the singular-value sum equals that nuclear
+norm on every Hermitian matrix, so Nyström error is a singular-value
+sum of the complementary inverse. Neumann splitting, length-2 walk
+supermodularity, and the infinite series
+\((I-A)^{-1}=\sum_k A^k\) whenever \(\|A\|_2<1\) are in `Neumann.lean`.
+An explicit ridge neighborhood
 of \(M_0\) keeps a negative defect (`Perturbation.lean`). The
 approximate supermodularity ratio \(\gamma\) is at least \(1\) on every
 Stieltjes pair (`one_le_supermodularityRatio_of_isStieltjes`); an
@@ -126,8 +130,8 @@ drops \(\Delta\) by at most the four-term slack
 \((0,1)\) ratio is \(2288/2295\) (`M0_supermodularityRatio`). Mathlib
 packaging is `MATHLIB.md`.
 
-**Still open.** Wrapping `LinearMap.singularValues`; the infinite
-Neumann series identity; an actual mathlib4 pull request.
+**Still open.** An actual mathlib4 pull request (the phase skill does
+not open upstream PRs).
 
 Build: `lake build`. No `sorry` in the library target.
 
@@ -151,8 +155,8 @@ Build: `lake build`. No `sorry` in the library target.
 | `OtherLosses.lean` | Frobenius and prediction residuals fail on \(M_0\) |
 | `Census.lean` | family grid and 64-matrix integer SDD census |
 | `Singular.lean` | SDDM is PSD; unshifted path Laplacian |
-| `NuclearNormSVD.lean` | Hermitian nuclear norm \(\sum_i|\lambda_i|\) |
-| `Neumann.lean` | Stieltjes splitting; modular / supermodular walks |
+| `NuclearNormSVD.lean` | Hermitian nuclear norm; `matrixSingularValues` |
+| `Neumann.lean` | Stieltjes splitting; walks; infinite Neumann series |
 | `Perturbation.lean` | ridge neighborhood of \(M_0\); scale preserves sign |
 | `ApproxSubmodular.lean` | approximate supermodularity ratio; entry-\(\ell^1\) Lipschitz |
 | `MathlibReady.lean` | re-exports for a future mathlib PR |

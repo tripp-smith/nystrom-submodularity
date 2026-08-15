@@ -21,6 +21,8 @@ Wikipedia supermodularity names are used throughout.
 | 6 Neumann | Stieltjes splitting \(B=sI-M\ge 0\); length-1 modular and length-2 supermodular walk traces |
 | 7 Perturbation | Explicit neighborhood of \(M_0\) keeps a negative defect; scale invariance already in the library |
 | 8 Approx. ratio | Entry-\(\ell^1\) Lipschitz of \(\mathcal{E}\) and \(\Delta\); Stieltjes pairs have \(\gamma\ge 1\); \(M_0\) empty-base ratio \(2288/2295\) |
+| 9 Singular values | `matrixSingularValues` wraps `LinearMap.singularValues`; sum equals \(\sum_i|\lambda_i|\) on Hermitian matrices |
+| 10 Infinite Neumann | \(\|A\|_2<1\Rightarrow(I-A)^{-1}=\sum_k A^k\); every PD matrix admits a splitting; \(1\times 1\) check equals \(2\) |
 
 ## Thread 8 — Approximate-supermodularity ratio
 
@@ -54,9 +56,47 @@ supermodularity is \(\gamma\ge 1\). A perturbation is
 
 File: `NystromSubmodularity/ApproxSubmodular.lean`. Delivered.
 
-Intentional after this thread: a full `LinearMap.singularValues` wrapper;
-an infinite Neumann series equaling the inverse; opening an actual
-mathlib PR on `leanprover-community/mathlib4`.
+## Thread 9 — `LinearMap.singularValues` wrapper
+
+Phase cadence: `.cursor/skills/nystrom-phase/SKILL.md`.
+
+Thread 4 identified the nuclear norm of a Hermitian matrix with
+\(\sum_i|\lambda_i|\). Mathlib already defines
+`LinearMap.singularValues` on finite-dimensional inner-product maps.
+This thread wraps that API on matrices and identifies the two sums on
+PSD residuals.
+
+| Name | Claim |
+|------|--------|
+| `matrixSingularValues` | `A.toEuclideanLin.singularValues` |
+| `matrixSingularValues_nonneg` | every singular value is nonnegative |
+| `sum_matrixSingularValues_eq_hermitianNuclearNorm` | on a Hermitian matrix, \(\sum_i\sigma_i=\sum_i\|\lambda_i\|\) |
+| `nuclearNorm_eq_sum_matrixSingularValues` | on a PSD matrix the library `nuclearNorm` equals that sum |
+| `nystromError_eq_sum_matrixSingularValues_compl` | \(\mathcal{E}(S)\) is the singular-value sum of the complementary inverse |
+
+File: `NystromSubmodularity/NuclearNormSVD.lean`. Delivered.
+
+## Thread 10 — Infinite Neumann series
+
+The walk traces in `Neumann.lean` stop at length 2. The missing identity
+is the geometric series for the inverse: if \(\|A\|_2<1\) in the
+\(\ell^2\) operator norm, then \((I-A)^{-1}=\sum_{k=0}^\infty A^k\).
+On a positive-definite precision matrix the Stieltjes splitting
+\(B=sI-M\) satisfies \(\|B/s\|_2<1\) for all sufficiently large \(s\),
+so \(M^{-1}=s^{-1}\sum_k (B/s)^k\).
+
+| Name | Claim |
+|------|--------|
+| `neumann_series_inv` | \(\|A\|_2<1\) implies \((I-A)^{-1}=\sum_k A^k\) |
+| `neumannSplit_inv_eq_tsum` | if \(\|B/s\|_2<1\) and \(M=sI-B\), then \(M^{-1}=s^{-1}\sum_k(B/s)^k\) |
+| `exists_neumannSplit_series_of_posDef` | every PD matrix admits such an \(s\) |
+| `neumann_series_inv_half` | certified \(1\times 1\) check: \(A=(1/2)\), both sides equal \(2\) |
+
+File: `NystromSubmodularity/Neumann.lean`. Delivered.
+
+Intentional after these threads: opening an actual mathlib PR on
+`leanprover-community/mathlib4` (the phase skill does not open
+upstream PRs).
 
 ## Verification (every thread)
 

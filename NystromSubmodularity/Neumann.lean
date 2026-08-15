@@ -1,8 +1,17 @@
 import NystromSubmodularity.Stieltjes
 import NystromSubmodularity.Definitions
 import Mathlib.LinearAlgebra.Matrix.Symmetric
+import Mathlib.LinearAlgebra.Matrix.NonsingularInverse
+import Mathlib.Analysis.CStarAlgebra.Matrix
+import Mathlib.Analysis.SpecificLimits.Normed
+import Mathlib.Analysis.Matrix.Spectrum
+import Mathlib.Analysis.Matrix.PosDef
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Ring
+import Mathlib.Tactic.NormNum
+import Mathlib.LinearAlgebra.Matrix.Notation
+import Mathlib.Algebra.Star.UnitaryStarAlgAut
+import Mathlib.LinearAlgebra.Matrix.Adjugate
 
 /-!
 # Neumann / closed-walk rewrite
@@ -11,9 +20,10 @@ Colbrook Proof 3.2 expands principal inverses of a Stieltjes matrix as a
 Neumann series of the splitting \(B=sI-M\). This file formalizes the
 splitting and the walk interpretation of the first two powers: the
 length-1 traces are modular, and the length-2 closed-walk trace is
-supermodular when \(B\) is entrywise nonnegative. The existing
-`IsStieltjes.inv_nonneg` remains the kernel proof of inverse-nonnegativity;
-the infinite series identity is not claimed.
+supermodular when \(B\) is entrywise nonnegative. The infinite series
+identity \((I-A)^{-1}=\sum_k A^k\) holds in the \(\ell^2\) operator
+norm whenever \(\|A\|_2<1\), and every positive-definite matrix admits
+a splitting to which the identity applies.
 -/
 
 namespace NystromSubmodularity
@@ -130,5 +140,129 @@ theorem neumannPartial_supermodular {ι : Type*} [Fintype ι] [DecidableEq ι]
   split_ifs
   · linarith
   · linarith
+
+/-! ## Infinite Neumann series -/
+
+open scoped Matrix.Norms.L2Operator
+
+/-- Geometric series for the matrix inverse in the \(\ell^2\) operator
+norm: \(\|A\|_2<1\) implies \((I-A)^{-1}=\sum_k A^k\). -/
+theorem neumann_series_inv {n : Type*} [Fintype n] [DecidableEq n]
+    (A : Matrix n n ℝ) (hA : ‖A‖ < 1) :
+    (1 - A)⁻¹ = ∑' k : ℕ, A ^ k := by
+  rw [nonsing_inv_eq_ringInverse, geom_series_eq_inverse A hA]
+
+theorem neumannSplit_eq {ι : Type*} [DecidableEq ι] (s : ℝ) (M : Matrix ι ι ℝ) :
+    M = s • (1 : Matrix ι ι ℝ) - neumannSplit s M := by
+  simp [neumannSplit]
+
+theorem neumannSplit_eq_smul_one_sub {ι : Type*} [DecidableEq ι] (s : ℝ)
+    (hs : s ≠ 0) (M : Matrix ι ι ℝ) :
+    M = s • ((1 : Matrix ι ι ℝ) - s⁻¹ • neumannSplit s M) := by
+  have h : s • (s⁻¹ • neumannSplit s M) = neumannSplit s M := by
+    rw [smul_smul, mul_inv_cancel₀ hs, one_smul]
+  rw [smul_sub, h]
+  exact neumannSplit_eq s M
+
+/-- If the scaled splitting is a contraction, the inverse is the
+Neumann series of that splitting. -/
+theorem neumannSplit_inv_eq_tsum {n : Type*} [Fintype n] [DecidableEq n]
+    (s : ℝ) (hs : 0 < s) (M : Matrix n n ℝ)
+    (hB : ‖s⁻¹ • neumannSplit s M‖ < 1) :
+    M⁻¹ = s⁻¹ • ∑' k : ℕ, (s⁻¹ • neumannSplit s M) ^ k := by
+  set A := s⁻¹ • neumannSplit s M
+  have hs0 : s ≠ 0 := hs.ne'
+  have hM : M = s • ((1 : Matrix n n ℝ) - A) :=
+    neumannSplit_eq_smul_one_sub s hs0 M
+  have hinvA : (1 - A)⁻¹ = ∑' k : ℕ, A ^ k := neumann_series_inv A hB
+  have hunit : IsUnit ((1 : Matrix n n ℝ) - A).det :=
+    (Matrix.isUnit_iff_isUnit_det (1 - A)).mp (Units.oneSub A hB).isUnit
+  have hR : (s • ((1 : Matrix n n ℝ) - A)) * (s⁻¹ • (1 - A)⁻¹) = 1 := by
+    rw [smul_mul_smul_comm, Matrix.mul_nonsing_inv _ hunit]
+    rw [mul_inv_cancel₀ hs0, one_smul]
+  rw [hM, Matrix.inv_eq_right_inv hR, hinvA]
+
+open Unitary
+
+lemma neumannSplit_smul_eq_conj {n : Type*} [Fintype n] [DecidableEq n]
+    {M : Matrix n n ℝ} (hM : M.IsHermitian) {s : ℝ} (hs : s ≠ 0) :
+    s⁻¹ • neumannSplit s M =
+      conjStarAlgAut ℝ (Matrix n n ℝ) hM.eigenvectorUnitary
+        (Matrix.diagonal fun i : n => (1 : ℝ) - s⁻¹ * hM.eigenvalues i) := by
+  have h1 : conjStarAlgAut ℝ (Matrix n n ℝ) hM.eigenvectorUnitary (1 : Matrix n n ℝ) = 1 :=
+    map_one _
+  rw [neumannSplit, smul_sub, smul_smul, inv_mul_cancel₀ hs, one_smul]
+  conv_lhs => rw [hM.spectral_theorem]
+  rw [← map_smul (conjStarAlgAut ℝ (Matrix n n ℝ) hM.eigenvectorUnitary)]
+  rw [← h1, ← map_sub]
+  congr 1
+  ext i j
+  by_cases hij : i = j <;> simp [hij]
+
+/-- Every positive-definite matrix admits a splitting whose scaled
+ℓ² operator norm is strictly less than one. -/
+theorem exists_neumannSplit_series_of_posDef {n : Type*} [Fintype n]
+    [DecidableEq n] {M : Matrix n n ℝ} (hM : M.PosDef) :
+    ∃ s : ℝ, 0 < s ∧ ‖s⁻¹ • neumannSplit s M‖ < 1 ∧
+      M⁻¹ = s⁻¹ • ∑' k : ℕ, (s⁻¹ • neumannSplit s M) ^ k := by
+  classical
+  let s : ℝ := (∑ i : n, |hM.1.eigenvalues i|) + 1
+  have hs : 0 < s := by
+    have : 0 ≤ ∑ i : n, |hM.1.eigenvalues i| :=
+      Finset.sum_nonneg fun _ _ => abs_nonneg _
+    linarith
+  have hposEig : ∀ i : n, 0 < hM.1.eigenvalues i := fun i => hM.eigenvalues_pos i
+  have hEig : ∀ i : n, |hM.1.eigenvalues i| < s := by
+    intro i
+    have hi : |hM.1.eigenvalues i| ≤ ∑ j : n, |hM.1.eigenvalues j| :=
+      Finset.single_le_sum (f := fun j : n => |hM.1.eigenvalues j|)
+        (fun _ _ => abs_nonneg _) (Finset.mem_univ i)
+    linarith
+  have hform := neumannSplit_smul_eq_conj hM.1 hs.ne'
+  set_option backward.isDefEq.respectTransparency false in
+  have hcontr : ‖s⁻¹ • neumannSplit s M‖ < 1 := by
+    rw [hform]
+    simp only [conjStarAlgAut_apply, ← Unitary.coe_star,
+      CStarRing.norm_mul_coe_unitary, CStarRing.norm_coe_unitary_mul,
+      l2_opNorm_diagonal]
+    refine (pi_norm_lt_iff (by positivity : (0 : ℝ) < 1)).mpr fun i => ?_
+    have hpos : 0 < hM.1.eigenvalues i := hposEig i
+    have hlt : hM.1.eigenvalues i < s := (abs_lt.mp (hEig i)).2
+    have hfrac : 0 < s⁻¹ * hM.1.eigenvalues i :=
+      mul_pos (inv_pos.mpr hs) hpos
+    have hfrac1 : s⁻¹ * hM.1.eigenvalues i < 1 := by
+      rw [mul_comm, ← div_eq_mul_inv, div_lt_one hs]
+      exact hlt
+    change |1 - s⁻¹ * hM.1.eigenvalues i| < 1
+    have : |1 - s⁻¹ * hM.1.eigenvalues i| = 1 - s⁻¹ * hM.1.eigenvalues i :=
+      abs_of_nonneg (sub_nonneg.mpr hfrac1.le)
+    rw [this]
+    linarith [hfrac]
+  refine ⟨s, hs, hcontr, neumannSplit_inv_eq_tsum s hs M hcontr⟩
+
+/-- Certified 1×1 Neumann series: A = 1/2, both sides equal 2. -/
+theorem neumann_series_inv_half :
+    let A : Matrix (Fin 1) (Fin 1) ℝ := !![1 / 2]
+    (1 - A)⁻¹ = ∑' k : ℕ, A ^ k ∧ (1 - A)⁻¹ = !![2] := by
+  intro A
+  have hA : ‖A‖ < 1 := by
+    have hAeq : A = Matrix.diagonal fun _ : Fin 1 => (1 / 2 : ℝ) := by
+      ext i j
+      fin_cases i; fin_cases j
+      simp [A]
+    rw [hAeq, l2_opNorm_diagonal]
+    refine (pi_norm_lt_iff (by positivity : (0 : ℝ) < 1)).mpr fun i => ?_
+    simp
+    norm_num
+  refine ⟨neumann_series_inv A hA, ?_⟩
+  have h1A : (1 : Matrix (Fin 1) (Fin 1) ℝ) - A = !![1 / 2] := by
+    ext i j
+    fin_cases i; fin_cases j
+    simp [A]
+    norm_num
+  rw [h1A, Matrix.inv_def, Matrix.adjugate_fin_one]
+  ext i j
+  fin_cases i; fin_cases j
+  simp
 
 end NystromSubmodularity

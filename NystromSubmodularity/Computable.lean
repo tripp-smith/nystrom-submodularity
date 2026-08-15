@@ -107,6 +107,14 @@ theorem cramerTraceInv_smul {ι R : Type*} [Fintype ι] [DecidableEq ι] [Field 
     unfold cramerTraceInv
     rw [principalSubmatrix_smul, cramerInv_smul c _ hc, trace_smul, smul_eq_mul]
 
+/-- Colbrook (30): scaling the precision matrix by `α ≠ 0` multiplies every
+inverse-trace (and therefore every four-point defect) by `α⁻¹`. -/
+theorem nystromError_smul_scale {ι R : Type*} [Fintype ι] [DecidableEq ι] [Field R]
+    (c : R) (M : Matrix ι ι R) (S : Finset ι) (hc : c ≠ 0) :
+    nystromError (c • M) S = c⁻¹ * nystromError M S := by
+  simpa [nystromError, cramerNystromError_eq_nystromError, cramerTraceInv_eq_traceInv] using
+    cramerTraceInv_smul c M (compl S) hc
+
 /-- Map a rational matrix into `ℝ` (for `PosDef` / `IsStieltjes`). -/
 def toReal {ι : Type*} (M : Matrix ι ι ℚ) : Matrix ι ι ℝ :=
   M.map (fun q : ℚ => (q : ℝ))

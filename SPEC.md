@@ -37,6 +37,13 @@ non-technical writeup `FINDINGS.md`):
   On a fully supported triangle this holds for every positive-definite
   realization iff the sign pattern is antibalanced
   (`triangle_pd_nystrom_supermodular_iff_antibalanced`).
+  Colbrook Theorem 2 is `nystromResidual_eq_padded_compl_inv`: the Nyström
+  residual of \(M^{-1}\) is the padded complement inverse, so
+  `nuclearNystromError_eq_nystromError` on that PSD residual. The
+  definitional gap is closed. Lemma 3 (`exact_marginal`) and strict
+  decrease of \(\mathcal{E}\) hold for every positive-definite precision
+  matrix. Scaling by \(\alpha\neq 0\) multiplies every inverse-trace by
+  \(\alpha^{-1}\) (`nystromError_smul_scale`).
 
 No Python was used. `lake build` is sorry-free.
 

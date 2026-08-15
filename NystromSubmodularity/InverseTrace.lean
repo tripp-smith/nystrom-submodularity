@@ -14,7 +14,9 @@ import Mathlib.Data.Fin.VecNotation
 Atamtürk–Gómez four-point identity: for a Stieltjes matrix `A` and
 `F(T)=tr(A[T]⁻¹)`, the defect on `{i,j}` relative to a base set `S`
 splits as a sum of two nonnegative `2×2` expressions in the Schur
-complement `Q` and Gram `H = Cᵀ A[S]⁻² C`.
+complement `Q` and Gram `H = Cᵀ A[S]⁻² C`. Colbrook Lemma 3
+(`exact_marginal`) and strict decrease of \(\mathcal{E}\) hold for
+every positive-definite precision matrix, not only Stieltjes matrices.
 -/
 
 namespace NystromSubmodularity
@@ -152,11 +154,12 @@ lemma traceInv_insert₂ {A : Matrix ι ι ℝ} (hA : A.IsHermitian)
           (pairOffBlock A S i j).conjTranspose (pairDiagBlock A i j))⁻¹.trace := by
   rw [traceInv, principalSubmatrix_insert₂ A hA hi hj hij, inv_reindex, trace_reindex]
 
-lemma fromBlocks_insert₁_posDef {A : Matrix ι ι ℝ} (hA : IsStieltjes A)
+lemma fromBlocks_insert₁_posDef_of_posDef {A : Matrix ι ι ℝ} (hA : A.PosDef)
     {S : Finset ι} {i : ι} (hi : i ∉ S) :
     (fromBlocks (principalSubmatrix A S) (colBlock A S i)
         (colBlock A S i).conjTranspose (scalarBlock A i)).PosDef := by
-  have hP : (principalSubmatrix A (insert i S)).PosDef := (hA.principal _).posDef
+  have hP : (principalSubmatrix A (insert i S)).PosDef :=
+    hA.submatrix Subtype.val_injective
   have heq := principalSubmatrix_insert₁ A hA.isHermitian hi
   have hre : ((fromBlocks (principalSubmatrix A S) (colBlock A S i)
         (colBlock A S i).conjTranspose (scalarBlock A i)).reindex
@@ -167,6 +170,12 @@ lemma fromBlocks_insert₁_posDef {A : Matrix ι ι ℝ} (hA : IsStieltjes A)
         (insert₁Equiv hi).symm (insert₁Equiv hi).symm).PosDef := by
     simpa [reindex_apply] using hre
   exact (posDef_submatrix_equiv (insert₁Equiv hi).symm).1 hsub
+
+lemma fromBlocks_insert₁_posDef {A : Matrix ι ι ℝ} (hA : IsStieltjes A)
+    {S : Finset ι} {i : ι} (hi : i ∉ S) :
+    (fromBlocks (principalSubmatrix A S) (colBlock A S i)
+        (colBlock A S i).conjTranspose (scalarBlock A i)).PosDef :=
+  fromBlocks_insert₁_posDef_of_posDef hA.posDef hi
 
 lemma fromBlocks_insert₂_posDef {A : Matrix ι ι ℝ} (hA : IsStieltjes A)
     {S : Finset ι} {i j : ι} (hi : i ∉ S) (hj : j ∉ S) (hij : i ≠ j) :
@@ -186,12 +195,17 @@ lemma fromBlocks_insert₂_posDef {A : Matrix ι ι ℝ} (hA : IsStieltjes A)
     simpa [reindex_apply] using hre
   exact (posDef_submatrix_equiv (insert₂Equiv hi hj hij).symm).1 hsub
 
-lemma schurOne_posDef {A : Matrix ι ι ℝ} (hA : IsStieltjes A)
+lemma schurOne_posDef_of_posDef {A : Matrix ι ι ℝ} (hA : A.PosDef)
     {S : Finset ι} {i : ι} (hi : i ∉ S) :
     (schurOne A S i).PosDef := by
-  have hN : (principalSubmatrix A S).PosDef := (hA.principal S).posDef
-  have hBlk := fromBlocks_insert₁_posDef hA hi
+  have hN : (principalSubmatrix A S).PosDef := hA.submatrix Subtype.val_injective
+  have hBlk := fromBlocks_insert₁_posDef_of_posDef hA hi
   simpa [schurOne] using schurComplement_posDef hN hBlk
+
+lemma schurOne_posDef {A : Matrix ι ι ℝ} (hA : IsStieltjes A)
+    {S : Finset ι} {i : ι} (hi : i ∉ S) :
+    (schurOne A S i).PosDef :=
+  schurOne_posDef_of_posDef hA.posDef hi
 
 lemma schurPair_posDef {A : Matrix ι ι ℝ} (hA : IsStieltjes A)
     {S : Finset ι} {i j : ι} (hi : i ∉ S) (hj : j ∉ S) (hij : i ≠ j) :
@@ -200,40 +214,129 @@ lemma schurPair_posDef {A : Matrix ι ι ℝ} (hA : IsStieltjes A)
   have hBlk := fromBlocks_insert₂_posDef hA hi hj hij
   simpa [schurPair] using schurComplement_posDef hN hBlk
 
-lemma exact_marginal_one {A : Matrix ι ι ℝ} (hA : IsStieltjes A)
+/-- Colbrook Lemma 3: the exact one-index inverse-trace increment for any
+positive-definite precision matrix. -/
+theorem exact_marginal {A : Matrix ι ι ℝ} (hA : A.PosDef)
     {S : Finset ι} {i : ι} (hi : i ∉ S) :
-    traceInv A (insert i S) =
-      traceInv A S + (1 + gramOne A S i 0 0) / schurOne A S i 0 0 := by
+    traceInv A (insert i S) - traceInv A S =
+      (1 + gramOne A S i 0 0) / schurOne A S i 0 0 := by
   have hHer := hA.isHermitian
-  have hN : (principalSubmatrix A S).PosDef := (hA.principal S).posDef
-  have hBlk := fromBlocks_insert₁_posDef hA hi
-  have hS : (schurOne A S i).PosDef := schurOne_posDef hA hi
+  have hN : (principalSubmatrix A S).PosDef := hA.submatrix Subtype.val_injective
+  have hBlk := fromBlocks_insert₁_posDef_of_posDef hA hi
+  have hS : (schurOne A S i).PosDef := schurOne_posDef_of_posDef hA hi
   have hs00 : (schurOne A S i)⁻¹ 0 0 = (schurOne A S i 0 0)⁻¹ :=
     inv_fin_one_apply (schurOne A S i)
   have hpos : schurOne A S i 0 0 ≠ 0 := hS.diag_pos.ne'
   have hgram :=
     trace_inv_schur_gram (principalSubmatrix A S)⁻¹ (colBlock A S i) (schurOne A S i)⁻¹
-  rw [traceInv_insert₁ hHer hi,
-    trace_inv_fromBlocks (principalSubmatrix A S) (colBlock A S i)
-      (colBlock A S i).conjTranspose (scalarBlock A i) hN.isUnit hS.isUnit hBlk.isUnit]
-  change (principalSubmatrix A S)⁻¹.trace +
-      ((principalSubmatrix A S)⁻¹ * colBlock A S i * (schurOne A S i)⁻¹ *
-        (colBlock A S i).conjTranspose * (principalSubmatrix A S)⁻¹).trace +
-      (schurOne A S i)⁻¹.trace =
-    traceInv A S + (1 + gramOne A S i 0 0) / schurOne A S i 0 0
-  have htrG : ((schurOne A S i)⁻¹ * gramOne A S i).trace =
-      (schurOne A S i 0 0)⁻¹ * gramOne A S i 0 0 := by
-    rw [trace_fin_one, mul_fin_one, hs00]
-  have htrS : (schurOne A S i)⁻¹.trace = (schurOne A S i 0 0)⁻¹ := by
-    rw [trace_fin_one, hs00]
-  have hgrameq :
-      ((principalSubmatrix A S)⁻¹ * colBlock A S i * (schurOne A S i)⁻¹ *
-          (colBlock A S i).conjTranspose * (principalSubmatrix A S)⁻¹).trace =
-        ((schurOne A S i)⁻¹ * gramOne A S i).trace := by
-    simpa [gramOne] using hgram
-  rw [hgrameq, htrG, htrS, show traceInv A S = (principalSubmatrix A S)⁻¹.trace from rfl]
-  field_simp [hpos]
-  ring
+  have hsum :
+      traceInv A (insert i S) =
+        traceInv A S + (1 + gramOne A S i 0 0) / schurOne A S i 0 0 := by
+    rw [traceInv_insert₁ hHer hi,
+      trace_inv_fromBlocks (principalSubmatrix A S) (colBlock A S i)
+        (colBlock A S i).conjTranspose (scalarBlock A i) hN.isUnit hS.isUnit hBlk.isUnit]
+    change (principalSubmatrix A S)⁻¹.trace +
+        ((principalSubmatrix A S)⁻¹ * colBlock A S i * (schurOne A S i)⁻¹ *
+          (colBlock A S i).conjTranspose * (principalSubmatrix A S)⁻¹).trace +
+        (schurOne A S i)⁻¹.trace =
+      traceInv A S + (1 + gramOne A S i 0 0) / schurOne A S i 0 0
+    have htrG : ((schurOne A S i)⁻¹ * gramOne A S i).trace =
+        (schurOne A S i 0 0)⁻¹ * gramOne A S i 0 0 := by
+      rw [trace_fin_one, mul_fin_one, hs00]
+    have htrS : (schurOne A S i)⁻¹.trace = (schurOne A S i 0 0)⁻¹ := by
+      rw [trace_fin_one, hs00]
+    have hgrameq :
+        ((principalSubmatrix A S)⁻¹ * colBlock A S i * (schurOne A S i)⁻¹ *
+            (colBlock A S i).conjTranspose * (principalSubmatrix A S)⁻¹).trace =
+          ((schurOne A S i)⁻¹ * gramOne A S i).trace := by
+      simpa [gramOne] using hgram
+    rw [hgrameq, htrG, htrS, show traceInv A S = (principalSubmatrix A S)⁻¹.trace from rfl]
+    field_simp [hpos]
+    ring
+  linarith [hsum]
+
+lemma exact_marginal_one {A : Matrix ι ι ℝ} (hA : IsStieltjes A)
+    {S : Finset ι} {i : ι} (hi : i ∉ S) :
+    traceInv A (insert i S) =
+      traceInv A S + (1 + gramOne A S i 0 0) / schurOne A S i 0 0 := by
+  linarith [exact_marginal hA.posDef hi]
+
+lemma gramOne_nonneg {A : Matrix ι ι ℝ} (hA : A.PosDef)
+    {S : Finset ι} {i : ι} : 0 ≤ gramOne A S i 0 0 := by
+  have hN : (principalSubmatrix A S).PosDef := hA.submatrix Subtype.val_injective
+  have hHer : ((principalSubmatrix A S)⁻¹).IsHermitian := hN.inv.isHermitian
+  have hgram :
+      gramOne A S i =
+        ((principalSubmatrix A S)⁻¹ * colBlock A S i).conjTranspose *
+          ((principalSubmatrix A S)⁻¹ * colBlock A S i) := by
+    unfold gramOne
+    simp [Matrix.mul_assoc]
+    rw [(isHermitian_iff_isSymm (α := ℝ)).mp hHer]
+  rw [hgram, Matrix.mul_apply]
+  refine Finset.sum_nonneg fun p _ => ?_
+  simp [conjTranspose_apply, star_trivial]
+  exact mul_self_nonneg _
+
+lemma exact_marginal_pos {A : Matrix ι ι ℝ} (hA : A.PosDef)
+    {S : Finset ι} {i : ι} (hi : i ∉ S) :
+    0 < traceInv A (insert i S) - traceInv A S := by
+  have hS : (schurOne A S i).PosDef := schurOne_posDef_of_posDef hA hi
+  have hσ : 0 < schurOne A S i 0 0 := hS.diag_pos
+  have hnum : 0 < 1 + gramOne A S i 0 0 := by
+    nlinarith [gramOne_nonneg hA (S := S) (i := i)]
+  rw [exact_marginal hA hi]
+  exact div_pos hnum hσ
+
+lemma traceInv_mono {A : Matrix ι ι ℝ} (hA : A.PosDef)
+    {U V : Finset ι} (hUV : U ⊆ V) : traceInv A U ≤ traceInv A V := by
+  have : ∀ D : Finset ι, Disjoint U D → traceInv A U ≤ traceInv A (U ∪ D) := by
+    intro D
+    refine Finset.induction_on D ?e ?i
+    · intro _; simp
+    · intro a D ha ih hdis
+      have haU : a ∉ U := fun h =>
+        Finset.disjoint_left.mp hdis h (Finset.mem_insert_self a D)
+      have hdis' : Disjoint U D := hdis.mono_right (Finset.subset_insert a D)
+      have hle := ih hdis'
+      have hunion : U ∪ insert a D = insert a (U ∪ D) := by rw [Finset.union_insert]
+      rw [hunion]
+      have haUD : a ∉ U ∪ D := by
+        simp [Finset.mem_union, haU, ha]
+      linarith [exact_marginal_pos hA haUD]
+  have hV : V = U ∪ (V \ U) := (Finset.union_sdiff_of_subset hUV).symm
+  rw [hV]
+  exact this (V \ U) Finset.disjoint_sdiff
+
+lemma traceInv_strict_mono {A : Matrix ι ι ℝ} (hA : A.PosDef)
+    {U V : Finset ι} (hUV : U ⊂ V) :
+    traceInv A U < traceInv A V := by
+  obtain ⟨hsubset, hne⟩ := ssubset_iff_subset_ne.mp hUV
+  have hneD : V \ U ≠ ∅ := by
+    intro h
+    exact hne (Finset.Subset.antisymm hsubset (Finset.sdiff_eq_empty_iff_subset.mp h))
+  obtain ⟨i, hi⟩ := Finset.nonempty_iff_ne_empty.mpr hneD
+  have hiV : i ∈ V := (Finset.mem_sdiff.mp hi).1
+  have hiU : i ∉ U := (Finset.mem_sdiff.mp hi).2
+  have hrest : insert i U ⊆ V := by
+    intro x hx
+    rcases Finset.mem_insert.mp hx with (rfl | hx)
+    · exact hiV
+    · exact hsubset hx
+  linarith [exact_marginal_pos hA hiU, traceInv_mono hA hrest]
+
+/-- Nyström error is strictly decreasing along proper inclusions, for every
+positive-definite precision matrix. -/
+theorem nystromError_strict_anti_monotone {A : Matrix ι ι ℝ} (hA : A.PosDef)
+    {S T : Finset ι} (hST : S ⊂ T) :
+    nystromError A T < nystromError A S := by
+  have hcompl : compl T ⊂ compl S := by
+    obtain ⟨hsubset, hne⟩ := ssubset_iff_subset_ne.mp hST
+    refine ssubset_iff_subset_ne.mpr ⟨?_, ?_⟩
+    · intro x hx
+      exact mem_compl.mpr (fun hxS => (mem_compl.mp hx) (hsubset hxS))
+    · intro h
+      exact hne (by rw [← compl_compl S, ← compl_compl T, h])
+  simpa [nystromError] using traceInv_strict_mono hA hcompl
 
 lemma exact_marginal_two {A : Matrix ι ι ℝ} (hA : IsStieltjes A)
     {S : Finset ι} {i j : ι} (hi : i ∉ S) (hj : j ∉ S) (hij : i ≠ j) :

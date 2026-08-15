@@ -27,7 +27,12 @@ optimal pair. Inverse-trace supermodularity is a property of the signed
 support graph: a \(\{\pm 1\}\) signature that produces a Stieltjes matrix
 is enough (Colbrook Proposition 7), and on a fully supported triangle this
 happens for every positive-definite realization if and only if the sign
-pattern is antibalanced (Corollary 13).
+pattern is antibalanced (Corollary 13). Colbrook Theorem 2 identifies the
+Nyström residual with a padded complement inverse, so nuclear error equals
+the inverse-trace on that PSD residual. The exact one-index increment holds
+for every positive-definite precision matrix, \(\mathcal{E}\) is strictly
+decreasing, and a nonzero scale multiplies every inverse-trace by its
+reciprocal.
 
 Public theorems live in `Theorems.lean`. See `FINDINGS.md` for a
 non-technical account, `README.md` for the module map, and `SPEC.md` for the

@@ -1,5 +1,6 @@
 import NystromSubmodularity.Stieltjes
 import NystromSubmodularity.InverseTrace
+import NystromSubmodularity.Nystrom
 import NystromSubmodularity.Minimality
 import NystromSubmodularity.Counterexamples.SDDDim3
 import NystromSubmodularity.Counterexamples.SDDDim4
@@ -27,12 +28,18 @@ fails to be supermodular if and only if
 that produces a Stieltjes matrix is enough for supermodularity (Proposition
 7); on a fully supported triangle this holds for every positive-definite
 realization if and only if the sign pattern is antibalanced (Corollary 13).
+Colbrook Theorem 2 identifies the Nyström residual with a padded complement
+inverse, so the nuclear error equals the inverse-trace on that PSD residual.
+The exact one-index increment (Lemma 3) holds for every positive-definite
+precision matrix, \(\mathcal{E}\) is strictly decreasing, and scaling \(M\)
+by \(\alpha\neq 0\) multiplies every inverse-trace by \(\alpha^{-1}\).
 
 The four-point algebra is in `InverseTrace.lean`. Minimality of the
 obstruction is in `Minimality.lean`. Greedy one-column misselection on
 \(L(t)\) and \(L^\sharp\) is in `Counterexamples/Greedy.lean`. Signature
 switching and the order-3 antibalance criterion are in `Signature.lean`.
-A non-technical account is in `FINDINGS.md`.
+The residual identity is in `Nystrom.lean`. A non-technical account is in
+`FINDINGS.md`.
 -/
 
 namespace NystromSubmodularity
@@ -203,6 +210,30 @@ theorem Lsharp_greedy_misses_optimal_pair :
 `nystromError_supermodular_of_signature_stieltjes`,
 `exists_signature_stieltjes_of_antibalanced_triangle`, and
 `triangle_pd_nystrom_supermodular_iff_antibalanced` in `Signature.lean`.
-Sanity: `pathM3_signature_flip_supermodular`, `Lsharp_not_antibalanced_pattern`. -/
+Sanity: `pathM3_signature_flip_supermodular`, `Lsharp_not_antibalanced_pattern`.
+
+Colbrook Theorem 2, Lemma 3, and (30) are
+`nystromResidual_eq_padded_compl_inv`, `nuclearNystromError_eq_nystromError`
+in `Nystrom.lean`, `exact_marginal` and `nystromError_strict_anti_monotone`
+in `InverseTrace.lean`, and `nystromError_smul_scale` in `Computable.lean`. -/
+
+/-- Forces the residual identity, not only the inverse-trace definition:
+the nuclear error of \(M_0\) at \(\{0\}\) is the certified Cramer value. -/
+theorem nuclearNystromError_M0_zero :
+    nuclearNystromError (toReal M0) ({0} : Finset (Fin 3)) = ((9 / 16 : ℚ) : ℝ) := by
+  rw [nuclearNystromError_eq_nystromError M0_posDef, ← toReal_nystromError, M0_cramer_zero]
+
+/-- Colbrook (30) on \(M_0\): scaling by \(10\) multiplies every inverse-trace
+by \(1/10\). -/
+theorem nystromError_ten_smul_M0 (S : Finset (Fin 3)) :
+    nystromError ((10 : ℝ) • toReal M0) S =
+      (10 : ℝ)⁻¹ * nystromError (toReal M0) S :=
+  nystromError_smul_scale (10 : ℝ) (toReal M0) S (by norm_num)
+
+theorem nystromError_ten_smul_M0_zero :
+    nystromError ((10 : ℝ) • toReal M0) ({0} : Finset (Fin 3)) =
+      ((9 / 160 : ℚ) : ℝ) := by
+  rw [nystromError_ten_smul_M0, ← toReal_nystromError, M0_cramer_zero]
+  norm_num
 
 end NystromSubmodularity

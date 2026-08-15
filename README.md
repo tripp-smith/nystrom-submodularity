@@ -26,9 +26,10 @@ K-\mathcal{N}_S(K)=\begin{pmatrix}0&0\\0&M[S^{\mathsf{c}}]^{-1}\end{pmatrix},
 \]
 
 with the empty-matrix convention \(\operatorname{tr}(M[\emptyset]^{-1})=0\).
-`nystromError M S` is this inverse-trace formula. `nuclearNorm` is currently this
-trace, not an SVD sum; that is enough for the PSD residual of a positive-definite
-precision matrix.
+This block identity is `nystromResidual_eq_padded_compl_inv`. The residual is
+PSD, so its nuclear (Schatten-1) norm equals its trace and
+`nuclearNystromError_eq_nystromError`. We identify the nuclear norm with that
+trace on this residual; there is no general SVD API.
 
 ## Status
 
@@ -78,11 +79,20 @@ Colbrook’s strictly SDD \(L_4\) with complete support fails at \(A=\{3\}\),
 The argument is Stieltjes inverse-nonnegativity plus the Atamtürk–Gómez
 four-point identity (`InverseTrace.lean`).
 
+**Schur residual and exact marginal.** `nystromResidual_eq_padded_compl_inv`
+is Colbrook Theorem 2. `exact_marginal` is Lemma 3 for every
+positive-definite precision matrix, so \(\mathcal{E}\) is strictly
+decreasing (`nystromError_strict_anti_monotone`). Scaling \(M\) by
+\(\alpha\neq 0\) multiplies every inverse-trace by \(\alpha^{-1}\)
+(`nystromError_smul_scale`). On \(M_0\), the nuclear error at \(\{0\}\)
+is the certified Cramer value \(9/16\); the traces of \(10\cdot M_0\)
+are one-tenth of those of \(M_0\).
+
 Both public theorems print the Lean defaults (`propext`, `Classical.choice`,
 `Quot.sound`).
 
-**Not in scope.** Full Schur residual identity, SVD nuclear-norm API, or
-Neumann series.
+**Not in scope.** SVD nuclear-norm API, Neumann series, other losses, or
+the true singular case \(\gamma=0\).
 
 Build: `lake build`. No `sorry` in the library target.
 
@@ -93,9 +103,9 @@ Build: `lake build`. No `sorry` in the library target.
 | `Definitions.lean` | `Submodular` / `Supermodular`, SDDM/SDD/Stieltjes predicates |
 | `PrincipalSubmatrix.lean` | `traceInv`, `nystromError`, insert₁/insert₂ block identifications |
 | `Computable.lean` | exact \(\mathbb{Q}\) Cramer traces |
-| `Nystrom.lean` | Nyström approximation/residual (trace nuclear norm) |
+| `Nystrom.lean` | Nyström residual identity; nuclear error equals inverse-trace |
 | `Stieltjes.lean` | inverse-nonnegativity; SDDM + \(\gamma I\) is Stieltjes |
-| `InverseTrace.lean` | four-point identity for \(T\mapsto\operatorname{tr}(A[T]^{-1})\) |
+| `InverseTrace.lean` | four-point identity; exact marginal for every PD matrix |
 | `Minimality.lean` | terminal \(2\times 2\) identity; \(n\le 2\) never fails |
 | `SmallInstanceChecks.lean` | exhaustive \(n\le 5\) SDDM checks |
 | `Counterexamples/SDDDim3.lean` | signed triangle \(L_0\) and strictly SDD \(L^\sharp\) |

@@ -343,6 +343,42 @@ theorem inv_fromBlocks₁₁_eq {m n : Type*} [Fintype m] [Fintype n]
   rw [← invOf_eq_nonsing_inv, invOf_fromBlocks₁₁_eq]
   simp [invOf_eq_nonsing_inv]
 
+theorem inv_fromBlocks₂₂_eq {m n : Type*} [Fintype m] [Fintype n]
+    [DecidableEq m] [DecidableEq n]
+    (A : Matrix m m ℝ) (B : Matrix m n ℝ) (C : Matrix n m ℝ) (D : Matrix n n ℝ)
+    (hD : IsUnit D) (hS : IsUnit (A - B * D⁻¹ * C))
+    (hBlk : IsUnit (fromBlocks A B C D)) :
+    (fromBlocks A B C D)⁻¹ =
+      fromBlocks (A - B * D⁻¹ * C)⁻¹
+        (-((A - B * D⁻¹ * C)⁻¹ * B * D⁻¹))
+        (-(D⁻¹ * C * (A - B * D⁻¹ * C)⁻¹))
+        (D⁻¹ + D⁻¹ * C * (A - B * D⁻¹ * C)⁻¹ * B * D⁻¹) := by
+  obtain ⟨_⟩ := hD.nonempty_invertible
+  have hcongr : A - B * ⅟D * C = A - B * D⁻¹ * C := by
+    simp [invOf_eq_nonsing_inv]
+  have hS' : IsUnit (A - B * ⅟D * C) := by
+    rwa [hcongr]
+  obtain ⟨_⟩ := hS'.nonempty_invertible
+  obtain ⟨_⟩ := hBlk.nonempty_invertible
+  rw [← invOf_eq_nonsing_inv, invOf_fromBlocks₂₂_eq]
+  simp [invOf_eq_nonsing_inv]
+
+/-- Schur complement of the lower-right block of a positive-definite block matrix. -/
+theorem schurComplement₂₂_posDef {m n : Type*} [Fintype m] [Fintype n] [DecidableEq n]
+    {A : Matrix m m ℝ} {B : Matrix m n ℝ} {D : Matrix n n ℝ}
+    (hD : D.PosDef) (hM : (fromBlocks A B Bᴴ D).PosDef) :
+    (A - B * D⁻¹ * Bᴴ).PosDef := by
+  have hswap : (fromBlocks D Bᴴ B A).PosDef := by
+    have hsub :
+        fromBlocks D Bᴴ B A =
+          (fromBlocks A B Bᴴ D).submatrix (Equiv.sumComm n m) (Equiv.sumComm n m) := by
+      ext i j
+      cases i <;> cases j <;> rfl
+    rw [hsub]
+    exact (posDef_submatrix_equiv (Equiv.sumComm n m)).mpr hM
+  have := schurComplement_posDef (A := D) (B := Bᴴ) (D := A) hD hswap
+  simpa [conjTranspose_conjTranspose] using this
+
 theorem IsStieltjes.inv_nonneg_fin :
     ∀ (n : ℕ) (A : Matrix (Fin n) (Fin n) ℝ),
       IsStieltjes A → ∀ i j, 0 ≤ A⁻¹ i j := by

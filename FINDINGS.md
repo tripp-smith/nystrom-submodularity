@@ -24,10 +24,12 @@ have inverted the big one.
 
 The leftover is an error matrix. We measure its size by the *nuclear* error
 \(\mathcal{E}(S)\): the sum of the leftover singular values — a single number
-that shrinks as you explain more of the matrix. (For the matrices we study
-this is the same as a trace of a leftover inverse block, so we never need a
-numerical SVD.) When \(S\) is empty you have explained nothing; when \(S\) is
-everything the error is zero. Adding a landmark never hurts.
+that shrinks as you explain more of the matrix. For a positive-definite
+precision matrix the leftover is itself positive semidefinite and equals a
+padded inverse of the unselected block, so that nuclear number is exactly
+the trace of the leftover (no SVD required). When \(S\) is empty you have
+explained nothing; when \(S\) is everything the error is zero. Adding a
+landmark always strictly decreases the error.
 
 The design question is whether landmark selection has **diminishing returns**:
 does the benefit of adding index \(i\) shrink as the set you already have gets
@@ -107,6 +109,13 @@ than \(1+\sqrt{2}\): the other empty-base pairs stay positive, and a nonempty
 base cannot fail on three indices. So the obstruction is exactly that
 interval, not just the single witness \(t=2\).
 
+The nuclear number is not a definitional rewrite: the leftover of
+\(M^{-1}\) is the padded inverse of the unselected block, that leftover is
+positive semidefinite, and its nuclear norm is its trace. Adding any new
+landmark strictly decreases the error for every positive-definite precision
+matrix, and scaling the precision matrix by a nonzero constant just
+rescales every error value (and every four-point defect) by the reciprocal.
+
 So the sign pattern is doing real work. “Diagonally dominant” is not enough.
 You need the M-matrix / Laplacian sign pattern as well — or a sign pattern
 that can be *turned into* that one by flipping the signs of some variables
@@ -165,12 +174,18 @@ These are genuine leftovers, not hidden holes in the two theorems above.
    perturbation and a nonempty-base \(n=4\) witness. That is still not a
    measure of how often mixed-sign SDD matrices violate diminishing returns
    in applied covariances.
-3. **The \(\gamma\to 0\) limit.** The theorem is for \(\gamma>0\). Pure
-   Laplacians (singular, kernel the constants) are not covered as written.
-4. **A full SVD nuclear-norm API.** We use the trace identity that is valid
-   for this residual, not a general singular-value definition.
+3. **The true singular case \(\gamma=0\).** The theorem is for \(\gamma>0\).
+   SPEC’s “\(\gamma\to 0^+\)” is already that statement plus the SDDM
+   quadratic-form bound (`IsSDDM.quad_nonneg`). Unshifted Laplacians
+   (kernel the constants) are not given a separate singular theory.
+4. **A full SVD nuclear-norm API.** We identify the nuclear norm with the
+   trace on this PSD residual; we did not add a general singular-value
+   definition.
 5. **Mathlib extraction.** The Stieltjes and four-point lemmas could be
    upstreamed; they are not yet a mathlib PR.
+6. **Neumann series and other losses.** A Neumann-series rewrite of the
+   Stieltjes argument, and Frobenius / operator-norm / prediction-risk
+   losses, remain open.
 
 Build the library with `lake build`. The two headline theorems are
 `nystromError_supermodular_of_isSDDM` and

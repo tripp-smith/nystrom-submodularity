@@ -135,9 +135,11 @@ drops \(\Delta\) by at most the four-term slack
 packaging is `MATHLIB.md`.
 
 **Still open.** An actual mathlib4 pull request (the phase skill does
-not open upstream PRs).
+not open upstream PRs). CI (`.github/workflows/lean.yml`) builds the
+library and rejects `sorry` on every push to `main` and every pull
+request.
 
-Build: `lake build`. No `sorry` in the library target.
+Build: `lake build` or `scripts/verify.sh`. No `sorry` in the library target.
 
 ## Modules
 

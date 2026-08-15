@@ -32,7 +32,7 @@ Current post-Problem-4.6 milestones:
 | Milestone | Status | Allowed outcomes |
 |-----------|--------|------------------|
 | A–D | Delivered | Problem 4.6, Schatten-1 bridge, application semantics |
-| **E CPQR** | Open until one outcome lands | A polynomial CPQR theorem **or** a machine-checked counterexample **or** a counterexample plus a stronger static class |
+| **E CPQR** | Delivered as the \(M_0\) first-column counterexample | A polynomial CPQR theorem **or** a machine-checked counterexample **or** a counterexample plus a stronger static class |
 | **F CSSP** | Untouched | A Lean identification of nuclear Nyström error with a CSSP residual, or a certified separation |
 
 Do **not** claim a polynomial CPQR approximation ratio unless it is a

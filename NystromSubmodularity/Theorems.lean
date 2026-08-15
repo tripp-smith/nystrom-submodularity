@@ -7,6 +7,7 @@ import NystromSubmodularity.Counterexamples.SDDDim3
 import NystromSubmodularity.Counterexamples.SDDDim4
 import NystromSubmodularity.Counterexamples.SDDFamily
 import NystromSubmodularity.Counterexamples.Greedy
+import NystromSubmodularity.CPQR
 import NystromSubmodularity.Signature
 import NystromSubmodularity.OtherLosses
 import NystromSubmodularity.Census
@@ -48,7 +49,8 @@ inverse-trace by \(\alpha^{-1}\).
 
 The four-point algebra is in `InverseTrace.lean`. Minimality of the
 obstruction is in `Minimality.lean`. Greedy one-column misselection on
-\(L(t)\) and \(L^\sharp\) is in `Counterexamples/Greedy.lean`. Signature
+\(L(t)\) and \(L^\sharp\) is in `Counterexamples/Greedy.lean`. CPQR
+first-column misselection on \(M_0\) is in `CPQR.lean`. Signature
 switching and the order-3 antibalance criterion are in `Signature.lean`.
 The residual identity is in `Nystrom.lean`. The approximate
 supermodularity ratio and entry-\(\ell^1\) Lipschitz bound are in
@@ -229,6 +231,21 @@ theorem Lsharp_greedy_misses_optimal_pair :
     nystromError (toReal Msharp) ({0, 2} : Finset (Fin 3)) = ((1 / 5 : ℚ) : ℝ) ∧
     ((1 / 6 : ℚ) : ℝ) < ((1 / 5 : ℚ) : ℝ) :=
   Counterexamples.Lsharp_greedy_misses_optimal_pair
+
+/-- First Golub–Businger CPQR column of \(M_0^{-1}\) is index \(2\). -/
+theorem M0_cpqr_first_is_two : IsCPQRFirst (cramerInv M0) (2 : Fin 3) :=
+  Counterexamples.M0_cpqr_first_is_two
+
+/-- Milestone E: that first CPQR column lies in no optimal pair; the
+pair residual ratio is the certified \(5/4\). -/
+theorem M0_cpqr_misses_optimal_pair :
+    IsCPQRFirst (cramerInv M0) (2 : Fin 3) ∧
+      (∀ s : Finset (Fin 3), s.card = 2 → s ≠ {0, 1} →
+        cramerNystromError M0 ({0, 1} : Finset (Fin 3)) <
+          cramerNystromError M0 s) ∧
+      cramerNystromError M0 ({0, 2} : Finset (Fin 3)) /
+          cramerNystromError M0 ({0, 1} : Finset (Fin 3)) = 5 / 4 :=
+  Counterexamples.M0_cpqr_misses_optimal_pair
 
 /-! Colbrook Proposition 7, Proposition 8 (\(n=3\)), and Corollary 13 are
 `nystromError_supermodular_of_signature_stieltjes`,

@@ -66,7 +66,10 @@ On that interval greedy one-column selection picks index \(2\), which lies
 in no optimal pair (`Lfam_greedy_misses_optimal_pair`); the pair-error
 ratio is \((2t+1)/(t+2)\) (\(5/4\) at \(t=2\)). The same misselection
 occurs for \(L^\sharp\) (`Lsharp_greedy_misses_optimal_pair`: residual
-\(1/5\) versus optimum \(1/6\)).
+\(1/5\) versus optimum \(1/6\)). Column-pivoted QR on \(M_0^{-1}\) also
+picks index \(2\) first (`M0_cpqr_misses_optimal_pair`); the pair
+residual ratio is the same certified \(5/4\). This is a machine-checked
+CPQR counterexample, not a polynomial CPQR theorem.
 
 **Signature switching.** `nystromError_supermodular_of_signature_stieltjes`
 (Colbrook Proposition 7): a \(\{\pm 1\}\) diagonal congruence that produces
@@ -111,7 +114,8 @@ Public theorems print the Lean defaults (`propext`, `Classical.choice`,
 `schattenOne_nystromResidual_eq_nystromError` (nuclear residual);
 `nystromError_supermodular_of_signature_stieltjes` (signature switching);
 `triangle_pd_nystrom_supermodular_iff_antibalanced` (Corollary 13);
-`Lfam_greedy_misses_optimal_pair`.
+`Lfam_greedy_misses_optimal_pair`;
+`M0_cpqr_misses_optimal_pair`.
 
 **Research threads.** Frobenius and all-ones prediction residuals also
 fail on \(M_0\) (`OtherLosses.lean`). A 64-matrix integer census has
@@ -145,9 +149,10 @@ nuclear residual, with unit tests against the Lean-certified rationals
 are documented follow-on work, not this delivery.
 
 **Still open.** An actual mathlib4 pull request (the phase skill does
-not open upstream PRs). CI (`.github/workflows/lean.yml`) builds the
-library and rejects `sorry` on every push to `main` and every pull
-request; the `python` job runs `pytest`.
+not open upstream PRs). Milestone F (CSSP bridge) is specified in
+`RESEARCH.md` and is not delivered. CI (`.github/workflows/lean.yml`)
+builds the library and rejects `sorry` on every push to `main` and
+every pull request; the `python` job runs `pytest`.
 
 Build: `lake build` or `scripts/verify.sh`. Application tests:
 `python3 -m pytest`. No `sorry` in the library target.
@@ -168,6 +173,7 @@ Build: `lake build` or `scripts/verify.sh`. Application tests:
 | `Counterexamples/SDDDim4.lean` | nonempty-base strictly SDD \(L_4\) |
 | `Counterexamples/SDDFamily.lean` | signed-triangle family \(L(t)\) and sharp interval |
 | `Counterexamples/Greedy.lean` | greedy one-column misselection on \(L(t)\) and \(L^\sharp\) |
+| `CPQR.lean` | CPQR first-column misselection on \(M_0\) (Milestone E) |
 | `Signature.lean` | signature congruence, antibalance, order-3 Corollary 13 |
 | `OtherLosses.lean` | Frobenius and prediction residuals fail on \(M_0\) |
 | `Census.lean` | family grid and 64-matrix integer SDD census |
@@ -178,6 +184,6 @@ Build: `lake build` or `scripts/verify.sh`. Application tests:
 | `Perturbation.lean` | ridge neighborhood of \(M_0\); scale preserves sign |
 | `ApproxSubmodular.lean` | approximate supermodularity ratio; entry-\(\ell^1\) Lipschitz |
 | `MathlibReady.lean` | re-exports for a future mathlib PR |
-| `Theorems.lean` | public theorems: Theorem 1.1(a)–(c), 2.1, 2.2, 4.3, greedy |
+| `Theorems.lean` | public theorems: Theorem 1.1(a)–(c), 2.1, 2.2, 4.3, greedy, CPQR |
 | `APPLICATION.md` | application-layer contract for `graphnystrom` |
 | `graphnystrom/` | greedy / lazy Nyström landmark selector (Python) |

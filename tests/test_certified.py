@@ -11,6 +11,7 @@ from graphnystrom import (
     M0,
     L0,
     MSHARP,
+    cpqr_first_column,
     four_point_defect,
     is_sddm,
     nystrom_error,
@@ -23,6 +24,10 @@ from graphnystrom.certified import (
     M0_E_ONE,
     M0_E_ZERO,
     M0_E_ZERO_ONE,
+    M0_E_ZERO_TWO,
+    M0_CPQR_COL0_NORMSQ,
+    M0_CPQR_COL2_NORMSQ,
+    M0_CPQR_PAIR_RATIO,
     M0_RATIO_EMPTY_ZERO_ONE,
     MSHARP_E_TWO,
     MSHARP_E_ZERO,
@@ -87,6 +92,42 @@ def test_m0_independent_fraction() -> None:
     delta = empty + e01 - e0 - e1
     assert delta == Fraction(-7, 2040)
     assert empty + e01 == Fraction(2288, 2295) * (e0 + e1)
+
+
+def test_m0_cpqr_first_column() -> None:
+    K = np.linalg.inv(M0)
+    col_sq = np.sum(K * K, axis=0)
+    assert col_sq[0] == pytest.approx(M0_CPQR_COL0_NORMSQ, rel=1e-12)
+    assert col_sq[1] == pytest.approx(M0_CPQR_COL0_NORMSQ, rel=1e-12)
+    assert col_sq[2] == pytest.approx(M0_CPQR_COL2_NORMSQ, rel=1e-12)
+    assert cpqr_first_column(K) == 2
+    assert nystrom_error(M0, [0, 2]) == pytest.approx(M0_E_ZERO_TWO, rel=1e-12)
+    assert nystrom_error(M0, [0, 2]) / nystrom_error(M0, [0, 1]) == pytest.approx(
+        M0_CPQR_PAIR_RATIO, rel=1e-12
+    )
+
+
+def test_m0_cpqr_independent_fraction() -> None:
+    M = [[4, 1, -2], [1, 4, -2], [-2, -2, 5]]
+    e01 = _inv_trace_fraction(M, {0, 1})
+    e02 = _inv_trace_fraction(M, {0, 2})
+    e12 = _inv_trace_fraction(M, {1, 2})
+    assert e01 == Fraction(1, 5)
+    assert e02 == Fraction(1, 4)
+    assert e12 == Fraction(1, 4)
+    assert e02 / e01 == Fraction(5, 4)
+    # Cramer inverse column-norm squares of adj(M0)/51.
+    adj = [
+        [Fraction(16), Fraction(-1), Fraction(6)],
+        [Fraction(-1), Fraction(16), Fraction(6)],
+        [Fraction(6), Fraction(6), Fraction(15)],
+    ]
+    det = Fraction(51)
+    col0 = sum((adj[i][0] / det) ** 2 for i in range(3))
+    col2 = sum((adj[i][2] / det) ** 2 for i in range(3))
+    assert col0 == Fraction(293, 2601)
+    assert col2 == Fraction(297, 2601)
+    assert col0 < col2
 
 
 def test_l0_is_sdd_not_sddm() -> None:

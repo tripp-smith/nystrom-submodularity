@@ -14,6 +14,7 @@ from graphnystrom.api import (
 from graphnystrom.certified import M0, L0, LSHARP, MSHARP, path_laplacian
 from graphnystrom.laplacian import combinatorial_laplacian, from_edges
 from graphnystrom.residual import (
+    cpqr_first_column,
     estimate_nystrom_error,
     evaluate_residual,
     exact_marginal_gain,
@@ -35,6 +36,7 @@ __all__ = [
     "path_laplacian",
     "combinatorial_laplacian",
     "from_edges",
+    "cpqr_first_column",
     "estimate_nystrom_error",
     "evaluate_residual",
     "exact_marginal_gain",

@@ -306,10 +306,12 @@ Produce a `sorry`-free theorem (or a machine-checked counter-example) for the ge
 (positive SDDM theorem; the inequality is supermodularity of \(\mathcal{E}\),
 not submodularity) and `not_nystromError_supermodular_of_isSDD` (SDD
 counter-example), together with the Theorem 1(c) minimality statements,
-Theorem 2.1, Theorem 4.3, signature switching, Corollary 13, and the greedy
-example. `FINDINGS.md` is the non-technical account; `README.md` records
-the Schur identity and module map. The optional mathlib PR was not
-opened.
+Theorem 2.1, Theorem 4.3, signature switching, Corollary 13, the greedy
+example, and the Milestone E CPQR first-column counterexample on
+\(M_0\) (`M0_cpqr_misses_optimal_pair`). `FINDINGS.md` is the
+non-technical account; `README.md` records the Schur identity and
+module map. The optional mathlib PR was not opened. Milestone F
+(CSSP bridge) is specified in `RESEARCH.md` and is not delivered.
 
 ---
 

@@ -25,6 +25,8 @@ Wikipedia supermodularity names are used throughout.
 | 10 Infinite Neumann | \(\|A\|_2<1\Rightarrow(I-A)^{-1}=\sum_k A^k\); every PD matrix admits a splitting; \(1\times 1\) check equals \(2\) |
 | 11 Schatten-1 / Schur / CI | Rectangular SVD; `schattenOne`; block-diagonal nuclear additivity; GitHub Actions `lake build` + no-`sorry` |
 | 12 Application layer | `APPLICATION.md` + `graphnystrom`: greedy / lazy landmark selector matching Lean rationals |
+| E CPQR | Machine-checked first-column counterexample on \(M_0\); pair ratio \(5/4\) |
+| F CSSP | Specified only; no public theorems |
 
 ## Thread 8 — Approximate-supermodularity ratio
 
@@ -198,6 +200,52 @@ ratio on the SDD class.
 Files: `Nystrom.lean` (rename), `Schur.lean` (bridge),
 `Definitions.lean` / `SmallInstanceChecks.lean` (`IsSDDM`),
 `Theorems.lean` (public wrappers), `graphnystrom/`, `tests/`.
+Delivered.
+
+## Milestone E — CPQR first-column selection
+
+Phase cadence: `.cursor/skills/nystrom-phase/SKILL.md`.
+Playbook: [autonomous-implementation.md](autonomous-implementation.md).
+
+Exact greedy maximises the inverse-trace marginal
+\(\|K_{:,j}\|_2^2/K_{jj}\). Column-pivoted QR on \(K\) maximises the
+plain column Euclidean norm. Milestone E is closed by **one** of:
+a polynomial CPQR approximation theorem; a machine-checked
+counterexample; or a counterexample plus a stronger static class.
+
+This phase delivers the second: on Colbrook’s \(M_0\), CPQR’s first
+column is index \(2\), which lies in no optimal pair. It does **not**
+claim a polynomial CPQR ratio, and it does not claim that CPQR agrees
+with exact greedy (on \(M^\sharp\) they differ).
+
+| Name | Claim |
+|------|--------|
+| `columnNormSq` | \(\|A_{:,j}\|_2^2\) |
+| `IsCPQRFirst` | \(j\) maximises `columnNormSq` |
+| `M0_cramerInv_columnNormSq_zero` | \(\|K_{:,0}\|_2^2=293/2601\) |
+| `M0_cramerInv_columnNormSq_two` | \(\|K_{:,2}\|_2^2=297/2601\) |
+| `M0_cpqr_first_is_two` | the unique first CPQR column of \(M_0^{-1}\) is \(2\) |
+| `M0_cpqr_misses_optimal_pair` | that first column lies in no optimal pair; pair ratio \(5/4\) |
+
+File: `NystromSubmodularity/CPQR.lean`. Delivered as the machine-checked
+counterexample. Do **not** claim a polynomial CPQR guarantee.
+
+Do **not** claim: Ky Fan; a mathlib4 PR; Milestone F.
+
+## Milestone F — CSSP bridge (untouched)
+
+Column subset selection (CSSP) typically minimises
+\(\|A-A_{:,S}A_{:,S}^{+}A\|\) in Frobenius or spectral norm. Nuclear
+Nyström error is \(\|K-\mathcal N_S(K)\|_*\). For SPD \(K\) the
+interpolative residual is already identified with \(\mathcal{E}(S)\)
+(`schattenOne_nystromResidual_eq_nystromError`). The missing bridge is
+a Lean comparison of that nuclear interpolative residual with a CSSP
+pseudoinverse residual, or a certified example where the two
+objectives select different sets.
+
+Milestone E has landed as the \(M_0\) CPQR counterexample. This
+milestone stays specified only: no public CSSP theorems in this
+commit.
 
 ## Verification (every thread)
 

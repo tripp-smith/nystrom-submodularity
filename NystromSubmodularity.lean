@@ -11,6 +11,7 @@ import NystromSubmodularity.Counterexamples.SDDDim3
 import NystromSubmodularity.Counterexamples.SDDDim4
 import NystromSubmodularity.Counterexamples.SDDFamily
 import NystromSubmodularity.Counterexamples.Greedy
+import NystromSubmodularity.CPQR
 import NystromSubmodularity.Signature
 import NystromSubmodularity.OtherLosses
 import NystromSubmodularity.Census
@@ -32,7 +33,8 @@ Dimension three is minimal. With a nonempty selected base, dimension four is
 minimal. The signed-triangle family \(L(t)\) fails to be supermodular if and only if
 \(\varphi<t<1+\sqrt{2}\) (Colbrook Theorem 4.3). On that interval, and on
 \(L^\sharp\), greedy one-column selection picks a landmark that lies in no
-optimal pair. Inverse-trace supermodularity is a property of the signed
+optimal pair. Column-pivoted QR on \(M_0^{-1}\) makes the same first-column
+mistake (`M0_cpqr_misses_optimal_pair`). Inverse-trace supermodularity is a property of the signed
 support graph: a \(\{\pm 1\}\) signature that produces a Stieltjes matrix
 is enough, and on a fully supported triangle this happens for every
 positive-definite realization if and only if the sign pattern is
@@ -57,6 +59,7 @@ contraction.
 Public theorems live in `Theorems.lean`. See `FINDINGS.md` for a
 non-technical account, `README.md` for the module map, and `SPEC.md` for the
 original two-phase plan. The specification is complete. Leftover
-research threads are specified in `RESEARCH.md`. New phases follow
-`.cursor/skills/nystrom-phase/SKILL.md`.
+research threads and Milestone E are specified in `RESEARCH.md` and
+are in the library. Milestone F (CSSP) remains specified only. New
+phases follow `.cursor/skills/nystrom-phase/SKILL.md`.
 -/

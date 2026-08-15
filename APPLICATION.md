@@ -51,6 +51,8 @@ What this phase **does not** claim:
 - A change of Wikipedia vs workshop names.
 - Frobenius / prediction-risk selectors (Lean already shows those
   losses fail on \(M_0\); they stay future work).
+- A polynomial CPQR approximation ratio (`cpqr_first_column` is a
+  diagnostic; Lean certifies it misses the optimal pair on \(M_0\)).
 
 Networkit remains the preferred *upstream* home for a C++ selector.
 Rust + PyO3 remains the preferred *standalone* high-performance
@@ -124,6 +126,7 @@ is accepted as an alias.
 | `estimate_nystrom_error` | Hutchinson estimator; not the mathematical residual |
 | `four_point_defect` | \(\Delta(A;i,j)=\mathcal{E}(A)+\mathcal{E}(A\cup\{i,j\})-\mathcal{E}(A\cup\{i\})-\mathcal{E}(A\cup\{j\})\) |
 | `exact_marginal_gain` | \(\mathcal{E}(S)-\mathcal{E}(S\cup\{i\})=\|v\|_2^2/v_i\) for the complement-inverse column |
+| `cpqr_first_column` | first Golub–Businger column of \(K\); diagnostic, no ratio claim |
 | `GreedyNystromLandmarks` | Networkit-style greedy / lazy / stochastic / approx selector |
 | `NystromResolvent` | matvec \(X(X[S,:])^{-1}X^{\mathsf{T}}v\) after \(MX=E_S\) |
 | `is_sddm` / `is_stieltjes` | Lean predicates on a dense or sparse matrix |

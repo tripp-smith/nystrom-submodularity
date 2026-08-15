@@ -107,7 +107,12 @@ wrong pair: on this family it uniquely prefers the singleton \(\{2\}\), but
 the unique best pair is \(\{0,1\}\), so the first greedy landmark lies in no
 optimal pair. At \(t=2\) the resulting pair residual is \(5/4\) times the
 optimum; the strictly dominant \(L^\sharp\) does the same (\(5/12<11/26\),
-then \(1/5\) versus \(1/6\)). This is not a floating-point accident: the four traces are
+then \(1/5\) versus \(1/6\)). Column-pivoted QR, which only looks at
+column Euclidean norms of the inverse, makes the same first-column
+mistake on \(M_0\): it uniquely picks index \(2\), and the resulting
+pair residual is again \(5/4\) times the optimum. That closes Milestone
+E as a machine-checked counterexample, not as a polynomial CPQR
+guarantee. This is not a floating-point accident: the four traces are
 ordinary 3×3 / 2×2 / 1×1 determinants. The same matrix is the \(t=2\) member
 of a one-parameter family \(L(t)\). For that family, diminishing returns
 fails if and only if the golden ratio is less than \(t\) and \(t\) is less
@@ -230,14 +235,24 @@ might behave differently; we did not prove anything about them.
    it reproduces \(\Delta=-7/2040\) and shows greedy picking the bad
    first landmark. See `APPLICATION.md`.
 
+10. **CPQR first column (Milestone E).** On \(M_0^{-1}\) the unique
+    first Golub–Businger column is index \(2\)
+    (\(\|K_{:,2}\|_2^2=297/2601>293/2601=\|K_{:,0}\|_2^2\)). That
+    index lies in no optimal pair; the pair residual ratio is
+    \(5/4\). This is a certified counterexample, not a polynomial
+    approximation theorem.
+
 ## What we still do not claim
 
 An actual mathlib4 pull request. That is a deliberate non-claim: the
 phase skill does not open upstream PRs. We also do not claim the
 nuclear-norm triangle inequality or Ky Fan inequalities, a Networkit
-C++ module, or a Rust + PyO3 wheel. The rectangular Schatten-1 API,
-block-diagonal nuclear additivity, the infinite Neumann identity,
-GitHub Actions CI, and the `graphnystrom` selector are now in the
+C++ module, or a Rust + PyO3 wheel. We do not claim a polynomial CPQR
+ratio, and we do not claim a CSSP / nuclear-residual identification
+(Milestone F is specified in `RESEARCH.md` and untouched). The
+rectangular Schatten-1 API, block-diagonal nuclear additivity, the
+infinite Neumann identity, GitHub Actions CI, the `graphnystrom`
+selector, and the \(M_0\) CPQR counterexample are now in the
 repository.
 
 Build the library with `lake build`. The headline theorems are
@@ -248,7 +263,8 @@ The small exhaustive checks live in `SmallInstanceChecks.lean`; the signed
 triangle is in `Counterexamples/SDDDim3.lean`; the nonempty-base \(4\times 4\)
 witness is in `Counterexamples/SDDDim4.lean`; the sharp interval for \(L(t)\)
 is in `Counterexamples/SDDFamily.lean`; greedy misselection is in
-`Counterexamples/Greedy.lean`; signature switching is in `Signature.lean`;
+`Counterexamples/Greedy.lean`; CPQR first-column misselection is in
+`CPQR.lean`; signature switching is in `Signature.lean`;
 the residual identity is in `Nystrom.lean`. Leftover-research modules
 are listed in `RESEARCH.md`. `SPEC.md` is the original two-phase attack
 plan plus the recorded completion.

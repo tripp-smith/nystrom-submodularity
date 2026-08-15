@@ -60,6 +60,16 @@ def nystrom_error(M: Array | sparse.spmatrix, S: Sequence[int]) -> float:
     return float(np.trace(np.linalg.inv(block)))
 
 
+def cpqr_first_column(K: Array) -> int:
+    """First Golub–Businger CPQR column: argmax of Euclidean column norms.
+
+    Exact greedy instead maximises ``‖K[:, j]‖² / K[j, j]``. On ``M0`` the
+    two rules agree on index 2, which lies in no optimal pair.
+    """
+    A = as_dense(K)
+    return int(np.argmax(np.sum(A * A, axis=0)))
+
+
 def estimate_nystrom_error(
     M: Array | sparse.spmatrix,
     S: Sequence[int],

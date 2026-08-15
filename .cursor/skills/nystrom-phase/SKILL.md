@@ -20,6 +20,8 @@ of the Nyström error \(\mathcal{E}\) is **supermodularity** of \(\mathcal{E}\).
 
 - A leftover in `RESEARCH.md` / `FINDINGS.md` / `README.md` “still open”
 - A new slice of Colbrook / Problem 4.6
+- Milestone E (CPQR) or Milestone F (CSSP), as specified in
+  `autonomous-implementation.md` / `RESEARCH.md`
 - Any request to “run the phase cadence”, “spec then prove”, or
   “document and commit to main”
 
@@ -91,17 +93,19 @@ Print axioms on every **structural** public theorem (not a Cramer
 evaluation):
 
 ```bash
-lake env lean --run <<'LEAN'
+lake env lean --stdin <<'LEAN'
 import NystromSubmodularity.Theorems
 #print axioms <theorem_name>
 LEAN
 ```
 
-Allowed axioms: `propext`, `Classical.choice`, `Quot.sound`.
+Use `--stdin`, not `--run`. Allowed axioms: `propext`, `Classical.choice`,
+`Quot.sound`.
 
 If a closed form is claimed (a rational defect, a ratio, a census
 count), recompute it independently of Lean — a shell arithmetic check
-or a second Cramer expansion — and keep the transcript.
+or a second Cramer expansion — and keep the transcript. Recurring
+checks: \(\lvert-3\rvert=3\), \(2+3=5\), \(M_0\) \(\Delta=-7/2040\).
 
 ## 4. Document (same commit as the math)
 

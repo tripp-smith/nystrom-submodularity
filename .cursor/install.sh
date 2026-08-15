@@ -20,3 +20,9 @@ export PATH="$HOME/.elan/bin:$PATH"
 #    cache avoids recompiling mathlib from source (which would take hours).
 lake exe cache get
 lake build
+
+# 3. Python extras for graphnystrom tests. `--user` keeps the install
+#    inside the agent home; safe to re-run.
+if command -v python3 >/dev/null 2>&1; then
+  python3 -m pip install --user -q 'numpy>=1.24' 'scipy>=1.11' 'pytest>=7.0'
+fi

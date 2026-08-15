@@ -1,4 +1,4 @@
 {
-  "name": "NystromSubmodularity (Lean 4 + mathlib4)",
+  "name": "NystromSubmodularity (Lean 4 + mathlib4 + graphnystrom)",
   "install": "bash .cursor/install.sh"
 }

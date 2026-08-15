@@ -2,6 +2,7 @@ import NystromSubmodularity.Stieltjes
 import NystromSubmodularity.InverseTrace
 import NystromSubmodularity.Nystrom
 import NystromSubmodularity.Minimality
+import NystromSubmodularity.SmallInstanceChecks
 import NystromSubmodularity.Counterexamples.SDDDim3
 import NystromSubmodularity.Counterexamples.SDDDim4
 import NystromSubmodularity.Counterexamples.SDDFamily
@@ -370,5 +371,9 @@ theorem schattenOne_residual_eq_nystromError {ι : Type*} [Fintype ι]
     [DecidableEq ι] {M : Matrix ι ι ℝ} (hM : M.PosDef) (S : Finset ι) :
     schattenOne (nystromResidual M⁻¹ S) = nystromError M S :=
   schattenOne_nystromResidual_eq_nystromError hM S
+
+/-- A graph Laplacian with an isolated vertex is SDDM: the diagonal may vanish. -/
+theorem isolatedNodeLap_isSDDM : IsSDDM SmallInstance.isolatedNodeLap :=
+  SmallInstance.isolatedNodeLap_isSDDM
 
 end NystromSubmodularity

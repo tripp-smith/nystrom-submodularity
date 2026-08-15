@@ -111,10 +111,14 @@ def test_heuristic_modes_have_no_guarantee() -> None:
 def test_hutchinson_cg_nonconvergence_falls_back() -> None:
     n = 12
     M = sparse.csr_matrix(path_laplacian(n) + np.eye(n))
+    # maxiter=1 makes SciPy CG return info > 0. The spsolve fallback must
+    # reproduce the same Hutchinson probes as a fully converged CG run.
+    est_fallback = estimate_nystrom_error(M, [0, 3], probes=4, maxiter=1, seed=0)
+    est_converged = estimate_nystrom_error(M, [0, 3], probes=4, maxiter=400, seed=0)
+    assert est_fallback == pytest.approx(est_converged, rel=1e-10, abs=1e-10)
+    # An unconverged iterate is not a valid residual: it need not match ℰ(S).
     exact = nystrom_error(M, [0, 3])
-    # maxiter=1 forces SciPy CG to return info > 0; spsolve must take over.
-    est = estimate_nystrom_error(M, [0, 3], probes=4, maxiter=1, seed=0)
-    assert est == pytest.approx(exact, rel=1e-8, abs=1e-8)
+    assert est_fallback != pytest.approx(exact, rel=1e-3)
 
 
 def test_zero_degree_vertex_is_sddm() -> None:
